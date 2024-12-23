@@ -1,3 +1,37 @@
+# Deprecated at v4.3.8:
+
+def insert_under_old(text:str, keyword:str, file:str, only_first=False) -> None:
+    '''
+    Inserts the given `text` string under the first occurrence
+    of the `keyword` in the given `file`.
+    The keyword can be at any position within the line.
+    If `only_first=True`, it will only work
+    at the first instance of the keyword, ignoring the rest.
+    The keyword can be at any position in the line, not just at the beginning.
+    ```
+    line1
+    keyword line2
+    text
+    line3
+    ```
+    '''
+    file_path = get(file)
+    with open(file_path, 'r') as f:
+        document = f.readlines()
+    indices = (i for i, line in enumerate(document) if keyword in line.strip())
+    if indices:
+        if only_first:
+            document.insert(indices[0] + 1, text + "\n")
+        else:
+            for index in indices:
+                document.insert(index + 1, text + "\n")
+        with open(file_path, 'w') as f:
+            f.writelines(document)
+    else:
+        raise ValueError("Didn't find the '" + keyword + "' keyword in " + file_path)
+    return None
+
+
 # Deprecated at v4.3.7:
 
 

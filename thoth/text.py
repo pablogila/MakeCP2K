@@ -4,14 +4,15 @@ Functions to read and manipulate text.
 
 # Index
 - `find_pos()`
-- `find_pos_regex`
+- `find_pos_regex()`
+- `find_pos_line()`
 - `find()`
 - `replace()`
 - `replace_line()`
+- `insert_under()`
 
 The following functions work, but will be updated for faster performance with `find_pos` and `find_pos_regex`:
 
-- `insert_under()`
 - `replace_under()`
 - `delete_under()`
 - `replace_between()`
@@ -25,6 +26,7 @@ The following functions work, but will be updated for faster performance with `f
 from .file import *
 import mmap
 import re
+from copy import deepcopy
 
 
 def find_pos(keyword:str,
@@ -95,6 +97,44 @@ def find_pos_regex(keyword:str,
         else:
             positions = [(match.start(), match.end()) for match in all_matches[-abs(number_of_matches):]]
     return positions
+
+
+def find_pos_line(mm, position:tuple, skip_lines:int=0) -> tuple:
+    '''
+    Returns the position of the full line containing the `position` tuple,
+    in the given `mm` **memory mapped object**.
+    The following number of lines can be returned with `skip_lines`,
+    or previous lines with negative values.
+    '''
+    start, end = position
+    if skip_lines == 0:
+        start = mm.rfind(b'\n', 0, start) + 1
+        end = mm.find(b'\n', end, len(mm))
+    elif skip_lines > 0:
+        for i in range(0, abs(skip_lines)):
+            start = mm.find(b'\n', end, len(mm)) + 1
+            if start == -1:
+                start = len(mm)
+                end = len(mm)
+                break
+            end = mm.find(b'\n', start, len(mm))
+            if end == -1:
+                start = len(mm)
+                end = len(mm)
+                break
+    else:  # previous lines
+        for i in range(0, abs(skip_lines)):
+            end = mm.rfind(b'\n', 0, start)
+            if end == -1:
+                start = 0
+                end = 0
+                break
+            start = mm.rfind(b'\n', 0, end) + 1
+            if start == -1:
+                start = 0
+                end = 0
+                break
+    return start, end
 
 
 def find(keyword:str,
@@ -237,36 +277,44 @@ def replace_line(text:str,
                     mm[line_start:] = updated_content
 
 
-def insert_under(text:str, keyword:str, file:str, only_first=False) -> None:
+def insert_under(text:str,
+                 keyword:str,
+                 file,
+                 number_of_inserts:int=0,
+                 skip_lines:int=0,
+                 regex:bool=False) -> None:
     '''
-    Inserts the given `text` string under the first occurrence
-    of the `keyword` in the given `file`.
+    Inserts the given `text` string under the line(s) containing
+    the `keyword` in the given `file`.
     The keyword can be at any position within the line.
-    If `only_first=True`, it will only work
-    at the first instance of the keyword, ignoring the rest.
-    The keyword can be at any position in the line, not just at the beginning.
-    ```
-    line1
-    keyword line2
-    text
-    line3
+    By default all matches are inserted with `number_of_inserts=0`,
+    but it can insert only a specific number of matches
+    with positive numbers (1, 2...), or starting from the bottom with negative numbers.
+    The text can be introduced after a specific number of lines after the match,
+    changing the value `skip_lines`. Negative integers introduce the text in the previous lines.
+    Regular expressions can be used by setting `regex=True`. 
     ```
     '''
     file_path = get(file)
-    with open(file_path, 'r') as f:
-        document = f.readlines()
-    indices = (i for i, line in enumerate(document) if keyword in line.strip())
-    if indices:
-        if only_first:
-            document.insert(indices[0] + 1, text + "\n")
-        else:
-            for index in indices:
-                document.insert(index + 1, text + "\n")
-        with open(file_path, 'w') as f:
-            f.writelines(document)
+    if regex:
+        positions = find_pos_regex(keyword, file, number_of_inserts)
     else:
-        raise ValueError("Didn't find the '" + keyword + "' keyword in " + file_path)
-    return None
+        positions = find_pos(keyword, file, number_of_inserts)
+    positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
+    # Open the file in read-write mode
+    with open(file_path, 'r+b') as f:
+        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
+            # Get the places to insert the text
+            for position in positions:
+                start, end = find_pos_line(mm, position, skip_lines)
+                inserted_text = '\n' + text # Ensure we end in a different line
+                if end == 0: # If on the first line
+                    inserted_text = text + '\n'
+                remaining_lines = mm[end:]
+                new_line = inserted_text.encode()
+                updated_content = new_line + remaining_lines
+                mm.resize(len(mm) + len(new_line))
+                mm[end:] = updated_content
 
 
 def replace_under(text:str, keyword:str, file:str) -> None:
