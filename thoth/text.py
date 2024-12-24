@@ -99,11 +99,13 @@ def find_pos_regex(keyword:str,
     return positions
 
 
-def find_pos_line(mm, position:tuple, skip_lines:int=0) -> tuple:
+def find_pos_line(mm,
+                  position:tuple,
+                  skip_lines:int=0) -> tuple:
     '''
     Returns the position of the full line containing the `position` tuple,
     in the given `mm` **memory mapped object**.
-    The following number of lines can be returned with `skip_lines`,
+    A specific line below can be returned with `skip_lines` being a natural int,
     or previous lines with negative values.
     '''
     start, end = position
@@ -256,14 +258,9 @@ def replace_line(text:str,
     # Open the file in read-write mode
     with open(file_path, 'r+b') as f:
         with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
-            for start, end in positions:
+            for position in positions:
                 # Get the positions of the full line containing the match
-                line_start = mm.rfind(b'\n', 0, start) + 1
-                line_end = mm.find(b'\n', end, len(mm))
-                if line_start == -1:
-                    line_start = 0
-                if line_end == -1:
-                    line_end = len(mm)
+                line_start, line_end = find_pos_line(mm, position)
                 # Replace the line
                 old_line = mm[line_start:line_end]
                 new_line = text.encode()
