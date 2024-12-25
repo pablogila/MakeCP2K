@@ -15,18 +15,33 @@ import subprocess
 import datetime
 import sys
 import os
+import io
 from .common import *
 
 
-def shell(command, cwd=None):
+def shell(command, verbose=True, cwd=None):
     '''
     Run a shell `command`, inside an optional `cwd` directory.
     If empty, the current working directory will be used.
     Returns the result of the command used.
     '''
-    result = subprocess.run(command, shell=True, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print('>>>  ' + command)
-    return result
+    if verbose:
+        print(f'>>>$ {command}')
+    result = subprocess.run(
+        command,
+        cwd=cwd,
+        shell=True, 
+        text=True, 
+        capture_output=True
+    )
+    if verbose and result.returncode == 0:
+        print(result.stdout)
+    elif result.returncode != 0:
+        error_message = (
+            f"thoth.call.shell >>> Command failed with exit code {result.returncode}.\n"
+            f"{result.stderr.strip()}"
+        )
+        raise RuntimeError(error_message)
 
 
 def git(path=None) -> None:
@@ -34,23 +49,10 @@ def git(path=None) -> None:
     if path:
         os.chdir(path)
     date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    # Fetch the latest changes from the remote repository
     shell("git fetch")
-    # Check if the local repository is behind the remote repository
-    rev_list_result = shell("git rev-list HEAD...origin/master --count")
-    rev_list_output = rev_list_result.stdout.strip()
-    if rev_list_output:
-        if int(rev_list_output) != 0:
-            raise RuntimeError("Changes detected in the remote repository. Check it manually...")
-    # Stage and commit changes
     shell("git add .")
-    commit_result = shell(f'git commit -m "Automatic push on {date} with Thoth {version}"')
-    if commit_result.returncode != 0:
-        raise RuntimeError("Git commit failed. Check it manually...")
-    # Push changes to the remote repository
-    push_result = shell("git push")
-    if push_result.returncode != 0:
-        raise RuntimeError("Git push failed. Check it manually...")
+    shell(f'git commit -m "Automatic push on {date} with Thoth {version}"')
+    shell("git push")
     print("Git updated!")
     return None
 
