@@ -19,7 +19,7 @@ import io
 from .common import *
 
 
-def shell(command, verbose=True, cwd=None):
+def shell(command, cwd=None, verbose=True):
     '''
     Run a shell `command`, inside an optional `cwd` directory.
     If empty, the current working directory will be used.
@@ -44,16 +44,16 @@ def shell(command, verbose=True, cwd=None):
         raise RuntimeError(error_message)
 
 
-def git(path=None) -> None:
+def git(path=None, verbose=True) -> None:
     '''Update'''
     if path:
         os.chdir(path)
     date = datetime.datetime.now().strftime("%Y.%m.%dT%H:%M")
-    shell("git fetch")
-    shell("git add .")
-    shell(f'git commit -m "Automatic push on {date} with Thoth {version}"')
-    shell("git push")
-    print("Git updated!")
+    shell("git fetch", path, verbose)
+    shell("git add .", path, verbose)
+    shell(f'git commit -m "Automatic push on {date} with Thoth {version}"', path, verbose)
+    shell("git push", path, verbose)
+    print("Git updated!", path, verbose)
     return None
 
 
