@@ -34,7 +34,7 @@ def shell(command, verbose=True, cwd=None):
         text=True, 
         capture_output=True
     )
-    if verbose and result.returncode == 0:
+    if verbose and result.returncode == 0 and result.stdout:
         print(result.stdout)
     elif result.returncode != 0:
         error_message = (
