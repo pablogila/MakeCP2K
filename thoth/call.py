@@ -48,7 +48,7 @@ def git(path=None) -> None:
     '''Update'''
     if path:
         os.chdir(path)
-    date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    date = datetime.datetime.now().strftime("%Y.%m.%dT%H:%M")
     shell("git fetch")
     shell("git add .")
     shell(f'git commit -m "Automatic push on {date} with Thoth {version}"')
