@@ -24,6 +24,7 @@ def shell(command, cwd=None, verbose=True):
     Run a shell `command`, inside an optional `cwd` directory.
     If empty, the current working directory will be used.
     Returns the result of the command used.
+    Print the output result and the running command if `verbose`.
     '''
     if verbose:
         print(f'$ {command}')
@@ -45,7 +46,7 @@ def shell(command, cwd=None, verbose=True):
 
 
 def git(path=None, verbose=True) -> None:
-    '''Update'''
+    '''Automatically update a Git repository.'''
     if path:
         os.chdir(path)
     date = datetime.datetime.now().strftime("%Y.%m.%dT%H:%M")
@@ -53,7 +54,7 @@ def git(path=None, verbose=True) -> None:
     shell("git add .", path, verbose)
     shell(f'git commit -m "Automatic push on {date} with Thoth {version}"', path, verbose)
     shell("git push", path, verbose)
-    print("Git updated!", path, verbose)
+    print("Git updated!")
     return None
 
 
