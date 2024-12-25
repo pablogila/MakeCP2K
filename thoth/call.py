@@ -26,7 +26,7 @@ def shell(command, verbose=True, cwd=None):
     Returns the result of the command used.
     '''
     if verbose:
-        print(f'>>>$ {command}')
+        print(f'$ {command}')
     result = subprocess.run(
         command,
         cwd=cwd,
@@ -38,7 +38,7 @@ def shell(command, verbose=True, cwd=None):
         print(result.stdout)
     elif result.returncode != 0:
         error_message = (
-            f"thoth.call.shell >>> Command failed with exit code {result.returncode}.\n"
+            f"thoth.call.shell: Command failed with exit code {result.returncode}.\n"
             f"{result.stderr.strip()}"
         )
         raise RuntimeError(error_message)
