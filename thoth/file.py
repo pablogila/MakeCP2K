@@ -21,7 +21,9 @@ import os
 import shutil
 
 
-def get(file:str, filters=None) -> str:
+def get(file:str,
+        filters=None
+        ) -> str:
     '''
     Check if the given `file` exists in the currrent working directory
     or in the full path, and returns its full path as a string.\n
@@ -46,7 +48,10 @@ def get(file:str, filters=None) -> str:
         raise FileExistsError(f'More than one file found, please apply a more strict filter. Found:\n{files}')
 
 
-def get_list(folder:str, filters=None, abspath:bool=True) -> list:
+def get_list(folder:str,
+             filters=None,
+             abspath:bool=True
+             ) -> list:
     '''
     Takes a `folder`, filters the content with the `filters` keyword(s) if provided, and returns a list with the matches.
     The full paths are returned by default; to get only the base names, set `abspath=False`.
@@ -75,7 +80,9 @@ def get_list(folder:str, filters=None, abspath:bool=True) -> list:
     return files
 
 
-def copy(original_file:str, new_file:str) -> None:
+def copy(original_file:str,
+         new_file:str
+         ) -> None:
     '''
     Copies the content of `original_file` to `new_file` with shutil,
     after making sure that the file exists with `thoth.file.get()`.
@@ -85,7 +92,9 @@ def copy(original_file:str, new_file:str) -> None:
     return None
 
 
-def move(original_file:str, new_file:str) -> None:
+def move(original_file:str,
+         new_file:str
+         ) -> None:
     '''
     Moves `original_file` to `new_file`.
     '''
@@ -108,7 +117,10 @@ def remove(file:str) -> None:
     return None
 
 
-def rename(old_string:str, new_string:str, folder=None) -> None:
+def rename(old_string:str,
+           new_string:str,
+           folder=None
+           ) -> None:
     '''
     Batch renames files in the given folder, replacing `old_string` by `new_string`.
     If no `folder` is provided, the current working directory is used.
@@ -127,7 +139,10 @@ def rename(old_string:str, new_string:str, folder=None) -> None:
     return None
 
 
-def rename_on_subfolders(old_string:str, new_string:str, folder=None) -> None:
+def rename_on_subfolders(old_string:str,
+                         new_string:str,
+                         folder=None
+                         ) -> None:
     '''
     Renames the files inside the subfolders in the given `folder`,
     from an `old_string` to the `new_string`.
@@ -151,7 +166,10 @@ def rename_on_subfolders(old_string:str, new_string:str, folder=None) -> None:
     return None
 
 
-def copy_to_subfolders(folder=None, extension:str=None, strings_to_delete:list=[]) -> None:
+def copy_to_subfolders(folder=None,
+                       extension:str=None,
+                       strings_to_delete:list=[]
+                       ) -> None:
     '''
     Copies the files from the `folder` with the given `extension` to individual subfolders.
     The subfolders are named as the original files,
@@ -174,7 +192,11 @@ def copy_to_subfolders(folder=None, extension:str=None, strings_to_delete:list=[
     return None
 
 
-def from_template(template:str, new_file:str, comment:str=None, fixing_dict:dict=None) -> None:
+def from_template(template:str,
+                  new_file:str,
+                  comment:str=None,
+                  fixing_dict:dict=None
+                  ) -> None:
     '''
     Same as `copy_file`, but optionally adds a `comment` at the beginning of the new file.
     Also, it optionally corrects the output file with a `fixing_dict` dictionary.

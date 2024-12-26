@@ -18,7 +18,7 @@ file = {
 Strings related to files, to normalise user inputs.
 '''
 
-boolean= {
+boolean = {
     True  : ['yes', 'YES', 'Yes', 'Y', 'y', 'T', 'True', 'TRUE', 't', 'true', True, 'Si', 'SI', 'si', 'S', 's'],
     False : ['no', 'NO', 'No', 'N', 'n', 'F', 'False', 'FALSE', 'f', 'false', False],
 }

@@ -31,7 +31,8 @@ from copy import deepcopy
 
 def find_pos(keyword:str,
              file,
-             number_of_matches:int=0) -> list:
+             number_of_matches:int=0
+             ) -> list:
     '''
     Returns a list of the positions of a `keyword` in a given `file`.\n
     The value `number_of_matches` specifies the max number of matches to return.
@@ -68,7 +69,8 @@ def find_pos(keyword:str,
 
 def find_pos_regex(keyword:str,
                    file,
-                   number_of_matches:int=0) -> list:
+                   number_of_matches:int=0
+                   ) -> list:
     '''
     Returns a list of the positions of a `keyword` in a given `file`.\n
     The value `number_of_matches` specifies the max number of matches to return.
@@ -101,7 +103,8 @@ def find_pos_regex(keyword:str,
 
 def find_pos_line(mm,
                   position:tuple,
-                  skip_lines:int=0) -> tuple:
+                  skip_lines:int=0
+                  ) -> tuple:
     '''
     Returns the position of the full line containing the `position` tuple,
     in the given `mm` **memory mapped object**.
@@ -144,7 +147,8 @@ def find(keyword:str,
          number_of_matches:int=0,
          additional_lines:int=0,
          split_additional_lines: bool=False,
-         regex:bool=False) -> list:
+         regex:bool=False
+         ) -> list:
     '''
     Finds the line(s) containing the `keyword` string in the given `file`,
     returning a list with the matches.\n
@@ -205,7 +209,8 @@ def replace(text:str,
             keyword:str,
             file:str,
             number_of_replacements:int=0,
-            regex:bool=False) -> None:
+            regex:bool=False
+            ) -> None:
     '''
     Replaces the `keyword` string with the `text` string in the given `file`.\n
     The value `number_of_replacements` specifies the number of replacements to perform:
@@ -237,7 +242,9 @@ def replace_line(text:str,
                  keyword:str,
                  file:str,
                  number_of_replacements:int=0,
-                 regex:bool=False) -> None:
+                 skip_lines:int=0,
+                 regex:bool=False
+                 ) -> None:
     '''
     Replaces the entire line containing the `keyword` string with the `text` string in the given `file`.
     The value `number_of_replacements` specifies the number of lines to replace:
@@ -260,7 +267,7 @@ def replace_line(text:str,
         with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
             for position in positions:
                 # Get the positions of the full line containing the match
-                line_start, line_end = find_pos_line(mm, position)
+                line_start, line_end = find_pos_line(mm, position, skip_lines)
                 # Replace the line
                 old_line = mm[line_start:line_end]
                 new_line = text.encode()
@@ -279,7 +286,8 @@ def insert_under(text:str,
                  file,
                  number_of_inserts:int=0,
                  skip_lines:int=0,
-                 regex:bool=False) -> None:
+                 regex:bool=False
+                 ) -> None:
     '''
     Inserts the given `text` string under the line(s) containing
     the `keyword` in the given `file`.

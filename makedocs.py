@@ -30,7 +30,7 @@ th.text.replace_line(f'# Thoth {version}', '# Thoth v', readme, 1)
 
 print('Updating docs with Pdoc...')
 th.file.from_template(readme, temp_readme, None, fix_dict)
-th.call.shell(f"pdoc ./thoth/ -o ./docs --mermaid --math --footer-text='Thoth {version} documentation'")
+th.call.bash(f"pdoc ./thoth/ -o ./docs --mermaid --math --footer-text='Thoth {version} documentation'")
 th.file.remove(temp_readme)
 print('Done!')
 

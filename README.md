@@ -1,4 +1,4 @@
-# Thoth v4.4.0
+# Thoth v4.5.0-dev1
 
 Welcome to **T**he **H**elpful & **O**ptimized **T**ext **H**elper; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
 
@@ -35,7 +35,7 @@ This package contains the following submodules:
 - [call](https://pablogila.github.io/Thoth/thoth/call.html). Run bash scripts and related.
 - [common](https://pablogila.github.io/Thoth/thoth/common.html). Common definitions.
 
-Additionally, some specific modules for use in tandem with ab-initio codes are included:
+Additionally, some specific submodules for use in tandem with ab-initio codes are included:
 - [qe](https://pablogila.github.io/Thoth/thoth/call.html). Specific module for Quantum ESPRESSO.
 - [phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html). Specific module for Phonopy calculations.
 

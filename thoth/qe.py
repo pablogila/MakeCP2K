@@ -128,7 +128,10 @@ def read_out(file) -> pd.DataFrame:
     return pd.DataFrame.from_dict([output])
 
 
-def read_dir(folder, input_str:str='.in', output_str:str='.out') -> pd.DataFrame:
+def read_dir(folder,
+             input_str:str='.in',
+             output_str:str='.out'
+             ) -> pd.DataFrame:
     '''
     Takes a `folder` containing a Quantum ESPRESSO calculation,
     and returns a Pandas DataFrame containing the input parameters and output results.
@@ -150,7 +153,13 @@ def read_dir(folder, input_str:str='.in', output_str:str='.out') -> pd.DataFrame
     return df
 
 
-def read_dirs(directory, input_str:str='.in', output_str:str='.out', calc_splitter='_', calc_type_index=0, calc_id_index=1):
+def read_dirs(directory,
+              input_str:str='.in',
+              output_str:str='.out',
+              calc_splitter='_',
+              calc_type_index=0,
+              calc_id_index=1
+              ) -> None:
     '''
     Calls recursively `read_dir()`, reading Quantum ESPRESSO calculations
     from all the subfolders inside the given `directory`.
