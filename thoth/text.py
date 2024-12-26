@@ -251,6 +251,8 @@ def replace_line(text:str,
     1 to replace only the first line with the keyword, 2, 3...
     Use negative values to replace from the end of the file,
     e.g., to replace only the last line containing the keyword, use `number_of_replacements = -1`.
+    The text can be replaced after a specific number of lines after the match,
+    changing the value `skip_lines`. Negative integers replace the previous lines.
     To replace all lines, set `number_of_replacements = 0`, which is the value by default.
     ```
     line... keyword ...line -> text
@@ -322,31 +324,46 @@ def insert_under(text:str,
                 mm[end:] = updated_content
 
 
-def replace_under(text:str, keyword:str, file:str) -> None:
+def replace_under(text:str,
+                  keyword:str,
+                  file,
+                  replace_last:bool=False,
+                  skip_lines:int=0,
+                  regex:bool=False
+                  ) -> None:
     '''
-    Replaces the lines under the first occurrence of the `keyword`
-    in the given `filename` with the given `text` string.
-    > TODO: IN THE FUTURE SHOULD BE POSITION-AGNOSTIC. The keyword currently must be at the beginning of the line.
-    ```
-    line1
-    keyword line2
-    text
-    line4
+    Replaces the content below the line containing the `keyword`
+    by the given `text` string in the given `file`.
+    The keyword can be at any position within the line.
+    By default the replacement will take place below the first match,
+    but it can be replaced from the last match with `replace_last=True`.
+    The text can be replaced after a specific number of lines after the match,
+    changing the value `skip_lines`. Negative integers replace the text in the previous lines.
+    Regular expressions can be used by setting `regex=True`. 
     ```
     '''
     file_path = get(file)
-    with open(file_path, 'r') as f:
-        document = f.readlines()
-    index = next((i for i, line in enumerate(document) if line.strip().startswith(keyword)), None)
-    if index is not None:
-        for i, row in enumerate(text):
-            if index + 1 + i < len(document):
-                document[index + 1 + i] = row + "\n"
-        with open(file_path, 'w') as f:
-            file.writelines(document)
+    replace_index = 1
+    if replace_last:
+        replace_index = -1
+    if regex:
+        positions = find_pos_regex(keyword, file, replace_index)
     else:
-        raise ValueError("Didn't find the '" + keyword + "' keyword in " + file_path)
-    return None
+        positions = find_pos(keyword, file, replace_index)
+    positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
+    # Open the file in read-write mode
+    with open(file_path, 'r+b') as f:
+        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
+            # Get the places to insert the text
+            position = positions[0]
+            start, end = find_pos_line(mm, position, skip_lines)
+            inserted_text = '\n' + text # Ensure we end in a different line
+            if end == 0: # If on the first line
+                inserted_text = text + '\n'
+            remaining_lines = mm[end:]
+            new_line = inserted_text.encode()
+            mm.resize(len(mm) + len(new_line) - len(remaining_lines))
+            mm[end:] = new_line
 
 
 def delete_under(keyword:str, file:str) -> None:
