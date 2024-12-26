@@ -4,9 +4,9 @@ th.call.here()
 
 file = 'sample.txt'
 key = 'key'
-key_regex = r'key\s*\d*'
-text = '!!!testing!!!'
-number_of_replacements = 0
+key_regex = r'key\s*\d*'  # 'key' AND whatever number
+text = '!!!'
+number_of_replacements = 1
 regex = False
 
 if regex:

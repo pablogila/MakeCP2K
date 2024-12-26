@@ -6,8 +6,9 @@ file = 'sample.txt'
 key = 'key'
 key_regex = r'key\s*\d*'
 text = '!!!'
-number_of_replacements = -1
+number_of_replacements = 1
 skip_lines = 1
+additional_lines = 2
 regex = False
 
 if regex:
@@ -15,4 +16,4 @@ if regex:
 else:
     keyword = key
 
-th.text.replace_line(text, keyword, file, number_of_replacements, skip_lines, 0, regex)
+th.text.replace_line(text, keyword, file, number_of_replacements, skip_lines, additional_lines, regex)

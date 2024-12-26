@@ -1,3 +1,161 @@
+# deprecated at v4.6.0
+
+
+def delete_between_old(key1:str, key2:str, file:str) -> None:
+    '''
+    Deletes the lines between two keywords in a given `file`.
+    ```
+    lines...
+    key1
+    (lines to be deleted)
+    key2
+    lines...
+    ```
+    '''
+    file_path = get(file)
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    keep = []
+    skip = False
+    for line in lines:
+        if key1 in line:
+            skip = True
+        if key2 in line:
+            skip = False
+        if not skip or key1 in line:
+            keep.append(line)
+    with open(file_path, 'w') as f:
+        f.writelines(keep)
+    return None
+    
+
+def delete_under_old(keyword:str, file:str) -> None:
+    '''
+    Deletes the lines under the first occurrence of the `keyword` in the given `file`.
+    > TODO: IN THE FUTURE SHOULD BE POSITION-AGNOSTIC
+    ```
+    lines...
+    keyword
+    (end of file)
+    ```
+    '''
+    file_path = get(file)
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    keep = []
+    for line in lines:
+        if keyword in line:
+            break
+        else:
+            keep.append(line)
+    with open(file, 'w') as f:
+        f.writelines(keep)
+    return None
+
+
+def replace_under_old2(text:str,
+                  keyword:str,
+                  file,
+                  number_of_lines:int=1,
+                  number_of_replacements:int=0,
+                  skip_lines:int=0,
+                  regex:bool=False
+                  ) -> None:
+    '''
+    Replaces the given `number_of_lines` under the line(s) containing
+    the `keyword` by the specified `text`, in the given `file`.
+    The keyword can be at any position within the line.\n
+    The specified `number_of_lines` (int, >= 0) is replaced, only 1 line by default.
+    If `number_of_lines` is 0, all the text below is replaced,
+    and only the match indicated by `number_of_replacements` will be used (the last one by default).\n
+    By default all matches are replaced with `number_of_replacements=0`,
+    but it can replace only a specific number of matches
+    with positive numbers (1, 2...), or starting from the bottom with negative numbers.\n
+    The text can be replaced after a specific number of lines after the match,
+    changing the value `skip_lines`. Negative integers introduce the text in the previous lines.\n
+    Regular expressions can be used by setting `regex=True`. 
+    ```
+    '''
+    file_path = get(file)
+    if regex:
+        positions = find_pos_regex(keyword, file, number_of_replacements)
+    else:
+        positions = find_pos(keyword, file, number_of_replacements)
+    positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
+    if number_of_lines == 0:  # Only one replacement will take place, specified by number_of_replacements
+        if number_of_replacements < 0:
+            positions.reverse()
+        positions = [positions[0]]  # Keep only the specified match
+    # Open the file in read-write mode
+    with open(file_path, 'r+b') as f:
+        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
+            # Get the places to insert the text
+            for position in positions:
+                start, end = find_pos_line(position, mm, skip_lines)  # Full line with the match
+                # Now let's get the lines to replace
+                replace_start = start
+                if number_of_lines == 0:
+                    replace_end = len(mm) - 1
+                else:
+                    _, replace_end = find_pos_line((start, end), mm, abs(number_of_lines))
+                print(start, end) ############### DEBUG
+                print(replace_start, replace_end) ############### DEBUG
+                inserted_text = '\n' + text # Ensure we end in a different line
+                if replace_end == 0: # If on the first line
+                    inserted_text = text + '\n'
+                remaining_lines = mm[replace_end:]
+                new_line = inserted_text.encode()
+                #if number_of_lines == 0:
+                #    updated_content = new_line
+                #    mm.resize(len(mm) + len(new_line) - len(mm[end:]))
+                #else:
+                updated_content = new_line + remaining_lines
+                mm.resize(len(mm) + len(new_line) - len(mm[replace_start:replace_end]))
+                mm[end:] = updated_content
+
+
+def replace_under_old(text:str,
+                  keyword:str,
+                  file,
+                  replace_last:bool=False,
+                  skip_lines:int=0,
+                  regex:bool=False
+                  ) -> None:
+    '''
+    Replaces the content below the line containing the `keyword`
+    by the given `text` string in the given `file`.
+    The keyword can be at any position within the line.
+    By default the replacement will take place below the first match,
+    but it can be replaced from the last match with `replace_last=True`.
+    The text can be replaced after a specific number of lines after the match,
+    changing the value `skip_lines`. Negative integers replace the text in the previous lines.
+    Regular expressions can be used by setting `regex=True`. 
+    ```
+    '''
+    file_path = get(file)
+    replace_index = 1
+    if replace_last:
+        replace_index = -1
+    if regex:
+        positions = find_pos_regex(keyword, file, replace_index)
+    else:
+        positions = find_pos(keyword, file, replace_index)
+    positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
+    # Open the file in read-write mode
+    with open(file_path, 'r+b') as f:
+        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
+            # Get the places to insert the text
+            position = positions[0]
+            start, end = find_pos_line(position, mm, skip_lines)
+            inserted_text = '\n' + text # Ensure we end in a different line
+            if end == 0: # If on the first line
+                inserted_text = text + '\n'
+            remaining_lines = mm[end:]
+            new_line = inserted_text.encode()
+            mm.resize(len(mm) + len(new_line) - len(remaining_lines))
+            mm[end:] = new_line
+
+
 # Deprecated at v4.3.8:
 
 def insert_under_old(text:str, keyword:str, file:str, only_first=False) -> None:

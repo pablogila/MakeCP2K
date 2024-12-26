@@ -5,8 +5,7 @@ th.call.here()
 file = 'sample.txt'
 key = 'key'
 key_regex = r'key\s*\d*'
-text = '!!!testing!!!'
-replace_last = False
+match = 1
 skip_lines = 0
 regex = False
 
@@ -15,4 +14,4 @@ if regex:
 else:
     keyword = key
 
-th.text.replace_under(text, keyword, file, replace_last, skip_lines, regex)
+th.text.delete_under(keyword, file, match, skip_lines, regex)
