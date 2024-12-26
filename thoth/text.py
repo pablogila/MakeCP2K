@@ -7,6 +7,7 @@ Functions to read and manipulate text.
 - `find_pos_regex()`
 - `find_pos_line()`
 - `find()`
+- `find_between()`
 - `replace()`
 - `replace_line()`
 - `insert_under()`
@@ -210,6 +211,45 @@ def find(keyword:str,
     return matches
 
 
+def find_between(key1:str,
+                 key2:str,
+                 file:str,
+                 match_number:int=1,
+                 regex:bool=False
+                 ) -> list:
+    '''
+    Returns the content between the lines with `key1` and `key2` in the given `file`.
+    Keywords can be at any position within the line.
+    Regular expressions can be used by setting `regex=True`.\n
+    If there is more than one match, only the first one is considered by default;
+    set `match_number` to specify a particular match.
+    Use negative numbers to start from the end of the file.
+    '''
+    file_path = get(file)
+    if regex:
+        positions_1 = find_pos_regex(key1, file, match_number)
+        positions_2 = find_pos_regex(key2, file, match_number)
+    else:
+        positions_1 = find_pos(key1, file, match_number)
+        positions_2 = find_pos(key2, file, match_number)
+    if len(positions_1) != len(positions_2):
+        raise ValueError(f'The number of matches for each key is different!\n'
+                         f'{key1} -> {position_1}\n'
+                         f'{key2} -> {position_2}')
+    if match_number >= 0:
+        positions_1.reverse()
+        positions_2.reverse()
+    position_1 = positions_1[0]
+    position_2 = positions_2[0]
+    with open(file_path, 'r+b') as f:
+        mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
+    # Get the positions of the desired content
+    start, _ = find_pos_line(position_1, mm, 1)
+    _, end = find_pos_line(position_2, mm, -1)
+    # Save the matched lines
+    return (mm[start:end].decode())
+
+
 def replace(text:str,
             keyword:str,
             file:str,
@@ -301,6 +341,7 @@ def replace_line(text:str,
                     updated_content = new_line + remaining_content
                     mm.resize(len(mm) + len(new_line) - len(old_line))
                     mm[line_start:] = updated_content
+    return None
 
 
 def insert_under(text:str,
@@ -341,7 +382,30 @@ def insert_under(text:str,
                 updated_content = new_line + remaining_lines
                 mm.resize(len(mm) + len(new_line))
                 mm[end:] = updated_content
+    return None
 
+
+def insert_at(text:str,
+              file,
+              position:int
+              ) -> None:
+    ''' > TODO: Test if this works!\n
+    Inserts a `text` in the `position` line of a `file`.
+    If `position` is negative, starts from the end of the file.
+    '''
+    file_path = get(file)
+    with open(file_path, 'r+') as f:
+        lines = f.read().splitlines()
+        if position < 0:
+            position = len(lines) + position + 1
+        if position < 0 or position > len(lines):
+            raise IndexError("Position out of range")
+        lines.insert(position, text)
+        f.seek(0)
+        f.write('\n'.join(lines) + '\n')
+        f.truncate()
+    return None
+    
 
 def delete_under(keyword:str,
                  file,
@@ -383,7 +447,7 @@ def delete_between(key1:str,
                    last_match:bool=False,
                    regex:bool=False
                    ) -> None:
-    '''
+    ''' > TODO: Find the second key starting from the match, with mm find\n
     Deletes the content between the line containing the `key1` and `key2` in the given `file`.
     Keywords can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
@@ -428,7 +492,7 @@ def replace_between(text:str,
                     last_match:bool=False,
                     regex:bool=False
                     ) -> None:
-    '''
+    ''' > TODO: Find the second key starting from the match, with mm find\n
     Replace lines with a given `text`, between the keywords `key1` and `key2` in a given `file`.
     Keywords can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
