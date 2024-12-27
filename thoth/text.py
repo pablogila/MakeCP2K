@@ -9,7 +9,6 @@ Functions to manipulate text files.
 - `replace_line()`
 - `replace_between()`
 - `delete_under()`
-- `delete_between()`
 - `correct_with_dict()`
 
 ---
@@ -126,8 +125,9 @@ def replace_line(text:str,
                  regex:bool=False
                  ) -> None:
     '''
-    Replaces the entire line containing the `keyword` string with the `text` string in the given `file`.
+    Replaces the entire line(s) containing the `keyword` string with the `text` string in the given `file`.
     Regular expressions can be used with `regex=True`.\n
+    It can be used to delete line(s) by setting `text=''`.\n
     The value `number_of_replacements` specifies the number of lines to replace:
     1 to replace only the first line with the keyword, 2, 3...
     Use negative values to replace from the end of the file,
@@ -167,8 +167,12 @@ def replace_line(text:str,
                 # Replace the line
                 old_line = mm[line_start:line_end]
                 new_line = text.encode()
+                if text == '':  # Delete the line, and the extra \n
+                    remaining_content = mm[line_end:]
+                    mm.resize(len(mm) - len(old_line) - 1)
+                    mm[line_start-1:] = remaining_content
                 # Directly modify the memory-mapped region
-                if len(new_line) == len(old_line):
+                elif len(new_line) == len(old_line):
                     mm[line_start:line_end] = new_line
                 else:  # Adjust content for differing line sizes
                     remaining_content = mm[line_end:]
@@ -176,19 +180,21 @@ def replace_line(text:str,
                     mm.resize(len(mm) + len(new_line) - len(old_line))
                     mm[line_start:] = updated_content
     return None
-    
+
 
 def replace_between(text:str,
                     key1:str,
                     key2:str,
                     file:str,
+                    delete_keys:bool=False,
                     reverse_match:bool=False,
                     regex:bool=False
                     ) -> None:
     '''
-    Replace lines with a given `text`, between the keywords `key1` and `key2` in a given `file`.
-    Keywords can be at any position within the line.
+    Replace lines with a given `text`, between the keywords `key1` and `key2` in a given `file`.\n
+    It can be used to delete the text between the keys by setting `text=''`.\n
     Regular expressions can be used by setting `regex=True`.\n
+    Key lines are also deleted if `delete_keys=True`.\n
     Only the first matches of the keywords are used by default;
     you can use the last ones with `reverse_match=True`.
     ```
@@ -199,35 +205,54 @@ def replace_between(text:str,
     lines...
     ```
     '''
+    file_path = get(file)
     index = 1
     if reverse_match:
         index = -1
-    delete_between(key1, key2, file, False, reverse_match, regex)
-    insert_under(text, key1, file, index, 0, regex)
+    start, end = between_pos(key1, key2, file_path, delete_keys, index, regex)
+    with open(file_path, 'r+b') as f:
+        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
+            # Replace the line
+            old_content = mm[start:end]
+            new_content = text.encode()
+            if text == '':  # Delete the line, and the extra \n
+                remaining_content = mm[end:]
+                mm.resize(len(mm) - len(old_content) - 1)
+                mm[start-1:] = remaining_content
+            # Directly modify the memory-mapped region
+            elif len(new_content) == len(old_content):
+                mm[start:end] = new_content
+            else:  # Adjust the content for differing line sizes
+                remaining_content = mm[end:]
+                updated_content = new_content + remaining_content
+                mm.resize(len(mm) + len(new_content) - len(old_content))
+                mm[start:] = updated_content
     return None
 
 
 def delete_under(keyword:str,
                  file,
-                 match_index:int=1,
+                 match_number:int=1,
                  skip_lines:int=0,
                  regex:bool=False
                  ) -> None:
     '''
-    Deletes the content under the line containing the `keyword` in the given `file`.
+    Deletes all the content under the line containing the `keyword` in the given `file`.
     The keyword can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
-    By default the first `match_index` is used; it can be any integer,
+    By default the first `match_number` is used; it can be any positive integer (0 is treated as 1!),
     including negative integers to select a match starting from the end of the file.\n
     The content can be deleted after a specific number of lines after the match,
     changing the value `skip_lines`. Negative integers start deleting the content from the previous lines.
     '''
     file_path = get(file)
+    if match_number == 0:
+        match_number = 1
     if regex:
-        positions = pos_regex(keyword, file, match_index)
+        positions = pos_regex(keyword, file, match_number)
     else:
-        positions = pos(keyword, file, match_index)
-    if match_index > 0:  # We only want one match, and should be the last if match_index > 0
+        positions = pos(keyword, file, match_number)
+    if match_number > 0:  # We only want one match, and should be the last if match_number > 0
         positions.reverse()
     position = positions[0]
     # Open the file in read-write mode
@@ -237,34 +262,6 @@ def delete_under(keyword:str,
             start, end = line_pos(position, mm, skip_lines)
             mm.resize(len(mm) - len(mm[end:]))
             mm[end:] = b''
-    return None
-
-
-def delete_between(key1:str,
-                   key2:str,
-                   file,
-                   delete_keys:bool=False,
-                   reverse_match:bool=False,
-                   regex:bool=False
-                   ) -> None:
-    '''
-    Deletes the content between the line containing the `key1` and `key2` in the given `file`.
-    Keywords can be at any position within the line.
-    Regular expressions can be used by setting `regex=True`.\n
-    Key lines are also deleted if `delete_keys=True`.\n
-    Only the first matches of the keywords are used by default;
-    you can use the last ones with `reverse_match=True`.
-    '''
-    file_path = get(file)
-    index = 1
-    if reverse_match:
-        index = -1
-    start, end = between_pos(key1, key2, file_path, delete_keys, index, regex)
-    with open(file_path, 'r+b') as f:
-        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
-            remaining_lines = mm[end+1:]
-            mm.resize(len(mm) - len(mm[start:end+1]))
-            mm[start:] = remaining_lines
     return None
 
 

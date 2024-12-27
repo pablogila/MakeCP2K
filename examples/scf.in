@@ -1,7 +1,7 @@
-! Automatic SCF input made with thoth.phonopy v4.6.2
+! Automatic SCF input made with thoth.phonopy v5.1.0
 
 &CONTROL
-  calculation = 'vc-relax'
+  calculation = 'scf'
   prefix = 'MAPbI3'
   outdir = './tmp/'
   pseudo_dir = './pseudodojo-pbesol-paw-stringent/'
@@ -15,10 +15,10 @@
 /
 
 &SYSTEM
+  celldm(1) = 24.43623749
   ecutwfc = 66.14877991619842
   !ecutrho = ! 4 * ecutwfc
   ibrav = 0
-  A =   12.93110
   nat = 48
   ntyp = 5
   input_dft = 'PBEsol'

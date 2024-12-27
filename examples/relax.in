@@ -16,7 +16,7 @@
 &SYSTEM
   ecutwfc = 66.14877991619842
   !ecutrho = ! 4 * ecutwfc
-  ibrav = 0
+  ibrav = 1
   A =   12.93110
   nat = 48
   ntyp = 5

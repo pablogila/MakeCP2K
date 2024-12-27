@@ -1,3 +1,63 @@
+# deprecated at v5.1.0
+
+
+def delete_between_old(key1:str,
+                   key2:str,
+                   file,
+                   delete_keys:bool=False,
+                   reverse_match:bool=False,
+                   regex:bool=False
+                   ) -> None:
+    '''
+    Deletes the content between the line containing the `key1` and `key2` in the given `file`.
+    Keywords can be at any position within the line.
+    Regular expressions can be used by setting `regex=True`.\n
+    Key lines are also deleted if `delete_keys=True`.\n
+    Only the first matches of the keywords are used by default;
+    you can use the last ones with `reverse_match=True`.
+    '''
+    file_path = get(file)
+    index = 1
+    if reverse_match:
+        index = -1
+    start, end = between_pos(key1, key2, file_path, delete_keys, index, regex)
+    with open(file_path, 'r+b') as f:
+        with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
+            remaining_lines = mm[end+1:]
+            mm.resize(len(mm) - len(mm[start:end+1]))
+            mm[start:] = remaining_lines
+    return None
+
+    
+def replace_between_old(text:str,
+                    key1:str,
+                    key2:str,
+                    file:str,
+                    reverse_match:bool=False,
+                    regex:bool=False
+                    ) -> None:
+    '''
+    Replace lines with a given `text`, between the keywords `key1` and `key2` in a given `file`.
+    Keywords can be at any position within the line.
+    Regular expressions can be used by setting `regex=True`.\n
+    Only the first matches of the keywords are used by default;
+    you can use the last ones with `reverse_match=True`.
+    ```
+    lines...
+    key1
+    text
+    key2
+    lines...
+    ```
+    '''
+    index = 1
+    if reverse_match:
+        index = -1
+    delete_between(key1, key2, file, False, reverse_match, regex)
+    insert_under(text, key1, file, index, 0, regex)
+    return None
+
+
 # deprecated at v4.6.0
 
 
