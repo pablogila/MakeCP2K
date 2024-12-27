@@ -11,6 +11,7 @@ Under construction, currently porting [PhonoMake](https://github.com/pablogila/p
 from . import file
 from . import text
 from . import call
+from . import extract
 from .common import *
 
 def make_scf(folder=None, input:str='relax.in', output:str='relax.out'):
@@ -26,13 +27,19 @@ def make_scf(folder=None, input:str='relax.in', output:str='relax.out'):
     key1 = 'Begin final coordinates'
     key2 = 'End final coordinates'
     key_species = 'ATOMIC_SPECIES'
-    key_species_end = r'?\s*\w{4}'
+    key_species_end = r"(ATOMIC_POSITIONS|CELL_PARAMETERS)"
     key_cell = 'CELL_PARAMETERS'
+    text_cell = r'CELL_PARAMETERS {alat}'
     file.from_template(relax_in, scf_in, scf_comment)
-    species = text.find_between(key_species, key_species_end, scf_in, -1, True)
-    species.insert(0, key_species)
-    coordinates = text.find_between(key1, key2, relax_out, -1, True)
-    coordinates = coordinates[2:]
+    species = text.find_between(key_species, key_species_end, scf_in, False, 1, True)
+    species = '\n' + key_species + '\n' + species
+    coords = text.find_between(key1, key2, relax_out, False, -1, False)
+    coords_lines = coords.splitlines()
+    coordinates = "\n".join(coords_lines[2:])
     text.delete_under(key_cell, scf_in, -1, -1)
     text.insert_at(species, scf_in, -1)
-    
+    text.insert_at(coordinates, scf_in, -1)
+    alat_line = text.find(key_cell, scf_in, -1, 0, False, False)[0]
+    alat = extract.number(alat_line, 'alat')
+    print(alat)
+    text.replace_line(text_cell, key_cell, scf_in, -1, 0, 0, False)

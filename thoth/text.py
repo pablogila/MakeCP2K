@@ -5,12 +5,16 @@ Functions to read and manipulate text.
 # Index
 - `find_pos()`
 - `find_pos_regex()`
+- `find_next_pos()`
+- `find_next_pos_regex()`
 - `find_pos_line()`
+- `find_pos_between()`
 - `find()`
 - `find_between()`
 - `replace()`
 - `replace_line()`
 - `insert_under()`
+- `insert_at()`
 - `delete_under()`
 - `delete_between()`
 - `replace_between()`
@@ -100,6 +104,95 @@ def find_pos_regex(keyword:str,
     return positions
 
 
+def find_next_pos(position:tuple,
+                  keyword:str,
+                  file,
+                  match_number:int=1
+                  ) -> tuple:
+    '''
+    Returns the next position of the `keyword` string in the given `file` (file or mmapped file),
+    starting from an initial `position` tuple.
+    The `match_number` specifies the nonzero index of the next match to return (1, 2... 0 is considered as 1!).
+    It can be negative to search backwards from the initial position.
+    The last known positions will be returned if no more matches are found.\n
+    This method is specific for normal strings.
+    To use regular expressions, check `find_next_pos_regex()`.
+    '''
+    mm = file
+    if not isinstance(file, mmap.mmap):
+        file_path = get(file)
+        with open(file_path, 'r+b') as f:
+            mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
+    start, end = position
+    keyword_bytes = keyword.encode()
+    if match_number == 0:
+        match_number = 1
+    positions = []
+    if match_number > 0:
+        for _ in range(match_number):
+            start = mm.find(keyword_bytes, end, len(mm))
+            if start == -1:
+                break
+            end = start + len(keyword_bytes)
+            positions.append((start, end))
+    else:
+        for _ in range(abs(match_number)):
+            start = mm.rfind(keyword_bytes, 0, start)
+            if start == -1:
+                break
+            end = start + len(keyword_bytes)
+            positions.append((start, end))
+    positions.reverse()
+    if len(positions) == 0:
+        positions.append((-1, -1))
+    return positions[0]
+
+
+def find_next_pos_regex(position:tuple,
+                       keyword:str,
+                       file,
+                       match_number:int=0
+                       ) -> tuple:
+    '''
+    Returns the next position of the `keyword` string in the given `file`,
+    starting from an initial `position` tuple.
+    The `match_number` specifies the next match to return (1, 2... 0 is considered as 1!).
+    It can be negative to search backwards from the initial position.
+    This method is specific for regular expressions.\n
+    For normal strings, check the faster `find_next_pos()` method.
+    '''
+    file_path = get(file)
+    start, end = position
+    with open(file_path, 'r') as f:
+        content = f.read()
+    if match_number == 0:
+        match_number = 1
+    positions = []
+    if match_number > 0:
+        for _ in range(match_number):
+            match = re.search(keyword, content[end:])
+            if not match:
+                break
+            start = end + match.start()
+            end = end + match.end()
+            positions.append((start, end))
+        positions.reverse()
+        if len(positions) == 0:
+            positions.append((-1, -1))
+        return positions[0]
+    else:  # Reverse match
+        all_matches = list(re.finditer(keyword, content))
+        if not all_matches:
+            return (-1, -1)
+        if abs(match_number) > len(all_matches):
+            match_number = -len(all_matches)
+        else:
+            match = all_matches[match_number]  # Already negative
+            start = match.start()
+            end = match.end()
+    return start, end
+
+
 def find_pos_line(position:tuple,
                   file,
                   skip_lines:int=0
@@ -115,6 +208,8 @@ def find_pos_line(position:tuple,
         file_path = get(file)
         with open(file_path, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
+    if position == (-1, -1):  # No match
+        return (-1, -1)
     start, end = position
     if skip_lines == 0:
         start = mm.rfind(b'\n', 0, start) + 1
@@ -143,6 +238,56 @@ def find_pos_line(position:tuple,
                 start = 0
                 end = 0
                 break
+    return start, end
+
+
+def find_pos_between(key1:str,
+                     key2:str,
+                     file,
+                     include_keys:bool=True,
+                     match_number:int=1,
+                     regex:bool=False
+                     ) -> tuple:
+    '''
+    Deletes the content between the line containing the `key1` and `key2` in the given `file`.
+    Keywords can be at any position within the line.
+    Regular expressions can be used by setting `regex=True`.\n
+    Key lines are omited by default, but can be returned with `include_keys=True`.\n
+    If there is more than one match, only the first one is considered by default;
+    set `match_number` to specify a particular match (1, 2... 0 is considered as 1!).
+    Use negative numbers to start from the end of the file.
+    '''
+    file_path = get(file)
+    if match_number == 0:
+        match_number = 1
+    if regex:
+        positions_1: list = find_pos_regex(key1, file_path, match_number)
+        if match_number > 0:
+            positions_1.reverse()
+        position_1 = positions_1[0]
+        if position_1 == (-1, -1):  # No match
+            return (-1, -1)
+        position_2: tuple = find_next_pos_regex(position_1, key2, file_path, 1)
+    else:
+        positions_1: list = find_pos(key1, file_path, match_number)
+        if match_number > 0:
+            positions_1.reverse()
+        position_1 = positions_1[0]
+        if position_1 == (-1, -1):  # No match
+            return (-1, -1)
+        position_2: tuple = find_next_pos(position_1, key2, file_path, 1)
+    skip_line_1 = 0
+    skip_line_2 = 0
+    if not include_keys:
+        skip_line_1 = 1
+        skip_line_2 = -1
+    with open(file_path, 'r+b') as f:
+        mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
+    start, _ = find_pos_line(position_1, mm, skip_line_1)
+    if position_2 != (-1, -1):
+        _, end = find_pos_line(position_2, mm, skip_line_2)
+    else:
+        end = len(mm)
     return start, end
 
 
@@ -214,6 +359,7 @@ def find(keyword:str,
 def find_between(key1:str,
                  key2:str,
                  file:str,
+                 include_keys:bool=True,
                  match_number:int=1,
                  regex:bool=False
                  ) -> list:
@@ -221,32 +367,15 @@ def find_between(key1:str,
     Returns the content between the lines with `key1` and `key2` in the given `file`.
     Keywords can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
+    Key lines are omited by default, but can be returned with `include_keys=True`.\n
     If there is more than one match, only the first one is considered by default;
-    set `match_number` to specify a particular match.
+    set `match_number` to specify a particular match (1, 2... 0 is considered as 1!).
     Use negative numbers to start from the end of the file.
     '''
     file_path = get(file)
-    if regex:
-        positions_1 = find_pos_regex(key1, file, match_number)
-        positions_2 = find_pos_regex(key2, file, match_number)
-    else:
-        positions_1 = find_pos(key1, file, match_number)
-        positions_2 = find_pos(key2, file, match_number)
-    if len(positions_1) != len(positions_2):
-        raise ValueError(f'The number of matches for each key is different!\n'
-                         f'{key1} -> {position_1}\n'
-                         f'{key2} -> {position_2}')
-    if match_number >= 0:
-        positions_1.reverse()
-        positions_2.reverse()
-    position_1 = positions_1[0]
-    position_2 = positions_2[0]
+    start, end = find_pos_between(key1, key2, file_path, include_keys, match_number, regex)
     with open(file_path, 'r+b') as f:
         mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
-    # Get the positions of the desired content
-    start, _ = find_pos_line(position_1, mm, 1)
-    _, end = find_pos_line(position_2, mm, -1)
-    # Save the matched lines
     return (mm[start:end].decode())
 
 
@@ -389,8 +518,8 @@ def insert_at(text:str,
               file,
               position:int
               ) -> None:
-    ''' > TODO: Test if this works!\n
-    Inserts a `text` in the `position` line of a `file`.
+    '''
+    Inserts a `text` in the line with `position` index of a given `file`.
     If `position` is negative, starts from the end of the file.
     '''
     file_path = get(file)
@@ -402,14 +531,14 @@ def insert_at(text:str,
             raise IndexError("Position out of range")
         lines.insert(position, text)
         f.seek(0)
-        f.write('\n'.join(lines) + '\n')
+        f.write('\n'.join(lines))
         f.truncate()
     return None
     
 
 def delete_under(keyword:str,
                  file,
-                 match:int=1,
+                 match_index:int=1,
                  skip_lines:int=0,
                  regex:bool=False
                  ) -> None:
@@ -417,17 +546,17 @@ def delete_under(keyword:str,
     Deletes the content under the line containing the `keyword` in the given `file`.
     The keyword can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
-    By default the first `match` is used; it can be any integer,
+    By default the first `match_index` is used; it can be any integer,
     including negative integers to select a match starting from the end of the file.\n
     The content can be deleted after a specific number of lines after the match,
     changing the value `skip_lines`. Negative integers start deleting the content from the previous lines.
     '''
     file_path = get(file)
     if regex:
-        positions = find_pos_regex(keyword, file, match)
+        positions = find_pos_regex(keyword, file, match_index)
     else:
-        positions = find_pos(keyword, file, match)
-    if match > 0:  # We only want one match, and should be the last if match > 0
+        positions = find_pos(keyword, file, match_index)
+    if match_index > 0:  # We only want one match, and should be the last if match_index > 0
         positions.reverse()
     position = positions[0]
     # Open the file in read-write mode
@@ -444,43 +573,26 @@ def delete_between(key1:str,
                    key2:str,
                    file,
                    delete_keys:bool=False,
-                   last_match:bool=False,
+                   reverse_match:bool=False,
                    regex:bool=False
                    ) -> None:
-    ''' > TODO: Find the second key starting from the match, with mm find\n
+    '''
     Deletes the content between the line containing the `key1` and `key2` in the given `file`.
     Keywords can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
-    Key lines are also deleted if `delete_keys=True`.
-    Only the first matches of the keywords are used.
-    If there are more matches and you want to use the last ones, set `last_match=True`
+    Key lines are also deleted if `delete_keys=True`.\n
+    Only the first matches of the keywords are used by default;
+    you can use the last ones with `reverse_match=True`.
     '''
     file_path = get(file)
-    skip_line_1 = 0
-    skip_line_2 = 0
-    if not delete_keys:
-        skip_line_1 = 1
-        skip_line_2 = -1
-    if regex:
-        positions_1 = find_pos_regex(key1, file)
-        positions_2 = find_pos_regex(key2, file)
-    else:
-        positions_1 = find_pos(key1, file)
-        positions_2 = find_pos(key2, file)
-    index = 0
-    if last_match:
+    index = 1
+    if reverse_match:
         index = -1
-    position_1 = positions_1[index]
-    position_2 = positions_2[index]
-    # Open the file in read-write mode
+    start, end = find_pos_between(key1, key2, file_path, delete_keys, index, regex)
     with open(file_path, 'r+b') as f:
         with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
-            # Get the places to insert the text
-            start, _ = find_pos_line(position_1, mm, skip_line_1)
-            _, end = find_pos_line(position_2, mm, skip_line_2)
-            end += 1  # Take the \n
-            remaining_lines = mm[end:]
-            mm.resize(len(mm) - len(mm[start:end]))
+            remaining_lines = mm[end+1:]
+            mm.resize(len(mm) - len(mm[start:end+1]))
             mm[start:] = remaining_lines
     return None
 
@@ -489,15 +601,15 @@ def replace_between(text:str,
                     key1:str,
                     key2:str,
                     file:str,
-                    last_match:bool=False,
+                    reverse_match:bool=False,
                     regex:bool=False
                     ) -> None:
-    ''' > TODO: Find the second key starting from the match, with mm find\n
+    '''
     Replace lines with a given `text`, between the keywords `key1` and `key2` in a given `file`.
     Keywords can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
-    Only the first matches of the keywords are used.
-    If there are more matches and you want to use the last ones, set `last_match=True`
+    Only the first matches of the keywords are used by default;
+    you can use the last ones with `reverse_match=True`.
     ```
     lines...
     key1
@@ -506,10 +618,10 @@ def replace_between(text:str,
     lines...
     ```
     '''
-    delete_between(key1, key2, file, False, last_match, regex)
     index = 1
-    if last_match:
+    if reverse_match:
         index = -1
+    delete_between(key1, key2, file, False, reverse_match, regex)
     insert_under(text, key1, file, index, 0, regex)
     return None
 
