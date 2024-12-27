@@ -22,12 +22,14 @@ import shutil
 
 
 def get(file:str,
-        filters=None
+        filters=None,
+        return_anyway:bool=False
         ) -> str:
     '''
     Check if the given `file` exists in the currrent working directory
     or in the full path, and returns its full path as a string.\n
-
+    Raises an error if the file is not found, unless `return_anyway=True`,
+    in which case it returns None. This can be used to personalize errors.\n
     If the provided string is a directory, it checks the files inside it.
     if there is only one file inside, it returns said file;
     if there are more files, it tries to filter them with the `filters` keyword(s) to return a single file.
@@ -37,11 +39,15 @@ def get(file:str,
         return os.path.abspath(file)
     elif os.path.isdir(file):
         files = get_list(file, filters, abspath=True)
+    elif return_anyway:
+        return None
     else:
         raise FileNotFoundError('Nothing found at ' + file)
     # Return a single file
     if len(files) == 1:
         return files[0]
+    elif return_anyway:
+        return None
     elif len(files) == 0:
         raise FileNotFoundError('The following directory is empty (maybe due to the filters):' + file)
     else:

@@ -68,16 +68,17 @@ def git(path=None,
     return None
 
 
-def here(run_here=True):
+def here(folder) -> str:
     '''
-    Returns the directory where the current script lies.
-    By default, it also runs the rest of the script from said directory;
+    Runs the rest of the script inside the specified `folder`.
+    If none is provided, it runs from the same directory where the current script lies.
     This is really useful to run scripts from the VSCode terminal, etc.
-    You might want to override this behaviour if you just want to know the path of the current script;
-    to do so, set `run_here=False`.
+    Returns the path of the used `folder`.
     '''
-    caller = os.path.dirname(os.path.abspath(os.path.realpath(sys.argv[0])))
-    if run_here:
-        os.chdir(caller)
+    if folder:
+        caller = os.path.abspath(folder)
+    else:
+        caller = os.path.dirname(os.path.abspath(os.path.realpath(sys.argv[0])))
+    os.chdir(caller)
     return caller
 

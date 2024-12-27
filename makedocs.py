@@ -23,7 +23,7 @@ fix_dict ={
     '[phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html)'   : '`thoth.phonopy`',
 } 
 
-version = th.find.lines(r"version =", version_path, -1)[0]
+version = th.find.lines(r"version\s*=", version_path, -1, 0, False, True)[0]
 version = th.extract.string(version, 'version', None, True)
 
 print(f'Updating README to {version}...')
