@@ -5,7 +5,7 @@ th.call.here()
 file = 'sample.txt'
 key = 'key'
 key_regex = r'key\s*\d*'
-match = 1
+match = 2
 skip_lines = 0
 regex = False
 

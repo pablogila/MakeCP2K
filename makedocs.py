@@ -9,20 +9,21 @@ import thoth as th
 
 readme = './README.md'
 temp_readme = './_README_temp.md'
-version_path = './thoth/common.py'
+version_path = './thoth/autoload.py'
 
 fix_dict ={
-    '[file](https://pablogila.github.io/Thoth/thoth/file.html)'         : '`thoth.file`',
-    '[text](https://pablogila.github.io/Thoth/thoth/text.html)'         : '`thoth.text`',
-    '[extract](https://pablogila.github.io/Thoth/thoth/extract.html)'   : '`thoth.extract`',
+    '[autoload](https://pablogila.github.io/Thoth/thoth/autoload.html)' : '`thoth.autoload`',
     '[alias](https://pablogila.github.io/Thoth/thoth/alias.html)'       : '`thoth.alias`',
     '[call](https://pablogila.github.io/Thoth/thoth/call.html)'         : '`thoth.call`',
+    '[file](https://pablogila.github.io/Thoth/thoth/file.html)'         : '`thoth.file`',
+    '[find](https://pablogila.github.io/Thoth/thoth/find.html)'         : '`thoth.find`',
+    '[extract](https://pablogila.github.io/Thoth/thoth/extract.html)'   : '`thoth.extract`',
+    '[text](https://pablogila.github.io/Thoth/thoth/text.html)'         : '`thoth.text`',
     '[qe](https://pablogila.github.io/Thoth/thoth/call.html)'           : '`thoth.qe`',
-    '[common](https://pablogila.github.io/Thoth/thoth/common.html)'     : '`thoth.common`',
     '[phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html)'   : '`thoth.phonopy`',
 } 
 
-version = th.text.find(r"version =", version_path, -1)[0]
+version = th.find.lines(r"version =", version_path, -1)[0]
 version = th.extract.string(version, 'version', None, True)
 
 print(f'Updating README to {version}...')

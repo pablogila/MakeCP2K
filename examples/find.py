@@ -5,8 +5,8 @@ th.call.here()
 file = 'sample.txt'
 key = 'key'
 key_regex = r'key\s*\d*'
-number_of_matches = -2
-additional_lines = -2
+number_of_matches = 0
+additional_lines = 2
 split_additional_lines = False
 regex = False
 
@@ -15,7 +15,7 @@ if regex:
 else:
     keyword = key
 
-matches = th.text.find(keyword, file, number_of_matches, additional_lines, split_additional_lines, regex)
+matches = th.find.lines(keyword, file, number_of_matches, additional_lines, split_additional_lines, regex)
 print(matches)
 for match in matches:
     print(match)

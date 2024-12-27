@@ -4,6 +4,6 @@ th.call.here()
 
 text = '!!!'
 file = 'sample.txt'
-position = 1
+position = -1
 
 th.text.insert_at(text, file, position)

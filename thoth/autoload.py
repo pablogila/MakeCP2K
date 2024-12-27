@@ -1,11 +1,11 @@
 '''
 # Description
-Common variables and functions, loaded directly as `thoth.value`.
+Common utilities, autoloaded directly as `thoth.value`.
 
 ---
 '''
 
-version = 'v4.6.2'
+version = 'v5.0.0'
 '''
 Package version, using semantic versioning to indicate breaking changes,
 as in v<MAJOR>.<MINOR>.<PATCH>.

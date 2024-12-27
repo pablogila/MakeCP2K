@@ -1,6 +1,6 @@
 '''
 # Description
-Functions to manipulate files.
+Functions to move files around.
 
 # Index
 - `get()`

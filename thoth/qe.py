@@ -14,20 +14,20 @@ Functions to work with [Quantum ESPRESSO](https://www.quantum-espresso.org/) cal
 
 import pandas as pd
 import os
-from .file import get, get_list
-from .text import find
-from .extract import number, string
+from . import file
+from . import find
+from . import extract
 
 
-def read_in(file) -> pd.DataFrame:
+def read_in(filename) -> pd.DataFrame:
     '''
-    Reads an input `file` from Quantum ESPRESSO,
+    Reads an input `filename` from Quantum ESPRESSO,
     returning a Pandas DataFrame with the input values used.
     The columns are named after the name of the corresponding variable.
     '''
-    file = get(file)
+    filepath = file.get(filename)
     data = {}
-    lines = find('=', file)
+    lines = find.lines('=', filepath)
     for line in lines:
         line.strip()
         var, value = line.split('=', 1)
@@ -45,22 +45,22 @@ def read_in(file) -> pd.DataFrame:
             pass # Then it is a string
         data[var] = value
     # Get values that are not expressed with a '=' sign
-    k_points = find('K_POINTS', file, -1, 1, True)
+    k_points = find.lines('K_POINTS', filepath, -1, 1, True)
     if k_points:
         k_points = k_points[1].strip()
         data['K_POINTS'] = k_points
     return pd.DataFrame.from_dict([data])
 
 
-def read_out(file) -> pd.DataFrame:
+def read_out(filename) -> pd.DataFrame:
     '''
-    Reads an output `file` from Quantum ESPRESSO,
+    Reads an output `filename` from Quantum ESPRESSO,
     returning a Pandas DataFrame with the following columns:
     `'Energy'` (float), `'Total force'` (float), `'Total SCF correction'` (float),
     `'Runtime'` (str), `'JOB DONE'` (bool), `'BFGS converged'` (bool), `'BFGS failed'` (bool),
     `'Maxiter reached'` (bool), `'Error'` (str), `'Success'` (bool).
     '''
-    file = get(file)
+    filepath = file.get(filename)
 
     energy_key           = '!    total energy'
     force_key            = 'Total force'
@@ -73,14 +73,14 @@ def read_out(file) -> pd.DataFrame:
     maxiter_reached_key  = 'Maximum number of iterations reached'
     error_key            = 'Error in routine'
 
-    energy_line          = find(energy_key, file, -1)
-    force_line           = find(force_key, file, -1)
-    time_line            = find(time_key, file, -1)
-    job_done_line        = find(job_done_key, file, -1)
-    bfgs_converged_line  = find(bfgs_converged_key, file, -1)
-    bfgs_failed_line     = find(bfgs_failed_key, file, -1)
-    maxiter_reached_line = find(maxiter_reached_key, file, -1)
-    error_line           = find(error_key, file, -1, 1, True)
+    energy_line          = find.lines(energy_key, filepath, -1)
+    force_line           = find.lines(force_key, filepath, -1)
+    time_line            = find.lines(time_key, filepath, -1)
+    job_done_line        = find.lines(job_done_key, filepath, -1)
+    bfgs_converged_line  = find.lines(bfgs_converged_key, filepath, -1)
+    bfgs_failed_line     = find.lines(bfgs_failed_key, filepath, -1)
+    maxiter_reached_line = find.lines(maxiter_reached_key, filepath, -1)
+    error_line           = find.lines(error_key, filepath, -1, 1, True)
 
     energy: float = None
     force: float = None
@@ -94,12 +94,12 @@ def read_out(file) -> pd.DataFrame:
     success: bool = False
 
     if energy_line:
-        energy = number(energy_line[0], energy_key)
+        energy = extract.number(energy_line[0], energy_key)
     if force_line:
-        force = number(force_line[0], force_key)
-        scf = number(force_line[0], scf_key)
+        force = extract.number(force_line[0], force_key)
+        scf = extract.number(force_line[0], scf_key)
     if time_line:
-        time = string(time_line[0], time_key, time_stop_key)
+        time = extract.string(time_line[0], time_key, time_stop_key)
     if job_done_line:
         job_done = True
     if bfgs_converged_line:
@@ -139,8 +139,8 @@ def read_dir(folder,
     but must be specified with `input_str` and `output_str` if more than one file ends with `.in` or `.out`.
     To extract values only from the input or only from the output, check `read_in()` and `read_out()`.
     '''
-    input_file = get(folder, input_str)
-    output_file = get(folder, output_str)
+    input_file = file.get(folder, input_str)
+    output_file = file.get(folder, output_str)
     if not input_file:
         print(f'Skipping due to input file missing at {folder}')
         return None
@@ -177,7 +177,7 @@ def read_dirs(directory,
     If everything fails, the subfolder name will be used.
     '''
     print(f'Reading all Quantum ESPRESSO calculations from {directory} ...')
-    folders = get_list(directory)
+    folders = file.get_list(directory)
     if not folders:
         raise FileNotFoundError('The directory is empty!')
     # Separate calculations by their title in an array

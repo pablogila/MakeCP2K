@@ -1,4 +1,4 @@
-# Thoth v4.6.2
+# Thoth v5.0.0
 
 Welcome to **T**he **H**elpful & **O**ptimized **T**ext **H**elper; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
 
@@ -29,11 +29,11 @@ An [online documentation](https://pablogila.github.io/InputMaker/) is also avail
 
 This package contains the following submodules:
 - [file](https://pablogila.github.io/Thoth/thoth/file.html). Manipulate files.
-- [text](https://pablogila.github.io/Thoth/thoth/text.html). Read and manipulate text.
+- [find](https://pablogila.github.io/Thoth/thoth/find.html). Search for specific content in a text file.
+- [text](https://pablogila.github.io/Thoth/thoth/text.html). Manipulate text files.
 - [extract](https://pablogila.github.io/Thoth/thoth/extract.html). Extract data from raw text strings.
-- [alias](https://pablogila.github.io/Thoth/thoth/alias.html). Common dictionaries to normalise user inputs.
 - [call](https://pablogila.github.io/Thoth/thoth/call.html). Run bash scripts and related.
-- [common](https://pablogila.github.io/Thoth/thoth/common.html). Common definitions.
+- [autoload](https://pablogila.github.io/Thoth/thoth/autoload.html). Common utilities.
 
 Additionally, some specific submodules for use in tandem with ab-initio codes are included:
 - [qe](https://pablogila.github.io/Thoth/thoth/call.html). Specific module for Quantum ESPRESSO.

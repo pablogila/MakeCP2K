@@ -1,6 +1,6 @@
 '''
 # Description
-Functions to simplify calling bash scripts and related.
+Functions to handle bash calls and related operations on Linux systems.
 
 # Index
 - `bash()`
@@ -15,7 +15,7 @@ import subprocess
 import datetime
 import sys
 import os
-from .common import *
+from .autoload import *
 
 
 def bash(command,

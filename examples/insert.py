@@ -6,8 +6,8 @@ file = 'sample.txt'
 key = 'key'
 key_regex = r'key\s*\d*'
 text = '!!!'
-number_of_inserts = -1
-skip_lines = 0
+number_of_inserts = 1
+skip_lines = 2
 regex = False
 
 if regex:
