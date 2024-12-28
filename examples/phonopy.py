@@ -2,4 +2,5 @@ import thoth as th
 
 th.call.here()
 
-th.phonopy.make_scf()
+th.phonopy.make()
+#th.phonopy.sbatch()

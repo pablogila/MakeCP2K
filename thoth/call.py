@@ -68,7 +68,7 @@ def git(path=None,
     return None
 
 
-def here(folder) -> str:
+def here(folder=None) -> str:
     '''
     Runs the rest of the script inside the specified `folder`.
     If none is provided, it runs from the same directory where the current script lies.
