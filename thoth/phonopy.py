@@ -129,8 +129,14 @@ def scf_from_relax(folder:str=None,
     # Delete the old CELL_PARAMETERS, ATOMIC_POSITIONS and ATOMIC_SPECIES
     key_cell = 'CELL_PARAMETERS'
     text.delete_under('ATOMIC_POSITIONS', scf_in, -1, -1)
-    text.delete_under(key_species, scf_in, -1, -1)
-    text.delete_under(key_cell, scf_in, -1, -1)
+    try:
+        text.delete_under(key_species, scf_in, -1, -1)
+    except:  # It might be deleted already!
+        pass
+    try:
+        text.delete_under(key_cell, scf_in, -1, -1)
+    except:  # It might be deleted already!
+        pass
     # Get the final coordinates from the relax output
     coordinates = find.between('Begin final coordinates', 'End final coordinates', relax_out, False, -1, False)
     coordinates = coordinates.splitlines()
