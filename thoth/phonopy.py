@@ -266,7 +266,7 @@ mpirun pw.x -inp INPUT_FILE > OUTPUT_FILE
         with open(new_slurm_file, 'w') as f:
             f.write(content)
         print(f'!!! WARNING:  Slurm template missing, so an example was generated automatically:\n'
-              f'{new_slurm_file}\n'
+              f'{slurm_example}\n'
               f'PLEASE CHECK it, UPDATE it and RENAME it to {slurm_template}\n'
               'before running thoth.phonopy.sbatch()\n')
         return None
@@ -285,13 +285,14 @@ mpirun pw.x -inp INPUT_FILE > OUTPUT_FILE
         with open(new_slurm_file, 'w') as f:
             f.write(content)
         print('!!! WARNING:  Some keywords were missing from your slurm template,\n'
-              f'PLEASE CHECK the example at:\n'
-              f'{new_slurm_file}\n'
+              f'PLEASE CHECK the example at {slurm_example}\n'
               'before running thoth.phonopy.sbatch()\n'
               f'The following keywords were missing from your {slurm_template}:')
         for key in missing:
             print(key)
         print('')
         return None
+    print(f"Your slurm template {slurm_template} SEEMS OKAY, "
+          "but don't forget to check it before tunning thoth.phonopy.sbatch()\n")
     return slurm_file  # Ready to use!
 

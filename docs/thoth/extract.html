@@ -83,10 +83,13 @@
             <li>
                     <a class="function" href="#column">column</a>
             </li>
+            <li>
+                    <a class="function" href="#coords">coords</a>
+            </li>
     </ul>
 
 
-            <footer>Thoth v5.2.0 documentation</footer>
+            <footer>Thoth v5.2.2 documentation</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -202,6 +205,22 @@
 </span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>    <span class="k">return</span> <span class="kc">None</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a><span class="k">def</span> <span class="nf">coords</span><span class="p">(</span><span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a><span class="sd">    Returns a list with the float coordinates expressed in a given `text` string.</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a><span class="sd">    &#39;&#39;&#39;</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a>        <span class="k">return</span> <span class="kc">None</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>    <span class="n">columns</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[,\s]+&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)&#39;</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a>    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos">96</span></a>        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos">97</span></a>        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos">98</span></a>            <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos">99</span></a>    <span class="k">return</span> <span class="n">matches</span>
 </span></pre></div>
 
 
@@ -342,6 +361,39 @@ Removes leading and trailing commas by default, change this with <code>strip=Fal
 
 
             <div class="docstring"><p>Extracts the desired float <code><a href="#column">column</a></code> of a given <code><a href="#string">string</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="coords">
+                            <input id="coords-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">coords</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">text</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">list</span>:</span></span>
+
+                <label class="view-source-button" for="coords-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#coords"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="coords-87"><a href="#coords-87"><span class="linenos"> 87</span></a><span class="k">def</span> <span class="nf">coords</span><span class="p">(</span><span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+</span><span id="coords-88"><a href="#coords-88"><span class="linenos"> 88</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+</span><span id="coords-89"><a href="#coords-89"><span class="linenos"> 89</span></a><span class="sd">    Returns a list with the float coordinates expressed in a given `text` string.</span>
+</span><span id="coords-90"><a href="#coords-90"><span class="linenos"> 90</span></a><span class="sd">    &#39;&#39;&#39;</span>
+</span><span id="coords-91"><a href="#coords-91"><span class="linenos"> 91</span></a>    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="coords-92"><a href="#coords-92"><span class="linenos"> 92</span></a>        <span class="k">return</span> <span class="kc">None</span>
+</span><span id="coords-93"><a href="#coords-93"><span class="linenos"> 93</span></a>    <span class="n">columns</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[,\s]+&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+</span><span id="coords-94"><a href="#coords-94"><span class="linenos"> 94</span></a>    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)&#39;</span>
+</span><span id="coords-95"><a href="#coords-95"><span class="linenos"> 95</span></a>    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="coords-96"><a href="#coords-96"><span class="linenos"> 96</span></a>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+</span><span id="coords-97"><a href="#coords-97"><span class="linenos"> 97</span></a>        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+</span><span id="coords-98"><a href="#coords-98"><span class="linenos"> 98</span></a>        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+</span><span id="coords-99"><a href="#coords-99"><span class="linenos"> 99</span></a>            <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+</span><span id="coords-100"><a href="#coords-100"><span class="linenos">100</span></a>    <span class="k">return</span> <span class="n">matches</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Returns a list with the float coordinates expressed in a given <code>text</code> string.</p>
 </div>
 
 

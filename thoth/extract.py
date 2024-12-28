@@ -82,3 +82,19 @@ def column(text:str,
             return float(match.group(1))
     return None
 
+
+def coords(text:str) -> list:
+    '''
+    Returns a list with the float coordinates expressed in a given `text` string.
+    '''
+    if text is None:
+        return None
+    columns = re.split(r'[,\s]+', text.strip())
+    pattern = r'(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)'
+    matches = []
+    for column in columns:
+        match = re.match(pattern, column)
+        if match:
+            matches.append(float(match.group(1)))
+    return matches
+
