@@ -93,9 +93,9 @@ def sbatch(folder=None, slurm_template:str='scf.slurm') -> None:
             key_output: supercell_out
         }
         file.from_template(slurm_file, slurm_id, None, fixing_dict)
-        #call.bash(f"echo {slurm_id}")
-        call.bash(f"sbatch {slurm_id}", folder, False, False)
-        call.bash(f"mv {slurm_id} {slurm_folder}", folder, False, True)
+        #call.bash(f"echo {slurm_id}")  # This line may be useful for testing!
+        call.bash(f"sbatch {slurm_id}", folder, True, False)
+        call.bash(f"mv {slurm_id} {slurm_folder}", folder, False, True)  # Do not raise error if we can't move the file
     print(f'\nDone! Temporary slurm files were moved to /{slurm_folder}/\n')
 
 
