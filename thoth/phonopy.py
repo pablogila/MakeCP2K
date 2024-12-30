@@ -137,7 +137,7 @@ def scf_header_to_supercells(folder:str=None,
     supercell_sample = supercells[0]
     is_control = find.lines(r'(&CONTROL|&control)', supercell_sample, 1, 0, False, True)
     if is_control:
-        raise ValueError('Supercells already contain &CONTROL!')
+        raise ValueError('Supercells already contain &CONTROL! Did you do this already?')
     # Check if the keyword is in the scf file
     is_header = find.lines(r'ATOMIC_SPECIES', scf_file, 1, 0, False, False)
     if not is_header:
@@ -146,7 +146,7 @@ def scf_header_to_supercells(folder:str=None,
     temp_scf = '_scf_temp.in'
     file.copy(scf_file, temp_scf)
     # Remove the top content from the temp file
-    text.delete_under('ATOMIC_SPECIES', '_scf_temp.in', -1, -1, False)
+    text.delete_under('K_POINTS', temp_scf, -1, 2, False)
     # Find the new number of atoms and replace the line
     updated_values = find.lines('ibrav', supercell_sample, 1)  # !    ibrav = 0, nat = 384, ntyp = 5
     if not updated_values:

@@ -19,7 +19,7 @@ fix_dict ={
     '[find](https://pablogila.github.io/Thoth/thoth/find.html)'         : '`thoth.find`',
     '[extract](https://pablogila.github.io/Thoth/thoth/extract.html)'   : '`thoth.extract`',
     '[text](https://pablogila.github.io/Thoth/thoth/text.html)'         : '`thoth.text`',
-    '[qe](https://pablogila.github.io/Thoth/thoth/call.html)'           : '`thoth.qe`',
+    '[qe](https://pablogila.github.io/Thoth/thoth/qe.html)'             : '`thoth.qe`',
     '[phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html)'   : '`thoth.phonopy`',
 } 
 

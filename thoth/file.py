@@ -49,7 +49,7 @@ def get(file:str,
     elif return_anyway:
         return None
     elif len(files) == 0:
-        raise FileNotFoundError('The following directory is empty (maybe due to the filters):' + file)
+        raise FileNotFoundError('The following directory is empty (maybe due to the filters):\n' + file)
     else:
         raise FileExistsError(f'More than one file found, please apply a more strict filter. Found:\n{files}')
 
@@ -74,6 +74,7 @@ def get_list(folder:str,
         if not isinstance(filters, list):
             filters = [str(filters)]
         for filter_i in filters:
+            filter_i = os.path.basename(filter_i)
             for f in files:
                 if filter_i in f:
                     target_files.append(f)

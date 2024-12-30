@@ -33,10 +33,10 @@ This package contains the following submodules:
 - [text](https://pablogila.github.io/Thoth/thoth/text.html). Manipulate text files.
 - [extract](https://pablogila.github.io/Thoth/thoth/extract.html). Extract data from raw text strings.
 - [call](https://pablogila.github.io/Thoth/thoth/call.html). Run bash scripts and related.
-- [autoload](https://pablogila.github.io/Thoth/thoth/autoload.html). Common utilities.
+- [core](https://pablogila.github.io/Thoth/thoth/core.html). Common utilities.
 
 Additionally, some specific submodules for use in tandem with ab-initio codes are included:
-- [qe](https://pablogila.github.io/Thoth/thoth/call.html). Specific module for Quantum ESPRESSO.
+- [qe](https://pablogila.github.io/Thoth/thoth/qe.html). Specific module for Quantum ESPRESSO.
 - [phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html). Specific module for Phonopy calculations.
 
 The documentation can be compiled automatically using [pdoc](https://pdoc.dev/) and Thoth itself, by running:

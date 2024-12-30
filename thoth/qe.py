@@ -3,10 +3,13 @@
 Functions to work with [Quantum ESPRESSO](https://www.quantum-espresso.org/) calculation files.
 
 # Index
+- `pw_description`
 - `read_in()`
 - `read_out()`
 - `read_dir()`
 - `read_dirs()`
+- `set_value()`
+- `scf_from_relax()`
 
 ---
 '''
@@ -22,12 +25,55 @@ from . import extract
 from . import call
 
 
+pw_description = {
+    '&CONTROL' : ['calculation', 'title', 'verbosity', 'restart_mode', 'wf_collect', 'nstep', 'iprint', 'tstress', 'tprnfor', 'dt', 'outdir', 'wfcdir', 'prefix', 'lkpoint_dir', 'max_seconds', 'etot_conv_thr', 'forc_conv_thr', 'disk_io', 'pseudo_dir', 'tefield', 'dipfield', 'lelfield', 'nberrycyc', 'lorbm', 'lberry', 'gdir', 'nppstr', 'gate', 'twochem', 'lfcp', 'trism'],
+    #
+    '&SYSTEM' : ['ibrav', 'celldm(1)', 'celldm(2)', 'celldm(3)', 'celldm(4)', 'celldm(5)', 'celldm(6)', 'A', 'B', 'C', 'cosAB', 'cosAC', 'cosBC', 'nat', 'ntyp', 'nbnd', 'nbnd_cond', 'tot_charge', 'starting_charge', 'tot_magnetization', 'starting_magnetization', 'ecutwfc', 'ecutrho', 'ecutfock', 'nr1', 'nr2', 'nr3', 'nr1s', 'nr2s', 'nr3s', 'nosym', 'nosym_evc', 'noinv', 'no_t_rev', 'force_symmorphic', 'use_all_frac', 'occupations', 'one_atom_occupations', 'starting_spin_angle', 'degauss_cond', 'nelec_cond', 'degauss', 'smearing', 'nspin', 'sic_gamma', 'pol_type', 'sic_energy', 'sci_vb', 'sci_cb', 'noncolin', 'ecfixed', 'qcutz', 'q2sigma', 'input_dft', 'ace', 'exx_fraction', 'screening_parameter', 'exxdiv_treatment', 'x_gamma_extrapolation', 'ecutvcut' 'nqx1', 'nqx2', 'nqx3', 'localization_thr', 'Hubbard_occ', 'Hubbard_alpha', 'Hubbard_beta', 'starting_ns_eigenvalue', 'dmft', 'dmft_prefix', 'ensemble_energies', 'edir', 'emaxpos', 'eopreg', 'eamp', 'angle1', 'angle2', 'lforcet', 'constrained_magnetization', 'fixed_magnetization', 'lambda', 'report', 'lspinorb', 'assume_isolated', 'esm_bc', 'esm_w', 'esm_efield', 'esm_nfit', 'lgcscf', 'gcscf_mu', 'gcscf_conv_thr', 'gcscf_beta', 'vdw_corr', 'london', 'london_s6', 'london_c6', 'london_rvdw', 'london_rcut', 'dftd3_version', 'dftd3_threebody', 'ts_vdw_econv_thr', 'ts_vdw_isolated', 'xdm', 'xdm_a1', 'xdm_a2', 'space_group', 'uniqueb', 'origin_choice', 'rhombohedral', 'zgate', 'relaxz', 'block', 'block_1', 'block_2', 'block_height', 'nextffield'],
+    #
+    '&ELECTRONS' : ['electron_maxstep', 'exx_maxstep', 'scf_must_converge', 'conv_thr', 'adaptive_thr', 'conv_thr_init', 'conv_thr_multi', 'mixing_mode', 'mixing_beta', 'mixing_ndim', 'mixing_fixed_ns', 'diagonalization', 'diago_thr_init', 'diago_cg_maxiter', 'diago_ppcg_maxiter', 'diago_david_ndim', 'diago_rmm_ndim', 'diago_rmm_conv', 'diago_gs_nblock', 'diago_full_acc', 'efield', 'efield_cart', 'efield_phase', 'startingpot', 'startingwfc', 'tqr', 'real_space'],
+    #
+    '&IONS' : ['ion_positions', 'ion_velocities', 'ion_dynamics', 'pot_extrapolation', 'wfc_extrapolation', 'remove_rigid_rot', 'ion_temperature', 'tempw', 'tolp', 'delta_t', 'nraise', 'refold_pos', 'upscale', 'bfgs_ndim', 'trust_radius_max', 'trust_radius_min', 'trust_radius_ini', 'w_1', 'w_2', 'fire_alpha_init', 'fire_falpha', 'fire_nmin', 'fire_f_inc', 'fire_f_dec', 'fire_dtmax'],
+    #
+    '&CELL' : ['cell_dynamics', 'press', 'wmass', 'cell_factor', 'press_conv_thr' 'cell_dofree'],
+    #
+    '&FCP' : ['fcp_mu', 'fcp_dynamics', 'fcp_conv_thr', 'fcp_ndiis', 'fcp_mass','fcp_velocity', 'fcp_temperature', 'fcp_tempw', 'fcp_tolp ', 'fcp_delta_t', 'fcp_nraise', 'freeze_all_atoms'],
+    #
+    '&RISM' : ['nsolv', 'closure', 'tempv', 'ecutsolv', 'solute_lj', 'solute_epsilon', 'solute_sigma', 'starting1d', 'starting3d', 'smear1d', 'smear3d', 'rism1d_maxstep', 'rism3d_maxstep', 'rism1d_conv_thr', 'rism3d_conv_thr', 'mdiis1d_size', 'mdiis3d_size', 'mdiis1d_step', 'mdiis3d_step', 'rism1d_bond_width', 'rism1d_dielectric', 'rism1d_molesize', 'rism1d_nproc', 'rism3d_conv_level', 'rism3d_planar_average', 'laue_nfit', 'laue_expand_right', 'laue_expand_left', 'laue_starting_right', 'laue_starting_left', 'laue_buffer_right', 'laue_buffer_left', 'laue_both_hands', 'laue_wall', 'laue_wall_z', 'laue_wall_rho', 'laue_wall_epsilon', 'laue_wall_sigma', 'laue_wall_lj6'],
+    #
+    'ATOMIC_SPECIES' : ['X', 'Mass_X', 'PseudoPot_X'],
+    #
+    'ATOMIC_POSITIONS' : ['X', 'x', 'y', 'z', 'if_pos(1)', 'if_pos(2)', 'if_pos(3)'],
+    #
+    'K_POINTS' : ['nks', 'xk_x', 'xk_y', 'xk_z', 'wk', 'nk1', 'nk2', 'nk3', 'sk1', 'sk2', 'sk3'],
+    #
+    'ADDITIONAL_K_POINTS' : ['nks_add', 'k_x', 'k_y', 'k_z', 'wk_'],
+    #
+    'CELL_PARAMETERS': ['v1', 'v2', 'v3'],
+    #
+    'CONSTRAINTS' : ['nconstr', 'constr_tol', 'constr_type', 'constr(1)', 'constr(2)', 'constr(3)', 'constr(4)', 'constr_target'],
+    #
+    'OCCUPATIONS': ['f_inp1', 'f_inp2'],
+    #
+    'ATOMIC_VELOCITIES' : ['V', 'vx', 'vy', 'vz'],
+    #
+    'ATOMIC_FORCES' : ['X', 'fx', 'fy', 'fz'],
+    #
+    'SOLVENTS' : ['X', 'Density', 'Molecule', 'X', 'Density_Left', 'Density_Right', 'Molecule'],
+    #
+    'HUBBARD' : ['label(1)-manifold(1)', 'u_val(1)', 'label(1)-manifold(1)', 'j0_val(1)', 'paramType(1)', 'label(1)-manifold(1)', 'paramValue(1)', 'label(I)-manifold(I)', 'u_val(I)', 'label(I)-manifold(I)', 'j0_val(I)', 'label(I)-manifold(I)', 'label(J)-manifold(J)', 'I', 'J', 'v_val(I,J)'],
+}
+'''
+Dictionary with every possible namelist as keys, and the corresponding variables as values.
+'''
+
+
 def read_in(filename) -> dict:
     '''
     Reads an input `filename` from Quantum ESPRESSO,
     returning a dictionary with the input values used.
     The keys are named after the name of the corresponding variable.
     '''
+    must_be_int = ['max_seconds', 'nstep', 'ibrav', 'nat', 'ntyp', 'dftd3_version', 'electron_maxstep']
     filepath = file.get(filename)
     data = {}
     lines = find.lines('=', filepath)
@@ -44,6 +90,8 @@ def read_in(filename) -> dict:
             value_float = value_float.replace('E', 'e')
             value_float = float(value_float)
             value = value_float
+            if var in must_be_int: # Keep ints as int
+                value = int(value)
         except ValueError:
             pass # Then it is a string
         data[var] = value
@@ -57,7 +105,7 @@ def read_in(filename) -> dict:
     atomic_species = None
     if data['ntyp']:
         ntyp = data['ntyp']
-        atomic_species_raw = find.lines(key_species, filepath, -1, int(ntyp+1), True)
+        atomic_species_raw = find.lines(key_species, filepath, -1, int(ntyp+1), True, True)
         # Check that there was no empty line right after the keyword:
         if atomic_species_raw:
             atomic_species_cleaned = []
@@ -67,7 +115,7 @@ def read_in(filename) -> dict:
                     atomic_species_cleaned.append(line)
             atomic_species = atomic_species_cleaned[1:]
             if len(atomic_species) > ntyp:
-                atomic_species = atomic_species[:ntyp]
+                atomic_species = atomic_species[:int(ntyp)]
     else:
         key_species_end = r"(?!\s*!)(ATOMIC_POSITIONS|CELL_PARAMETERS)"  # Assuming species go before 
         atomic_species = find.between(key_species, key_species_end, filepath, False, 1, True)
@@ -316,6 +364,108 @@ def read_dirs(directory,
     print(f'Total successful calculations: {total_success_counter} out of {len_folders}')
 
 
+def set_value(key:str,
+              value,
+              filename
+              ) -> None:
+    '''
+    Replace the `value` of a `key` parameter in an input file with `filename`.\n
+    Remember to include the upper commas `'` on values that use them.\n
+    Note that you must update some values before replacing others:
+    'nat' before 'ATOMIC_POSITIONS', 'ntyp' before 'ATOMIC_SPECIES',
+    and lattice parameters before 'CELL_PARAMETERS.
+    '''
+    key_uncommented = key
+    key_uncommented.replace('(', '\(')
+    key_uncommented.replace(')', '\)')
+    key_uncommented = rf'(?!\s*!){key}'
+    filepath = file.get(filename)
+    input_old = read_in(filepath)
+    # Check if the value is already in the file
+    if not key in input_old.keys():
+        _add_value(key, value, filename)
+        return None
+    # Check for the special values, else replace it as a regular value
+    if key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_old']:    
+        nat = input_old['nat']
+        if isinstance(value, list):
+            if 'ATOMIC_SPECIES' in value[0]:
+                value = value[1:]
+            if len(value) != int(nat):
+                raise ValueError('Update nat before updating ATOMIC_POSITIONS!')
+            value = '\n'.join(value)
+        text.replace_line(value, '(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 1, int(nat-1), True)
+    elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_old']:
+        if isinstance(value, list):
+            if len(value) == 4:
+                if 'angstrom' in value[0] or 'bohr' in value[0]:
+                    text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
+                    text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
+                    text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
+                elif not 'alat' in value[0]:
+                    raise ValueError(f'Your CELL_PARAMETERS are invalid, please check them. Hint: card options must always be specified (angstrom, bohr, or alat). Your current CELL_PARAMETERS are:\n{value}')
+                value = '\n'.join(value)
+                text.replace_line(value, '(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
+            elif len(value) == 3:
+                value = '\n'.join(value)
+                text.replace_line(value, '(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
+                # We assume we lattice parameters are in alat, so we update the title of the card
+                text.replace_line('CELL_PARAMETERS alat', 'CELL_PARAMETERS', filepath, -1)
+            else:
+                raise ValueError('CELL_PARAMETERS must be a set of three vectors!')
+        else:  # Assume it was only three lines
+            text.replace_line(value, '(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
+    elif key == 'ATOMIC_SPECIES':
+        ntyp = input_old['ntyp']
+        if isinstance(value, list):
+            if 'ATOMIC_SPECIES' in value[0]:
+                value = value[1:]
+            if len(value) != ntyp:
+                raise ValueError('Update ntyp before updating ATOMIC_SPECIES!')
+            value = '\n'.join(value)
+        text.replace_line(value, '(?!\s*!)ATOMIC_SPECIES', filepath, -1, 1, int(ntyp-1), True)
+    elif key == 'K_POINTS':
+        text.replace_line(value, key_uncommented, filepath, -1, 1, 0, True)
+    else:
+        text.replace_line(f"  {key} = {str(value)}", key_uncommented, filepath, 1, 0, 0, True)
+        # If the key is a lattice parameter, remove previous lattice parameter definitions
+        if key in ['A', 'B', 'C', 'cosAB', 'cosAC', 'cosBC']:
+            text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
+            # Since lattice parameters are in alat, we update the title of the corresponding card
+            text.replace_line('CELL_PARAMETERS alat', 'CELL_PARAMETERS', filepath, -1)
+        elif 'celldm(' in key:
+            text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
+            text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
+            # Since lattice parameters are in alat, we update the title of the corresponding card
+            text.replace_line('CELL_PARAMETERS alat', 'CELL_PARAMETERS', filepath, -1)
+    return None
+
+
+def _add_value(key:str,
+               value,
+               filename
+               ) -> None:
+    '''
+    Adds an input `value` for a `key_uncommented` that was not present before in the `filename`.
+    Note that namelists must be in capital letters in yor file. Namelists must be introduced by hand.
+    '''
+    filepath = file.get(filename)
+    done = False
+    for section in pw_description.keys():
+        if key in pw_description[section]:
+            text.insert_under(f'  {key} = {str(value)}', section, filepath, 1)
+            done = True
+            break
+    if not done:
+        raise ValueError(f'Could not update the following variable: {key}. Are namelists in CAPITAL letters?')
+    if key in ['A', 'B', 'C', 'cosAB', 'cosAC', 'cosBC']:
+        text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
+    elif 'celldm(' in key:
+        text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
+        text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
+    return None
+
+
 def scf_from_relax(folder:str=None,
                    relax_in:str='relax.in',
                    relax_out:str='relax.out'
@@ -326,52 +476,30 @@ def scf_from_relax(folder:str=None,
     The `relax_in` and `relax_out` files by default are `relax.in` and `relax.out`,
     update the names if necessary.
     '''
+    # Terminal feedback
+    print(f'\nthoth.qe {version}\n'
+          f'Creating Quantum ESPRESSO SCF input from previous relax calculation:\n'
+          f'{relax_in}\n{relax_out}\n')
     folder = call.here(folder)
     relax_in = file.get(folder, relax_in)
     relax_out = file.get(folder, relax_out)
-    # Terminal feedback
-    print(f'\nthoth.phonopy {version}\n'
-          f'Creating Quantum ESPRESSO SCF input from previous relax calculation:\n'
-          f'{relax_in}\n{relax_out}\n')
+    data = read_dir(folder, relax_in, relax_out)
     # Create the scf.in from the previous relax.in
     scf_in = 'scf.in'
     comment = f'! Automatic SCF input made with thoth.phonopy {version}'
     file.from_template(relax_in, scf_in, comment)
     scf_in = file.get(folder, scf_in)
-    # Save the ATOMIC_SPECIES from the relax input
-    key_species = 'ATOMIC_SPECIES'
-    key_species_end = r"(ATOMIC_POSITIONS|CELL_PARAMETERS)"
-    atomic_species = find.between(key_species, key_species_end, scf_in, False, 1, True)
-    atomic_species = '\n' + key_species + '\n' + atomic_species
-    # Delete the old CELL_PARAMETERS, ATOMIC_POSITIONS and ATOMIC_SPECIES
-    key_cell = 'CELL_PARAMETERS'
-    text.delete_under('ATOMIC_POSITIONS', scf_in, -1, -1)
-    try:
-        text.delete_under(key_species, scf_in, -1, -1)
-    except:  # It might be deleted already!
-        pass
-    try:
-        text.delete_under(key_cell, scf_in, -1, -1)
-    except:  # It might be deleted already!
-        pass
-    # Get the final coordinates from the relax output
-    coordinates = find.between('Begin final coordinates', 'End final coordinates', relax_out, False, -1, False)
-    coordinates = coordinates.splitlines()
-    coordinates = "\n".join(coordinates[2:])
-    # Insert the new ATOMIC_SPECIES and coordinates. Atomic species will go first
-    text.insert_at(atomic_species, scf_in, -1)
-    text.insert_at(coordinates, scf_in, -1)
-    # Get the lattice parameterts
-    alat_line = find.lines(key_cell, scf_in, -1, 0, False, False)[0]
-    alat = extract.number(alat_line, 'alat')
-    alat_text = f'  celldm(1) = {alat}'
-    # Update lattice parameters, ibrav and calculation
-    text.replace_line(r'CELL_PARAMETERS alat', key_cell, scf_in, -1)
-    text.replace_line('', r'celldm\(\d\)\s*=', scf_in, 0, 0, 0, True)
-    text.replace_line('', r'[ABC]\s*=', scf_in, 0, 0, 0, True)
-    text.insert_under(alat_text, r'(&SYSTEM|&system)', scf_in, 1, 0, True)
-    text.replace_line('  ibrav = 0', r'ibrav\s*=', scf_in, 0, 0, 0, True)
-    text.replace_line("  calculation = 'scf'", r'calculation\s*=', scf_in, 0, 0, 0, True)
+    # Replace CELL_PARAMETERS, ATOMIC_POSITIONS, ATOMIC_SPECIES, alat, ibrav and calculation
+    atomic_species = data['ATOMIC_SPECIES']
+    cell_parameters = data['CELL_PARAMETERS_out']
+    atomic_positions = data['ATOMIC_POSITIONS_out']
+    alat = data['alat']
+    set_value('ATOMIC_SPECIES', atomic_species, scf_in)
+    set_value('CELL_PARAMETERS', cell_parameters, scf_in)
+    set_value('ATOMIC_POSITIONS', atomic_positions, scf_in)
+    set_value('celldm(1)', alat, scf_in)
+    set_value('ibrav', 0, scf_in)
+    set_value('calculation', "'scf'", scf_in)
     # Terminal feedback
     print(f'Created input SCF file at:'
           f'{scf_in}\n')
