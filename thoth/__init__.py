@@ -3,7 +3,7 @@
 '''
 
 
-from .autoload import *
+from .core import *
 from . import call
 from . import file
 from . import find

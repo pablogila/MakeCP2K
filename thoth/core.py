@@ -1,11 +1,18 @@
 '''
-# Description
+## Description
 Common utilities, autoloaded directly as `thoth.value`.
+
+## Index
+- `version`
 
 ---
 '''
 
-version = 'v5.2.2'
+
+import pandas as pd
+
+
+version = 'v5.3.0'
 '''
 Package version, using semantic versioning to indicate breaking changes,
 as in v<MAJOR>.<MINOR>.<PATCH>.

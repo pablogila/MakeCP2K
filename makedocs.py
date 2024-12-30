@@ -9,7 +9,7 @@ import thoth as th
 
 readme = './README.md'
 temp_readme = './_README_temp.md'
-version_path = './thoth/autoload.py'
+version_path = './thoth/core.py'
 
 fix_dict ={
     '[autoload](https://pablogila.github.io/Thoth/thoth/autoload.html)' : '`thoth.autoload`',

@@ -15,7 +15,7 @@ import subprocess
 import datetime
 import sys
 import os
-from .autoload import *
+from .core import *
 
 
 def bash(command,
