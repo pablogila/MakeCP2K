@@ -265,19 +265,19 @@ def read_out(filename) -> dict:
     return output
 
 
-def read_dir(folder,
-             input_str:str='.in',
-             output_str:str='.out'
-             ) -> dict:
+def read_dir(
+        folder,
+        in_str:str='.in',
+        out_str:str='.out'
+    ) -> dict:
     '''
     Takes a `folder` containing a Quantum ESPRESSO calculation,
     and returns a dictionary containing the input parameters and output results.
     Input and output files are determined automatically,
-    but must be specified with `input_str` and `output_str` if more than one file ends with `.in` or `.out`.
-    To extract values only from the input or only from the output, check `read_in()` and `read_out()`.
+    but must be specified with `in_str` and `out_str` if more than one file ends with `.in` or `.out`.
     '''
-    input_file = file.get(folder, input_str)
-    output_file = file.get(folder, output_str)
+    input_file = file.get(folder, in_str)
+    output_file = file.get(folder, out_str)
     if not input_file and not output_file:
         return None
     if input_file:
@@ -293,19 +293,20 @@ def read_dir(folder,
     return merged_dict
 
 
-def read_dirs(directory,
-              input_str:str='.in',
-              output_str:str='.out',
-              calc_splitter='_',
-              calc_type_index=0,
-              calc_id_index=1
-              ) -> None:
+def read_dirs(
+        directory,
+        in_str:str='.in',
+        out_str:str='.out',
+        calc_splitter='_',
+        calc_type_index=0,
+        calc_id_index=1
+    ) -> None:
     '''
     Calls recursively `read_dir()`, reading Quantum ESPRESSO calculations
     from all the subfolders inside the given `directory`.
     The results are saved to CSV files inside the current directory.
     Input and output files are determined automatically, but must be specified with
-    `input_str` and `output_str` if more than one file ends with `.in` or `.out`.
+    `in_str` and `out_str` if more than one file ends with `.in` or `.out`.
 
     To properly group the calculations per type, saving separated CSVs for each calculation type,
     you can modify `calc_splitter` ('_' by default), `calc_type_index` (0) and `calc_id_index` (1).
@@ -349,7 +350,7 @@ def read_dirs(directory,
                 calc_id = folder_name.split(calc_splitter)[calc_id_index]
             except:
                 calc_id = folder_name
-            df = pd.DataFrame.from_dict(read_dir(folder, input_str, output_str))
+            df = pd.DataFrame.from_dict(read_dir(folder, in_str, out_str))
             if df is None:
                 continue
             # Join input and output in the same dataframe
@@ -364,10 +365,11 @@ def read_dirs(directory,
     print(f'Total successful calculations: {total_success_counter} out of {len_folders}')
 
 
-def set_value(key:str,
-              value,
-              filename
-              ) -> None:
+def set_value(
+        key:str,
+        value,
+        filename
+    ) -> None:
     '''
     Replace the `value` of a `key` parameter in an input file with `filename`.
     If `value=''`, the parameter gets deleted.\n
@@ -460,10 +462,11 @@ def set_value(key:str,
     return None
 
 
-def _add_value(key:str,
-               value,
-               filename
-               ) -> None:
+def _add_value(
+        key:str,
+        value,
+        filename
+    ) -> None:
     '''
     Adds an input `value` for a `key_uncommented` that was not present before in the `filename`.
     Note that namelists must be in capital letters in yor file. Namelists must be introduced by hand.
@@ -535,9 +538,10 @@ def _add_value(key:str,
     return None
 
 
-def _add_section(section:str,
-                 filename
-                 ) -> None:
+def _add_section(
+        section:str,
+        filename
+    ) -> None:
     '''
     Adds a `section` namelist to the file with `filename`.
     The section must be in CAPITAL LETTERS, as in `&CONTROL`.
@@ -557,10 +561,11 @@ def _add_section(section:str,
     return None
 
 
-def scf_from_relax(folder:str=None,
-                   relax_in:str='relax.in',
-                   relax_out:str='relax.out'
-                   ) -> None:
+def scf_from_relax(
+        folder:str=None,
+        relax_in:str='relax.in',
+        relax_out:str='relax.out'
+    ) -> None:
     '''
     Create a Quantum ESPRESSO `scf.in` file from a previous relax calculation.
     If no `folder` is provided, the current working directory is used.

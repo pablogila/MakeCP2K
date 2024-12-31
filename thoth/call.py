@@ -18,11 +18,12 @@ import os
 from .core import *
 
 
-def bash(command,
-         cwd=None,
-         verbose=True,
-         return_anyway=False
-         ):
+def bash(
+        command,
+        cwd=None,
+        verbose=True,
+        return_anyway=False
+    ):
     '''
     Run a bash shell `command`, inside an optional `cwd` directory.
     If empty, the current working directory will be used.
@@ -45,11 +46,12 @@ def bash(command,
     return result
 
 
-def git(path=None,
+def git(
+        path=None,
         verbose=True,
         message=None,
         tag=None
-        ) -> None:
+    ) -> None:
     '''Automatically update a Git repository.'''
     if path:
         os.chdir(path)
@@ -73,7 +75,7 @@ def here(folder=None) -> str:
     Runs the rest of the script inside the specified `folder`.
     If none is provided, it runs from the same directory where the current script lies.
     This is really useful to run scripts from the VSCode terminal, etc.
-    Returns the path of the used `folder`.
+    Returns the path of the used `folder`, or the path of the script if folder is not provided.
     '''
     if folder:
         caller = os.path.abspath(folder)

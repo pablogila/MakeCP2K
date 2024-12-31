@@ -21,36 +21,37 @@ import re
 from .file import *
 
 
-def lines(keyword:str,
-          file:str,
-          number_of_matches:int=0,
-          additional_lines:int=0,
-          split_additional_lines: bool=False,
-          regex:bool=False
-          ) -> list:
+def lines(
+        key:str,
+        filename:str,
+        matches:int=0,
+        additional:int=0,
+        split: bool=False,
+        regex:bool=False
+    ) -> list:
     '''
-    Finds the line(s) containing the `keyword` string in the given `file`,
+    Finds the line(s) containing the `key` string in the given file with `filename`,
     returning a list with the matches.\n
-    The value `number_of_matches` specifies the max number of matches to be returned.
+    The value `matches` specifies the max number of matches to be returned.
     Defaults to 0 to return all possible matches. Set it to 1 to return only one match,
     or to negative integers to start the search from the end of the file upwards.\n
-    The value `additional_lines` specifies the number of additional lines
+    The value `additional` specifies the number of additional lines
     below the target line that are also returned;
     2 to return the found line plus two additional lines below, etc.
     Negative values return the specified number of lines before the target line.
     The original ordering from the file is preserved.
-    Defaults to `additional_lines=0`, only returning the target line.
+    Defaults to `additional=0`, only returning the target line.
     By default, the additional lines are returned in the same list item as the match separated by a `\\n`,
-    unless `split_additional_lines=True`, in which case they are added as additional items in the list.\n
+    unless `split=True`, in which case these additional lines are added as additional items in the list.\n
     To use regular expressions in the search, set `regex=True`.
     By default regex search is deactivated, using the faster mmap.find and rfind methods instead.
     '''
-    file_path = get(file)
-    matches = []
+    file_path = get(filename)
+    matches_found = []
     if regex:
-        positions = pos_regex(keyword, file, number_of_matches)
+        positions = pos_regex(key, filename, matches)
     else:
-        positions = pos(keyword, file, number_of_matches)
+        positions = pos(key, filename, matches)
     with open(file_path, 'r+b') as f:
         mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
     for start, end in positions:
@@ -63,73 +64,75 @@ def lines(keyword:str,
         # Adjust the line_end to add additional lines after the match
         match_start = line_start
         match_end = line_end
-        if additional_lines > 0:
-            for _ in range(abs(additional_lines)):
+        if additional > 0:
+            for _ in range(abs(additional)):
                 match_end = mm.find(b'\n', match_end + 1, len(mm)-1)
                 if match_end == -1:
                     match_end = len(mm) - 1
                     break
-        elif additional_lines < 0:
-            for _ in range(abs(additional_lines)):
+        elif additional < 0:
+            for _ in range(abs(additional)):
                 match_start = mm.rfind(b'\n', 0, match_start - 1) + 1
                 if match_start == -1:
                     match_start = 0
                     break
         # Save the matched lines
-        matches.append(mm[match_start:match_end].decode())
-    if split_additional_lines:
-        splitted_matches = []
-        for string in matches:
+        matches_found.append(mm[match_start:match_end].decode())
+    if split:
+        splitted_matches_found = []
+        for string in matches_found:
             splitted_match = string.splitlines()
-            splitted_matches.extend(splitted_match)
-        matches = splitted_matches
-    return matches
+            splitted_matches_found.extend(splitted_match)
+        matches_found = splitted_matches_found
+    return matches_found
 
 
-def between(key1:str,
-            key2:str,
-            file:str,
-            include_keys:bool=True,
-            match_number:int=1,
-            regex:bool=False
-            ) -> list:
+def between(
+        key1:str,
+        key2:str,
+        filename:str,
+        include_keys:bool=True,
+        match:int=1,
+        regex:bool=False
+    ) -> list:
     '''
-    Returns the content between the lines with `key1` and `key2` in the given `file`.
+    Returns the content between the lines with `key1` and `key2` in the given file with `filename`.
     Keywords can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
     Key lines are omited by default, but can be returned with `include_keys=True`.\n
     If there is more than one match, only the first one is considered by default;
-    set `match_number` to specify a particular match (1, 2... 0 is considered as 1!).
+    set `match` (int) to specify a particular match (1, 2... 0 is considered as 1!).
     Use negative numbers to start from the end of the file.
     '''
-    file_path = get(file)
-    start, end = between_pos(key1, key2, file_path, include_keys, match_number, regex)
+    file_path = get(filename)
+    start, end = between_pos(key1, key2, file_path, include_keys, match, regex)
     with open(file_path, 'r+b') as f:
         mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
     return (mm[start:end].decode())
 
 
-def pos(keyword:str,
-        file,
-        number_of_matches:int=0
+def pos(
+        key:str,
+        filename,
+        matches:int=0
         ) -> list:
     '''
-    Returns a list of the positions of a `keyword` in a given `file` (whether file or memory mapped file).\n
-    The value `number_of_matches` specifies the max number of matches to return.
+    Returns a list of the positions of a `key` in a given `filename` (whether file or memory mapped file).\n
+    The value `matches` specifies the max number of matches to return.
     Defaults to 0 to return all possible matches. Set it to 1 to return only one match,
     or to negative integers to start searching from the end of the file upwards.\n
     This method is faster than `pos_regex()`, but does not search for regular expressions.
     '''
     positions = []
-    mm = file
-    if not isinstance(file, mmap.mmap):
-        file_path = get(file)
+    mm = filename
+    if not isinstance(filename, mmap.mmap):
+        file_path = get(filename)
         with open(file_path, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
-    keyword_bytes = keyword.encode()
-    if number_of_matches >= 0:
+    keyword_bytes = key.encode()
+    if matches >= 0:
         start = 0
-        while number_of_matches == 0 or len(positions) < number_of_matches:
+        while matches == 0 or len(positions) < matches:
             pos = mm.find(keyword_bytes, start)
             if pos == -1:
                 break
@@ -138,7 +141,7 @@ def pos(keyword:str,
             start = end
     else:
         start = len(mm)
-        while len(positions) < abs(number_of_matches):
+        while len(positions) < abs(matches):
             pos = mm.rfind(keyword_bytes, 0, start)
             if pos == -1:
                 break
@@ -149,25 +152,26 @@ def pos(keyword:str,
     return positions
 
 
-def pos_regex(keyword:str,
-              file,
-              number_of_matches:int=0
-              ) -> list:
+def pos_regex(
+        key:str,
+        filename,
+        matches:int=0
+    ) -> list:
     '''
-    Returns a list of the positions of a `keyword` in a given `file` (actual file, not mmapped!).\n
-    The value `number_of_matches` specifies the max number of matches to return.
+    Returns a list of the positions of a `key` in a given file with `filename` (actual file, not mmapped!).\n
+    The value `matches` specifies the max number of matches to return.
     Defaults to 0 to return all possible matches. Set it to 1 to return only one match,
     or to negative integers to start searching from the end of the file upwards.\n
     This method is slower than `pos()`, but it can search for regular expressions.
     '''
-    file_path = get(file)
+    file_path = get(filename)
     positions = []
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
-    if number_of_matches > 0:
+    if matches > 0:
         start = 0
-        while len(positions) < number_of_matches:
-            match = re.search(keyword, content[start:])
+        while len(positions) < matches:
+            match = re.search(key, content[start:])
             if not match:
                 break
             match_start = start + match.start()
@@ -175,47 +179,48 @@ def pos_regex(keyword:str,
             positions.append((match_start, match_end))
             start = match_end
     else:
-        all_matches = list(re.finditer(keyword, content))
-        if number_of_matches == 0:
+        all_matches = list(re.finditer(key, content))
+        if matches == 0:
             positions = [(match.start(), match.end()) for match in all_matches]
         else:
-            positions = [(match.start(), match.end()) for match in all_matches[-abs(number_of_matches):]]
+            positions = [(match.start(), match.end()) for match in all_matches[-abs(matches):]]
     return positions
 
 
-def next_pos(position:tuple,
-             keyword:str,
-             file,
-             match_number:int=1
-             ) -> tuple:
+def next_pos(
+        position:tuple,
+        key:str,
+        filename,
+        match:int=1
+    ) -> tuple:
     '''
-    Returns the next position of the `keyword` string in the given `file` (file or mmapped file),
+    Returns the next position of the `key` string in the given file with `filename` (file or mmapped file),
     starting from an initial `position` tuple.
-    The `match_number` specifies the nonzero index of the next match to return (1, 2... 0 is considered as 1!).
+    The `match` number specifies the nonzero index of the next match to return (1, 2... 0 is considered as 1!).
     It can be negative to search backwards from the initial position.
     The last known positions will be returned if no more matches are found.\n
     This method is specific for normal strings.
     To use regular expressions, check `next_pos_regex()`.
     '''
-    mm = file
-    if not isinstance(file, mmap.mmap):
-        file_path = get(file)
+    mm = filename
+    if not isinstance(filename, mmap.mmap):
+        file_path = get(filename)
         with open(file_path, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
     start, end = position
-    keyword_bytes = keyword.encode()
-    if match_number == 0:
-        match_number = 1
+    keyword_bytes = key.encode()
+    if match == 0:
+        match = 1
     positions = []
-    if match_number > 0:
-        for _ in range(match_number):
+    if match > 0:
+        for _ in range(match):
             start = mm.find(keyword_bytes, end, len(mm))
             if start == -1:
                 break
             end = start + len(keyword_bytes)
             positions.append((start, end))
     else:
-        for _ in range(abs(match_number)):
+        for _ in range(abs(match)):
             start = mm.rfind(keyword_bytes, 0, start)
             if start == -1:
                 break
@@ -227,74 +232,76 @@ def next_pos(position:tuple,
     return positions[0]
 
 
-def next_pos_regex(position:tuple,
-                   keyword:str,
-                   file,
-                   match_number:int=0
-                   ) -> tuple:
+def next_pos_regex(
+        position:tuple,
+        key:str,
+        filename,
+        match:int=0
+    ) -> tuple:
     '''
-    Returns the next position of the `keyword` string in the given `file` (actual file, not mmapped!),
-    starting from an initial `position` tuple.
-    The `match_number` specifies the next match to return (1, 2... 0 is considered as 1!).
+    Returns the next position of the `key` string in the given file with `filename`
+    (actual file, not mmapped!), starting from an initial `position` tuple.
+    The `match` number specifies the next match to return (1, 2... 0 is considered as 1!).
     It can be negative to search backwards from the initial position.
     This method is specific for regular expressions.\n
     For normal strings, check the faster `next_pos()` method.
     '''
-    file_path = get(file)
+    file_path = get(filename)
     start, end = position
     with open(file_path, 'r') as f:
         content = f.read()
-    if match_number == 0:
-        match_number = 1
+    if match == 0:
+        match = 1
     positions = []
-    if match_number > 0:
-        for _ in range(match_number):
-            match = re.search(keyword, content[end:])
-            if not match:
+    if match > 0:
+        for _ in range(match):
+            match_found = re.search(key, content[end:])
+            if not match_found:
                 break
-            start = end + match.start()
-            end = end + match.end()
+            start = end + match_found.start()
+            end = end + match_found.end()
             positions.append((start, end))
         positions.reverse()
         if len(positions) == 0:
             positions.append((-1, -1))
         return positions[0]
     else:  # Reverse match
-        all_matches = list(re.finditer(keyword, content))
+        all_matches = list(re.finditer(key, content))
         if not all_matches:
             return (-1, -1)
-        if abs(match_number) > len(all_matches):
-            match_number = -len(all_matches)
+        if abs(match) > len(all_matches):
+            match = -len(all_matches)
         else:
-            match = all_matches[match_number]  # Already negative
-            start = match.start()
-            end = match.end()
+            match_found = all_matches[match]  # Already negative
+            start = match_found.start()
+            end = match_found.end()
     return start, end
 
 
-def line_pos(position:tuple,
-             file,
-             skip_lines:int=0
-             ) -> tuple:
+def line_pos(
+        position:tuple,
+        filename,
+        skips:int=0
+    ) -> tuple:
     '''
     Returns the position of the full line containing the `position` tuple,
-    in the given `file` (whether file or memory mapped file).
-    A specific line below can be returned with `skip_lines` being a natural int,
+    in the given file with `filename` (whether file or memory mapped file).
+    A specific line below can be returned with `skips` being a natural int,
     or previous lines with negative values.
     '''
-    mm = file
-    if not isinstance(file, mmap.mmap):
-        file_path = get(file)
+    mm = filename
+    if not isinstance(filename, mmap.mmap):
+        file_path = get(filename)
         with open(file_path, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_READ)
     if position == (-1, -1):  # No match
         return (-1, -1)
     start, end = position
-    if skip_lines == 0:
+    if skips == 0:
         start = mm.rfind(b'\n', 0, start) + 1
         end = mm.find(b'\n', end, len(mm))
-    elif skip_lines > 0:
-        for i in range(0, abs(skip_lines)):
+    elif skips > 0:
+        for i in range(0, abs(skips)):
             start = mm.find(b'\n', end, len(mm)) + 1
             if start == -1:
                 start = len(mm)
@@ -306,7 +313,7 @@ def line_pos(position:tuple,
                 end = len(mm)
                 break
     else:  # previous lines
-        for i in range(0, abs(skip_lines)):
+        for i in range(0, abs(skips)):
             end = mm.rfind(b'\n', 0, start)
             if end == -1:
                 start = 0
@@ -320,36 +327,37 @@ def line_pos(position:tuple,
     return start, end
 
 
-def between_pos(key1:str,
-                key2:str,
-                file,
-                include_keys:bool=True,
-                match_number:int=1,
-                regex:bool=False
-                ) -> tuple:
+def between_pos(
+        key1:str,
+        key2:str,
+        filename,
+        include_keys:bool=True,
+        match:int=1,
+        regex:bool=False
+    ) -> tuple:
     '''
-    Deletes the content between the line containing the `key1` and `key2` in the given `file`.
+    Deletes the content between the line containing the `key1` and `key2` in the given file with `filename`.
     Keywords can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
     Key lines are omited by default, but can be returned with `include_keys=True`.\n
     If there is more than one match, only the first one is considered by default;
-    set `match_number` to specify a particular match (1, 2... 0 is considered as 1!).
+    set `match` number to specify a particular match (1, 2... 0 is considered as 1!).
     Use negative numbers to start from the end of the file.
     '''
-    file_path = get(file)
-    if match_number == 0:
-        match_number = 1
+    file_path = get(filename)
+    if match == 0:
+        match = 1
     if regex:
-        positions_1: list = pos_regex(key1, file_path, match_number)
-        if match_number > 0:
+        positions_1: list = pos_regex(key1, file_path, match)
+        if match > 0:
             positions_1.reverse()
         position_1 = positions_1[0]
         if position_1 == (-1, -1):  # No match
             return (-1, -1)
         position_2: tuple = next_pos_regex(position_1, key2, file_path, 1)
     else:
-        positions_1: list = pos(key1, file_path, match_number)
-        if match_number > 0:
+        positions_1: list = pos(key1, file_path, match)
+        if match > 0:
             positions_1.reverse()
         position_1 = positions_1[0]
         if position_1 == (-1, -1):  # No match

@@ -14,9 +14,10 @@ Functions to extract data from raw text strings.
 import re
 
 
-def number(text:str,
-           name:str=''
-           ) -> float:
+def number(
+        text:str,
+        name:str=''
+    ) -> float:
     '''
     Extracts the float value of a given `name` variable from a raw `text`.\n
     Example:
@@ -35,11 +36,12 @@ def number(text:str,
     return None
     
 
-def string(text:str,
-           name:str='',
-           stop:str='',
-           strip:bool=True
-           ) -> str:
+def string(
+        text:str,
+        name:str='',
+        stop:str='',
+        strip:bool=True
+    ) -> str:
     '''
     Extracts the `text` value of a given `name` variable from a raw string.
     Stops before an optional `stop` string.
@@ -66,9 +68,10 @@ def string(text:str,
     return result
 
 
-def column(text:str,
-           column:int
-           ) -> float:
+def column(
+        text:str,
+        column:int
+    ) -> float:
     '''
     Extracts the desired float `column` of a given `string`.
     '''

@@ -28,12 +28,13 @@ from . import extract
 from . import qe
 
 
-def make(dimension:str='2 2 2',
-         folder:str=None,
-         relax_in:str='relax.in',
-         relax_out:str='relax.out',
-         slurm_template:str='scf.slurm'
-         ) -> None:
+def make(
+        dimension:str='2 2 2',
+        folder:str=None,
+        relax_in:str='relax.in',
+        relax_out:str='relax.out',
+        slurm_template:str='scf.slurm'
+    ) -> None:
     '''
     Starting on a given `folder` (CWD if none) from the `relax_in` and `relax_out` (default ones),
     creates the supercells of a `dimension` (`2 2 2` by default)
@@ -59,7 +60,11 @@ def make(dimension:str='2 2 2',
     return None
 
 
-def sbatch(folder=None, slurm_template:str='scf.slurm', testing:bool=False) -> None:
+def sbatch(
+        folder=None,
+        slurm_template:str='scf.slurm',
+        testing:bool=False
+    ) -> None:
     '''
     Launch all your supercell calculations to a cluster using a SLURM manager.
     Runs from a `folder` (CWD if empty), using a `slurm_template` (`scf.slurm` by default).\n
@@ -106,10 +111,11 @@ def sbatch(folder=None, slurm_template:str='scf.slurm', testing:bool=False) -> N
     print(f'\nDone! Temporary slurm files were moved to /{slurm_folder}/\n')
 
 
-def supercells_from_scf(dimension:str='2 2 2',
-                        folder:str=None,
-                        scf:str='scf.in'
-                        ) -> None:
+def supercells_from_scf(
+        dimension:str='2 2 2',
+        folder:str=None,
+        scf:str='scf.in'
+    ) -> None:
     '''
     Creates supercells of a given `dimension` (`2 2 2` by default) inside a `folder`,
     from a Quantum ESPRESSO `scf` input (`scf.in` by default).
@@ -123,9 +129,10 @@ def supercells_from_scf(dimension:str='2 2 2',
     return None
 
 
-def scf_header_to_supercells(folder:str=None,
-                             scf:str='scf.in',
-                             ) -> None:
+def scf_header_to_supercells(
+        folder:str=None,
+        scf:str='scf.in',
+    ) -> None:
     '''
     Paste the header from the `scf` file in `folder` to the supercells created by Phonopy.
     '''
@@ -178,7 +185,10 @@ def scf_header_to_supercells(folder:str=None,
     return None
 
 
-def check_slurm_template(folder=None, slurm_template:str='scf.slurm') -> str:
+def check_slurm_template(
+        folder=None,
+        slurm_template:str='scf.slurm'
+    ) -> str:
     '''
     Check a `slurm_template` inside `folder`.
     The current working directory is used if `folder` is not provided.

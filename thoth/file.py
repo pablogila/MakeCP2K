@@ -21,12 +21,13 @@ import os
 import shutil
 
 
-def get(file:str,
+def get(
+        filename:str,
         filters=None,
         return_anyway:bool=False
         ) -> str:
     '''
-    Check if the given `file` exists in the currrent working directory
+    Check if the given `filename` exists in the currrent working directory
     or in the full path, and returns its full path as a string.\n
     Raises an error if the file is not found, unless `return_anyway=True`,
     in which case it returns None. This can be used to personalize errors.\n
@@ -35,29 +36,30 @@ def get(file:str,
     if there are more files, it tries to filter them with the `filters` keyword(s) to return a single file.
     If this fails, try using more strict filers to return a single file.
     '''
-    if os.path.isfile(file):
-        return os.path.abspath(file)
-    elif os.path.isdir(file):
-        files = get_list(file, filters, abspath=True)
+    if os.path.isfile(filename):
+        return os.path.abspath(filename)
+    elif os.path.isdir(filename):
+        files = get_list(filename, filters, abspath=True)
     elif return_anyway:
         return None
     else:
-        raise FileNotFoundError('Nothing found at ' + file)
+        raise FileNotFoundError('Nothing found at ' + filename)
     # Return a single file
     if len(files) == 1:
         return files[0]
     elif return_anyway:
         return None
     elif len(files) == 0:
-        raise FileNotFoundError('The following directory is empty (maybe due to the filters):\n' + file)
+        raise FileNotFoundError('The following directory is empty (maybe due to the filters):\n' + filename)
     else:
         raise FileExistsError(f'More than one file found, please apply a more strict filter. Found:\n{files}')
 
 
-def get_list(folder:str,
-             filters=None,
-             abspath:bool=True
-             ) -> list:
+def get_list(
+        folder:str,
+        filters=None,
+        abspath:bool=True
+    ) -> list:
     '''
     Takes a `folder`, filters the content with the `filters` keyword(s) if provided, and returns a list with the matches.
     The full paths are returned by default; to get only the base names, set `abspath=False`.
@@ -87,34 +89,36 @@ def get_list(folder:str,
     return files
 
 
-def copy(original_file:str,
-         new_file:str
-         ) -> None:
+def copy(
+        original:str,
+        new:str
+    ) -> None:
     '''
-    Copies the content of `original_file` to `new_file` with shutil,
+    Copies the content of `original` file to `new` file with shutil,
     after making sure that the file exists with `thoth.file.get()`.
     '''
-    original_file_path = get(original_file)
-    file = shutil.copy(original_file_path, new_file)
+    original_file_path = get(original)
+    file = shutil.copy(original_file_path, new)
     return None
 
 
-def move(original_file:str,
-         new_file:str
-         ) -> None:
+def move(
+        original:str,
+        new:str
+    ) -> None:
     '''
-    Moves `original_file` to `new_file`.
+    Moves `original` file to `new` file.
     '''
-    original_file_path = get(original_file)
-    file = shutil.move(original_file_path, new_file)
+    original_file_path = get(original)
+    file = shutil.move(original_file_path, new)
     return None
 
 
-def remove(file:str) -> None:
+def remove(filename:str) -> None:
     '''
-    Removes the given `file`.
+    Removes the given file with `filename`.
     '''
-    file_path = get(file)
+    file_path = get(filename)
     if os.path.isdir(file_path):
         shutil.rmtree(file_path)
     elif os.path.isfile(file_path):
@@ -124,12 +128,13 @@ def remove(file:str) -> None:
     return None
 
 
-def rename(old_string:str,
-           new_string:str,
-           folder=None
-           ) -> None:
+def rename(
+        old:str,
+        new:str,
+        folder=None
+    ) -> None:
     '''
-    Batch renames files in the given folder, replacing `old_string` by `new_string`.
+    Batch renames files in the given folder, replacing `old` string by `new` string.
     If no `folder` is provided, the current working directory is used.
     '''
     if folder is None:
@@ -141,18 +146,19 @@ def rename(old_string:str,
     else:
         raise FileNotFoundError('Missing folder at ' + folder + ' or in the CWD ' + os.getcwd())
     for f in files:
-        if old_string in f:
-            os.rename(f, f.replace(old_string, new_string))
+        if old in f:
+            os.rename(f, f.replace(old, new))
     return None
 
 
-def rename_on_subfolders(old_string:str,
-                         new_string:str,
-                         folder=None
-                         ) -> None:
+def rename_on_subfolders(
+        old:str,
+        new:str,
+        folder=None
+    ) -> None:
     '''
     Renames the files inside the subfolders in the given `folder`,
-    from an `old_string` to the `new_string`.
+    from an `old` string to the `new` string.
     If no `folder` is provided, the current working directory is used.
     '''
     if folder is None:
@@ -166,17 +172,18 @@ def rename_on_subfolders(old_string:str,
     for d in things:
         if os.path.isdir(d):
             for f in os.listdir(d):
-                if old_string in f:
+                if old in f:
                     old_file = os.path.join(d, f)
-                    new_file = os.path.join(d, f.replace(old_string, new_string))
+                    new_file = os.path.join(d, f.replace(old, new))
                     os.rename(old_file, new_file)
     return None
 
 
-def copy_to_subfolders(folder=None,
-                       extension:str=None,
-                       strings_to_delete:list=[]
-                       ) -> None:
+def copy_to_subfolders(
+        folder=None,
+        extension:str=None,
+        strings_to_delete:list=[]
+    ) -> None:
     '''
     Copies the files from the `folder` with the given `extension` to individual subfolders.
     The subfolders are named as the original files,
@@ -199,23 +206,24 @@ def copy_to_subfolders(folder=None,
     return None
 
 
-def from_template(template:str,
-                  new_file:str,
-                  comment:str=None,
-                  fixing_dict:dict=None
-                  ) -> None:
+def from_template(
+        template:str,
+        new:str,
+        comment:str=None,
+        fixing_dict:dict=None
+    ) -> None:
     '''
-    Same as `copy_file`, but optionally adds a `comment` at the beginning of the new file.
+    Same as `copy_file()`, but optionally adds a `comment` at the beginning of the new file.
     Also, it optionally corrects the output file with a `fixing_dict` dictionary.
     '''
-    copy(template, new_file)
+    copy(template, new)
     if comment:
-        with open(new_file, 'r+') as f:
+        with open(new, 'r+') as f:
             content = f.read()
             f.seek(0)
             f.write(comment + '\n' + content)
     if fixing_dict:
-        with open(new_file, 'r+') as f:
+        with open(new, 'r+') as f:
             content = f.read()
             for key, value in fixing_dict.items():
                 content = content.replace(key, value)
