@@ -369,15 +369,16 @@ def set_value(key:str,
               filename
               ) -> None:
     '''
-    Replace the `value` of a `key` parameter in an input file with `filename`.\n
+    Replace the `value` of a `key` parameter in an input file with `filename`.
+    If `value=''`, the parameter gets deleted.\n
     Remember to include the upper commas `'` on values that use them.\n
     Note that you must update some values before replacing others:
     'nat' before 'ATOMIC_POSITIONS', 'ntyp' before 'ATOMIC_SPECIES',
     and lattice parameters before 'CELL_PARAMETERS.
     '''
     key_uncommented = key
-    key_uncommented.replace('(', '\(')
-    key_uncommented.replace(')', '\)')
+    key_uncommented.replace('(', r'\\(')
+    key_uncommented.replace(')', r'\\)')
     key_uncommented = rf'(?!\s*!){key}'
     filepath = file.get(filename)
     input_old = read_in(filepath)
@@ -385,7 +386,7 @@ def set_value(key:str,
     if not key in input_old.keys():
         _add_value(key, value, filename)
         return None
-    # Check for the special values, else replace it as a regular value
+    # Check for the special values, else replace it as a regular value. ATOMIC_POSITIONS ?
     if key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_old']:    
         nat = input_old['nat']
         if isinstance(value, list):
@@ -394,7 +395,11 @@ def set_value(key:str,
             if len(value) != int(nat):
                 raise ValueError('Update nat before updating ATOMIC_POSITIONS!')
             value = '\n'.join(value)
-        text.replace_line(value, '(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 1, int(nat-1), True)
+        if value == '':  # Remove from the file
+            text.replace_line('', r'(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 0, int(nat), True)
+        else:
+            text.replace_line(value, r'(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 1, int(nat-1), True)
+    # CELL_PARAMETERS ?
     elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_old']:
         if isinstance(value, list):
             if len(value) == 4:
@@ -405,16 +410,21 @@ def set_value(key:str,
                 elif not 'alat' in value[0]:
                     raise ValueError(f'Your CELL_PARAMETERS are invalid, please check them. Hint: card options must always be specified (angstrom, bohr, or alat). Your current CELL_PARAMETERS are:\n{value}')
                 value = '\n'.join(value)
-                text.replace_line(value, '(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
+                text.replace_line(value, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
             elif len(value) == 3:
                 value = '\n'.join(value)
-                text.replace_line(value, '(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
-                # We assume we lattice parameters are in alat, so we update the title of the card
-                text.replace_line('CELL_PARAMETERS alat', 'CELL_PARAMETERS', filepath, -1)
+                text.replace_line(value, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
+                # We assume that lattice parameters are now in alat, so we update the title of the card
+                text.replace_line('CELL_PARAMETERS alat', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 0, True)
             else:
                 raise ValueError('CELL_PARAMETERS must be a set of three vectors!')
+        elif value == '':  # Remove from the file
+            text.replace_line('', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
         else:  # Assume it was only three lines
-            text.replace_line(value, '(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
+            text.replace_line(value, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
+            # We assume that lattice parameters are now in alat, so we update the title of the card
+            text.replace_line('CELL_PARAMETERS alat', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 0, True)
+    # ATOMIC_SPECIES ?
     elif key == 'ATOMIC_SPECIES':
         ntyp = input_old['ntyp']
         if isinstance(value, list):
@@ -423,9 +433,18 @@ def set_value(key:str,
             if len(value) != ntyp:
                 raise ValueError('Update ntyp before updating ATOMIC_SPECIES!')
             value = '\n'.join(value)
-        text.replace_line(value, '(?!\s*!)ATOMIC_SPECIES', filepath, -1, 1, int(ntyp-1), True)
+        if value == '':  # Remove from the file
+            text.replace_line('', r'(?!\s*!)ATOMIC_SPECIES', filepath, -1, 0, int(ntyp), True)
+        else:
+            text.replace_line(value, r'(?!\s*!)ATOMIC_SPECIES', filepath, -1, 1, int(ntyp-1), True)
+    # K_POINTS ?
     elif key == 'K_POINTS':
-        text.replace_line(value, key_uncommented, filepath, -1, 1, 0, True)
+        if value == '':  # Remove from the file
+            text.replace_line('', key_uncommented, filepath, -1, 0, 1, True)
+        else:
+            text.replace_line(value, key_uncommented, filepath, -1, 1, 0, True)
+    elif value == '':
+        text.replace_line('', key_uncommented, filepath, 1, 0, 0, True)
     else:
         text.replace_line(f"  {key} = {str(value)}", key_uncommented, filepath, 1, 0, 0, True)
         # If the key is a lattice parameter, remove previous lattice parameter definitions
@@ -449,10 +468,60 @@ def _add_value(key:str,
     Adds an input `value` for a `key_uncommented` that was not present before in the `filename`.
     Note that namelists must be in capital letters in yor file. Namelists must be introduced by hand.
     '''
+    if value == '':  # The value was not there in the first place!
+        return None
     filepath = file.get(filename)
+    # CELL_PARAMETERS ?
+    if key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_old']:
+        if isinstance(value, list):
+            if len(value) == 4:
+                if 'angstrom' in value[0] or 'bohr' in value[0]:
+                    text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
+                    text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
+                    text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
+                elif not 'alat' in value[0]:
+                    raise ValueError(f'Your CELL_PARAMETERS are invalid, please check them. Hint: card options must always be specified (angstrom, bohr, or alat). Your current CELL_PARAMETERS are:\n{value}')
+                value = '\n'.join(value)
+                text.insert_at(value, filepath, -1)
+            elif len(value) == 3:
+                value = '\n'.join(value)
+                text.insert_at(f'CELL_PARAMETERS alat\n{value}', filepath, -1)
+            else:
+                raise ValueError('CELL_PARAMETERS must be a set of three vectors!')
+        else:  # Assume it was only three lines
+            text.insert_at(f'CELL_PARAMETERS alat\n{value}', filepath, -1)
+        return None
+    # ATOMIC_SPECIES?
+    elif key == 'ATOMIC_SPECIES':    
+        if isinstance(value, list):
+            if not 'ATOMIC_SPECIES' in value[0]:
+                value = value.insert(0, 'ATOMIC_SPECIES')
+            value = '\n'.join(value)
+        elif not value.startswith('ATOMIC_SPECIES'):
+            value = 'ATOMIC_SPECIES\n' + value
+        text.insert_at(value, filepath, -1)
+        return None
+    # ATOMIC_POSITIONS ?
+    elif key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_old']:    
+        if isinstance(value, list):
+            if not 'ATOMIC_POSITIONS' in value[0]:
+                value = value.insert(0, 'ATOMIC_POSITIONS')
+            value = '\n'.join(value)
+        elif not value.startswith('ATOMIC_POSITIONS'):
+            value = 'ATOMIC_POSITIONS\n' + value
+        text.insert_at(value, filepath, -1)
+        return None
+    # K_POINTS ?
+    elif key == 'K_POINTS':
+        text.insert_at(f'K_POINTS\n{value}', filepath, -1)
+        return None
+    # Try with regular parameters
     done = False
     for section in pw_description.keys():
         if key in pw_description[section]:
+            is_section_on_file = find.lines(section, filepath)
+            if not is_section_on_file:
+                _add_section(section, filepath)
             text.insert_under(f'  {key} = {str(value)}', section, filepath, 1)
             done = True
             break
@@ -463,6 +532,28 @@ def _add_value(key:str,
     elif 'celldm(' in key:
         text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
         text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
+    return None
+
+
+def _add_section(section:str,
+                 filename
+                 ) -> None:
+    '''
+    Adds a `section` namelist to the file with `filename`.
+    The section must be in CAPITAL LETTERS, as in `&CONTROL`.
+    '''
+    filepath = file.get(filename)
+    namelists = pw_description.keys()
+    if not section in namelists:
+        raise ValueError(f'{section} is not a valid namelist!')
+    namelists_reversed = namelists.reverse()
+    next_namelist = None
+    for namelist in namelists_reversed:
+        if namelist == section:
+            break
+        next_namelist = namelist
+    next_namelist_uncommented = rf'(?!\s*!){next_namelist}'
+    text.insert_under(f'{section}\n/', next_namelist_uncommented, filepath, 1, -1, True)
     return None
 
 
@@ -486,7 +577,7 @@ def scf_from_relax(folder:str=None,
     data = read_dir(folder, relax_in, relax_out)
     # Create the scf.in from the previous relax.in
     scf_in = 'scf.in'
-    comment = f'! Automatic SCF input made with thoth.phonopy {version}'
+    comment = f'! Automatic SCF input made with thoth.qe {version}. https://github.com/pablogila/Thoth'
     file.from_template(relax_in, scf_in, comment)
     scf_in = file.get(folder, scf_in)
     # Replace CELL_PARAMETERS, ATOMIC_POSITIONS, ATOMIC_SPECIES, alat, ibrav and calculation

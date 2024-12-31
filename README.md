@@ -1,6 +1,6 @@
-# Thoth v5.3.0
+# Thoth v5.3.2
 
-Welcome to **T**he **H**elpful & **O**ptimized **T**ext **H**elper; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
+Welcome to the **T**ext enh**H**ancement & **O**ptimization for scien**T**ific researc**H**; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
 
 This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. Formally known as InputMaker.  
 

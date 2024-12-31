@@ -13,7 +13,7 @@ version_path = './thoth/core.py'
 
 fix_dict ={
     '[autoload](https://pablogila.github.io/Thoth/thoth/autoload.html)' : '`thoth.autoload`',
-    '[alias](https://pablogila.github.io/Thoth/thoth/alias.html)'       : '`thoth.alias`',
+    '[core](https://pablogila.github.io/Thoth/thoth/core.html)'         : '`thoth.core`',
     '[call](https://pablogila.github.io/Thoth/thoth/call.html)'         : '`thoth.call`',
     '[file](https://pablogila.github.io/Thoth/thoth/file.html)'         : '`thoth.file`',
     '[find](https://pablogila.github.io/Thoth/thoth/find.html)'         : '`thoth.find`',

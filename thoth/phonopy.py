@@ -4,9 +4,11 @@ Functions to work with [Phonopy](https://phonopy.github.io/phonopy/) calculation
 along with [Quantum ESPRESSO](https://www.quantum-espresso.org/).
 
 # Index
-- `make()` Makes the inputs, by running the previous functions.
+The two main functions that you might want to use are:  
+- `make()` Build the supercell inputs.
 - `sbatch()` Sbatch'es the supercell calculations.
-- `scf_from_relax()`
+
+The following functions are available for whoever seeks more control:
 - `supercells_from_scf()`
 - `scf_header_to_supercells()`
 - `check_slurm_template()`
@@ -39,7 +41,7 @@ def make(dimension:str='2 2 2',
     It runs sequentially `scf_from_relax()`, `supercells_from_scf()` and `scf_header_to_supercells()`.
     Finally, it checks the `slurm_template` with `check_slurm_template()`.
     '''
-    print(f'\nthoth.phonopy {version}\n'
+    print(f'\nWelcome to thoth.phonopy {version}\n'
           'Creating all supercell inputs with Phonopy for Quantum ESPRESSO...\n')
     qe.scf_from_relax(folder, relax_in, relax_out)
     supercells_from_scf(dimension, folder)
@@ -57,10 +59,12 @@ def make(dimension:str='2 2 2',
     return None
 
 
-def sbatch(folder=None, slurm_template:str='scf.slurm') -> None:
+def sbatch(folder=None, slurm_template:str='scf.slurm', testing:bool=False) -> None:
     '''
     Launch all your supercell calculations to a cluster using a SLURM manager.
-    Launched from a `folder` (CWD if empty), using a `slurm_template` (`scf.slurm` by default)
+    Runs from a `folder` (CWD if empty), using a `slurm_template` (`scf.slurm` by default).\n
+    The slurm template must have the following keywords: `INPUT_FILE`, `OUTPUT_FILE`, and `JOB_NAME`.\n
+    If `testing=True` it skips the final sbatching, just printing the commands on the screen.
     '''
     print(f'\nthoth.phonopy {version}\n'
           'Sbatching all supercells...\n')
@@ -94,8 +98,10 @@ def sbatch(folder=None, slurm_template:str='scf.slurm') -> None:
             key_output: supercell_out
         }
         file.from_template(slurm_file, slurm_id, None, fixing_dict)
-        #call.bash(f"echo {slurm_id}")  # This line may be useful for testing!
-        call.bash(f"sbatch {slurm_id}", folder, True, False)
+        if testing:
+            call.bash(f"echo {slurm_id}", folder)
+        else:
+            call.bash(f"sbatch {slurm_id}", folder, True, False)
         call.bash(f"mv {slurm_id} {slurm_folder}", folder, False, True)  # Do not raise error if we can't move the file
     print(f'\nDone! Temporary slurm files were moved to /{slurm_folder}/\n')
 
@@ -121,6 +127,7 @@ def scf_header_to_supercells(folder:str=None,
                              scf:str='scf.in',
                              ) -> None:
     '''
+    Paste the header from the `scf` file in `folder` to the supercells created by Phonopy.
     '''
     print(f'\nthoth.phonopy {version}\n'
           f'Adding headers to Phonopy supercells for Quantum ESPRESSO...\n')
@@ -181,9 +188,7 @@ def check_slurm_template(folder=None, slurm_template:str='scf.slurm') -> str:
     slurm_example = 'scf_EXAMPLE.slurm'
     new_slurm_file = os.path.join(folder, slurm_example)
     # Default slurm template
-    content =f'''
-# Automatic slurm created with thoth.phonopy {version}
-
+    content =f'''# Automatic slurm created with thoth.phonopy {version}. https://github.com/pablogila/Thoth
 #!/bin/bash
 #SBATCH --partition=general
 #SBATCH --qos=regular
