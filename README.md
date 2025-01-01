@@ -1,4 +1,4 @@
-# ThotPy v5.3.6
+# ThotPy v5.4.0
 
 Welcome to the **T**ext en**H**ancement & **O**ptimization for scien**T**ific researc**H** with **PY**thon; or just **ThotPy**, as the modern incarnation of the ancient Egyptian god of writing, wisdom and magic, [Thot](https://en.wikipedia.org/wiki/Thoth).  
 
@@ -67,7 +67,7 @@ python3 makedocs.py
 ```
 
 
-## License
+# License
 
 Copyright (C) 2024  Pablo Gila-Herranz  
 This program is free software: you can redistribute it and/or modify

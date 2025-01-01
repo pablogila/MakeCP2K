@@ -6,8 +6,8 @@ file = 'sample.txt'
 key = 'key'
 key_regex = r'key\s*\d*'
 text = '!!!'
-number_of_inserts = 1
-skip_lines = 2
+inserts = 1  # Number of inserts
+skips = 2  # Number of lines to skip
 regex = False
 
 if regex:
@@ -15,4 +15,4 @@ if regex:
 else:
     keyword = key
 
-th.text.insert_under(text, key, file, number_of_inserts, skip_lines, regex)
+th.text.insert_under(text, key, file, inserts, skips, regex)

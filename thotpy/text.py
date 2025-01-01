@@ -22,14 +22,14 @@ from .find import *
 
 def insert_at(
         text:str,
-        file,
+        filename,
         position:int
     ) -> None:
     '''
-    Inserts a `text` in the line with `position` index of a given `file`.
+    Inserts a `text` in the line with `position` index of a given file indicated in `filename`.
     If `position` is negative, starts from the end of the file.
     '''
-    file_path = get(file)
+    file_path = get(filename)
     with open(file_path, 'r+') as f:
         lines = f.read().splitlines()
         if position < 0:
@@ -45,15 +45,15 @@ def insert_at(
 
 def insert_under(
         text:str,
-        keyword:str,
-        file,
+        key:str,
+        filename,
         insertions:int=0,
         skips:int=0,
         regex:bool=False
     ) -> None:
     '''
     Inserts the given `text` string under the line(s) containing
-    the `keyword` in the given `file`.
+    the `key` in the given file at `filename`.
     The keyword can be at any position within the line.
     By default all matches are inserted with `insertions=0`,
     but it can insert only a specific number of matches
@@ -62,11 +62,11 @@ def insert_under(
     changing the value `skips`. Negative integers introduce the text in the previous lines.
     Regular expressions can be used by setting `regex=True`. 
     '''
-    file_path = get(file)
+    file_path = get(filename)
     if regex:
-        positions = pos_regex(keyword, file, insertions)
+        positions = pos_regex(key, file_path, insertions)
     else:
-        positions = pos(keyword, file, insertions)
+        positions = pos(key, file_path, insertions)
     positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
     # Open the file in read-write mode
     with open(file_path, 'r+b') as f:
@@ -87,13 +87,14 @@ def insert_under(
 
 def replace(
         text:str,
-        keyword:str,
-        file:str,
+        key:str,
+        filename:str,
         replacements:int=0,
         regex:bool=False
     ) -> None:
     '''
-    Replaces the `keyword` string with the `text` string in the given `file`.\n
+    Replaces the `key` string with the `text` string in the specified `filename`.\n
+    It can also be used to delete the keyword with `text=''`.\n
     The value `replacements` specifies the number of replacements to perform:
     1 to replace only the first keyword found, 2, 3...
     Use negative values to replace from the end of the file,
@@ -101,14 +102,14 @@ def replace(
     To replace all values, set `replacements = 0`, which is the value by default.\n
     To search with regular expressions, set `regex=True`.
     ```
-    line... keyword ...line -> line... text ...line
+    line... key ...line -> line... text ...line
     ```
     '''
-    file_path = get(file)
+    file_path = get(filename)
     if regex:
-        positions = pos_regex(keyword, file, replacements)
+        positions = pos_regex(key, file_path, replacements)
     else:
-        positions = pos(keyword, file, replacements)
+        positions = pos(key, file_path, replacements)
     positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
     with open(file_path, 'r+') as f:
         content = f.read()
@@ -122,15 +123,15 @@ def replace(
 
 def replace_line(
         text:str,
-        keyword:str,
-        file:str,
+        key:str,
+        filename:str,
         replacements:int=0,
         skips:int=0,
         additional:int=0,
         regex:bool=False
     ) -> None:
     '''
-    Replaces the entire line(s) containing the `keyword` string with the `text` string in the given `file`.
+    Replaces the entire line(s) containing the `key` string with the `text` string in the specified `filename`.
     Regular expressions can be used with `regex=True`.\n
     It can be used to delete line(s) by setting `text=''`.\n
     The value `replacements` specifies the number of lines to replace:
@@ -144,11 +145,11 @@ def replace_line(
     More lines can be replaced with `additional` lines (int).
     Note that the matched line plus the additional lines will be replaced, this is, additional lines +1.
     '''
-    file_path = get(file)
+    file_path = get(filename)
     if regex:
-        positions = pos_regex(keyword, file, replacements)
+        positions = pos_regex(key, file_path, replacements)
     else:
-        positions = pos(keyword, file, replacements)
+        positions = pos(key, file_path, replacements)
     positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
     # Open the file in read-write mode
     with open(file_path, 'r+b') as f:
@@ -191,13 +192,13 @@ def replace_between(
         text:str,
         key1:str,
         key2:str,
-        file:str,
+        filename:str,
         delete_keys:bool=False,
         from_end:bool=False,
         regex:bool=False
     ) -> None:
     '''
-    Replace lines with a given `text`, between the keywords `key1` and `key2` in a given `file`.\n
+    Replace lines with a given `text`, between the keywords `key1` and `key2` in a specified `filename`.\n
     It can be used to delete the text between the keys by setting `text=''`.\n
     Regular expressions can be used by setting `regex=True`.\n
     Key lines are also deleted if `delete_keys=True`.\n
@@ -211,7 +212,7 @@ def replace_between(
     lines...
     ```
     '''
-    file_path = get(file)
+    file_path = get(filename)
     index = 1
     if from_end:
         index = -1
@@ -237,14 +238,14 @@ def replace_between(
 
 
 def delete_under(
-        keyword:str,
-        file,
+        key:str,
+        filename,
         matches:int=1,
         skips:int=0,
         regex:bool=False
     ) -> None:
     '''
-    Deletes all the content under the line containing the `keyword` in the given `file`.
+    Deletes all the content under the line containing the `key` in the specified `filename`.
     The keyword can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
     By default the first `matches` is used; it can be any positive integer (0 is treated as 1!),
@@ -253,13 +254,13 @@ def delete_under(
     changing the value `skips`, that skips the specified number of lines.
     Negative integers start deleting the content from the previous lines.
     '''
-    file_path = get(file)
+    file_path = get(filename)
     if matches == 0:
         matches = 1
     if regex:
-        positions = pos_regex(keyword, file, matches)
+        positions = pos_regex(key, file_path, matches)
     else:
-        positions = pos(keyword, file, matches)
+        positions = pos(key, file_path, matches)
     if matches > 0:  # We only want one match, and should be the last if matches > 0
         positions.reverse()
     position = positions[0]
@@ -274,13 +275,13 @@ def delete_under(
 
 
 def correct_with_dict(
-        file:str,
+        filename:str,
         dictionary:dict
     ) -> None:
     '''
-    Corrects the given text `file` using a `dictionary`.
+    Corrects the given text file `filename` using a `dictionary`.
     '''
-    file_path = get(file)
+    file_path = get(filename)
     with open(file_path, 'r+') as f:
         content = f.read()
         for key, value in dictionary.items():

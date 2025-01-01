@@ -2,11 +2,11 @@ import thotpy as th
 
 th.call.here()
 
-file = 'sample.txt'
+filename='sample.txt'
 key1 = 'key 1'
 key2 = 'key 2'
 delete_keys = False
-last_match = False
+from_end = False
 regex = False
 
-th.text.delete_between(key1, key2, file, delete_keys, last_match, regex)
+th.text.replace_between('', key1, key2, filename, delete_keys, from_end, regex)

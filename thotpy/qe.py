@@ -366,8 +366,8 @@ def read_dirs(
 
 
 def set_value(
-        key:str,
         value,
+        key:str,
         filename
     ) -> None:
     '''
@@ -386,7 +386,7 @@ def set_value(
     input_old = read_in(filepath)
     # Check if the value is already in the file
     if not key in input_old.keys():
-        _add_value(key, value, filename)
+        _add_value(value, key, filename)
         return None
     # Check for the special values, else replace it as a regular value. ATOMIC_POSITIONS ?
     if key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_old']:    
@@ -463,8 +463,8 @@ def set_value(
 
 
 def _add_value(
-        key:str,
         value,
+        key:str,
         filename
     ) -> None:
     '''
@@ -590,12 +590,12 @@ def scf_from_relax(
     cell_parameters = data['CELL_PARAMETERS_out']
     atomic_positions = data['ATOMIC_POSITIONS_out']
     alat = data['alat']
-    set_value('ATOMIC_SPECIES', atomic_species, scf_in)
-    set_value('CELL_PARAMETERS', cell_parameters, scf_in)
-    set_value('ATOMIC_POSITIONS', atomic_positions, scf_in)
-    set_value('celldm(1)', alat, scf_in)
-    set_value('ibrav', 0, scf_in)
-    set_value('calculation', "'scf'", scf_in)
+    set_value(atomic_species, 'ATOMIC_SPECIES', scf_in)
+    set_value(cell_parameters, 'CELL_PARAMETERS', scf_in)
+    set_value(atomic_positions, 'ATOMIC_POSITIONS', scf_in)
+    set_value(alat, 'celldm(1)', scf_in)
+    set_value(0, 'ibrav', scf_in)
+    set_value("'scf'", 'calculation', scf_in)
     # Terminal feedback
     print(f'Created input SCF file at:'
           f'{scf_in}\n')

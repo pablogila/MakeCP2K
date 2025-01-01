@@ -90,26 +90,26 @@ def get_list(
 
 
 def copy(
-        original:str,
+        old:str,
         new:str
     ) -> None:
     '''
-    Copies the content of `original` file to `new` file with shutil,
+    Copies the content of `old` file to `new` file with shutil,
     after making sure that the file exists with `thotpy.file.get()`.
     '''
-    original_file_path = get(original)
+    original_file_path = get(old)
     file = shutil.copy(original_file_path, new)
     return None
 
 
 def move(
-        original:str,
+        old:str,
         new:str
     ) -> None:
     '''
-    Moves `original` file to `new` file.
+    Moves `old` file to `new` file.
     '''
-    original_file_path = get(original)
+    original_file_path = get(old)
     file = shutil.move(original_file_path, new)
     return None
 
@@ -207,16 +207,17 @@ def copy_to_subfolders(
 
 
 def from_template(
-        template:str,
+        old:str,
         new:str,
         comment:str=None,
         fixing_dict:dict=None
     ) -> None:
     '''
-    Same as `copy_file()`, but optionally adds a `comment` at the beginning of the new file.
+    Similar to `copy_file()`, but optionally adds a `comment` at the beginning of the new file.
     Also, it optionally corrects the output file with a `fixing_dict` dictionary.
+    `old` is the template and `new` is the final file.
     '''
-    copy(template, new)
+    copy(old, new)
     if comment:
         with open(new, 'r+') as f:
             content = f.read()

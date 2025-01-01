@@ -2,7 +2,7 @@ import thotpy as th
 
 th.call.here()
 
-file = 'sample.txt'
+filename = 'sample.txt'
 key = 'key'
 key_regex = r'key\s*\d*'  # 'key' AND whatever number
 text = '!!!'
@@ -14,4 +14,4 @@ if regex:
 else:
     keyword = key
 
-th.text.replace(text, keyword, file, number_of_replacements, regex)
+th.text.replace(text, keyword, filename, number_of_replacements, regex)
