@@ -9,7 +9,7 @@ Common utilities, autoloaded directly as `thoth.value`.
 '''
 
 
-version = 'v5.3.3'
+version = 'v5.3.4'
 '''
 Package version, using semantic versioning to indicate breaking changes,
 as in v<MAJOR>.<MINOR>.<PATCH>.

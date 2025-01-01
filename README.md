@@ -1,13 +1,15 @@
-# Thoth v5.3.2
+# Thoth v5.3.4
 
 Welcome to the **T**ext enh**H**ancement & **O**ptimization for scien**T**ific researc**H**; or just **Thoth**, as the Egyptian god of writing, wisdom and magic.  
 
-This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. Formally known as InputMaker.  
+This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. In particular, it contains interfaces for [Quantum ESPRESSO](https://www.quantum-espresso.org/) and [Phonopy](https://phonopy.github.io/phonopy/).
 
-Just as the Egyptian god, Thoth is *married* with [Maat](https://github.com/pablogila/Maat), another super useful python package to analyze data from your experiments. Although Maat is not required to run Thoth, it is super useful anyway, so check it out.  
+Just as the Egyptian god, Thoth is *married* with [Maat](https://github.com/pablogila/Maat), another useful python package to analyze spectral data from your experiments. Check it out!  
+
+Thoth was formally known as InputMaker.
 
 
-## Installation
+# Installation
 
 Thoth is installed as a regular Python package.
 As always, it is recommended to install it in a virtual environment:  
@@ -22,22 +24,29 @@ pip install .
 ```
 
 
-## Documentation
+# Documentation
 
 Documentation is available locally on the `docs/thoth.html` folder.
 An [online documentation](https://pablogila.github.io/InputMaker/) is also available.
 
-This package contains the following submodules:
+## Submodules
+
+This package contains the following submodules for general text edition:
 - [file](https://pablogila.github.io/Thoth/thoth/file.html). Manipulate files.
 - [find](https://pablogila.github.io/Thoth/thoth/find.html). Search for specific content in a text file.
 - [text](https://pablogila.github.io/Thoth/thoth/text.html). Manipulate text files.
 - [extract](https://pablogila.github.io/Thoth/thoth/extract.html). Extract data from raw text strings.
 - [call](https://pablogila.github.io/Thoth/thoth/call.html). Run bash scripts and related.
-- [core](https://pablogila.github.io/Thoth/thoth/core.html). Common utilities.
 
-Additionally, some specific submodules for use in tandem with ab-initio codes are included:
-- [qe](https://pablogila.github.io/Thoth/thoth/qe.html). Specific module for Quantum ESPRESSO.
-- [phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html). Specific module for Phonopy calculations.
+Along with the [core](https://pablogila.github.io/Thoth/thoth/core.html) submodule with common utilities.
+
+## Interfaces for ab-initio codes
+
+The following interfaces for ab-initio codes are included:
+- [qe](https://pablogila.github.io/Thoth/thoth/qe.html). Interface for [Quantum ESPRESSO](https://www.quantum-espresso.org/) calculations.
+- [phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html). Interface for [Phonopy](https://phonopy.github.io/phonopy/) calculations.
+
+## Compiling the documentation
 
 The documentation can be compiled automatically using [pdoc](https://pdoc.dev/) and Thoth itself, by running:
 ```shell

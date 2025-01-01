@@ -4,7 +4,7 @@ Functions to work with [Phonopy](https://phonopy.github.io/phonopy/) calculation
 along with [Quantum ESPRESSO](https://www.quantum-espresso.org/).
 
 # Index
-The two main functions that you might want to use are:  
+The two main functions that you might want to use to run phonon calculations are:  
 - `make()` Build the supercell inputs.
 - `sbatch()` Sbatch'es the supercell calculations.
 
@@ -198,7 +198,7 @@ def check_slurm_template(
     slurm_example = 'scf_EXAMPLE.slurm'
     new_slurm_file = os.path.join(folder, slurm_example)
     # Default slurm template
-    content =f'''# Automatic slurm created with thoth.phonopy {version}. https://github.com/pablogila/Thoth
+    content =f'''# Automatic slurm template created with thoth.phonopy {version}. https://github.com/pablogila/Thoth
 #!/bin/bash
 #SBATCH --partition=general
 #SBATCH --qos=regular
@@ -247,6 +247,6 @@ mpirun pw.x -inp INPUT_FILE > OUTPUT_FILE
         print('')
         return None
     print(f"Your slurm template {slurm_template} SEEMS OKAY, "
-          "but don't forget to check it before tunning thoth.phonopy.sbatch()\n")
+          "but don't forget to check it before running thoth.phonopy.sbatch()\n")
     return slurm_file  # Ready to use!
 

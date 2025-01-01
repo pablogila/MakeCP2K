@@ -61,10 +61,13 @@
 
             <h2>Contents</h2>
             <ul>
-  <li><a href="#thoth-v532">Thoth v5.3.2</a>
+  <li><a href="#thoth-v534">Thoth v5.3.4</a></li>
+  <li><a href="#installation">Installation</a></li>
+  <li><a href="#documentation">Documentation</a>
   <ul>
-    <li><a href="#installation">Installation</a></li>
-    <li><a href="#documentation">Documentation</a></li>
+    <li><a href="#submodules">Submodules</a></li>
+    <li><a href="#interfaces-for-ab-initio-codes">Interfaces for ab-initio codes</a></li>
+    <li><a href="#compiling-the-documentation">Compiling the documentation</a></li>
     <li><a href="#license">License</a></li>
   </ul></li>
 </ul>
@@ -83,7 +86,7 @@
             </ul>
 
 
-            <footer>Thoth v5.3.2 documentation</footer>
+            <footer>Thoth v5.3.4 documentation</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -97,15 +100,17 @@
                     <h1 class="modulename">
 thoth    </h1>
 
-                        <div class="docstring"><h1 id="thoth-v532">Thoth v5.3.2</h1>
+                        <div class="docstring"><h1 id="thoth-v534">Thoth v5.3.4</h1>
 
 <p>Welcome to the <strong>T</strong>ext enh<strong>H</strong>ancement &amp; <strong>O</strong>ptimization for scien<strong>T</strong>ific researc<strong>H</strong>; or just <strong>Thoth</strong>, as the Egyptian god of writing, wisdom and magic.  </p>
 
-<p>This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. Formally known as InputMaker.  </p>
+<p>This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. In particular, it contains interfaces for <a href="https://www.quantum-espresso.org/">Quantum ESPRESSO</a> and <a href="https://phonopy.github.io/phonopy/">Phonopy</a>.</p>
 
-<p>Just as the Egyptian god, Thoth is <em>married</em> with <a href="https://github.com/pablogila/Maat">Maat</a>, another super useful python package to analyze data from your experiments. Although Maat is not required to run Thoth, it is super useful anyway, so check it out.  </p>
+<p>Just as the Egyptian god, Thoth is <em>married</em> with <a href="https://github.com/pablogila/Maat">Maat</a>, another useful python package to analyze spectral data from your experiments. Check it out!  </p>
 
-<h2 id="installation">Installation</h2>
+<p>Thoth was formally known as InputMaker.</p>
+
+<h1 id="installation">Installation</h1>
 
 <p>Thoth is installed as a regular Python package.
 As always, it is recommended to install it in a virtual environment:  </p>
@@ -123,12 +128,14 @@ As always, it is recommended to install it in a virtual environment:  </p>
 </code></pre>
 </div>
 
-<h2 id="documentation">Documentation</h2>
+<h1 id="documentation">Documentation</h1>
 
 <p>Documentation is available locally on the <code>docs/thoth.html</code> folder.
 An <a href="https://pablogila.github.io/InputMaker/">online documentation</a> is also available.</p>
 
-<p>This package contains the following submodules:</p>
+<h2 id="submodules">Submodules</h2>
+
+<p>This package contains the following submodules for general text edition:</p>
 
 <ul>
 <li><code><a href="thoth/file.html">thoth.file</a></code>. Manipulate files.</li>
@@ -136,15 +143,20 @@ An <a href="https://pablogila.github.io/InputMaker/">online documentation</a> is
 <li><code><a href="thoth/text.html">thoth.text</a></code>. Manipulate text files.</li>
 <li><code><a href="thoth/extract.html">thoth.extract</a></code>. Extract data from raw text strings.</li>
 <li><code><a href="thoth/call.html">thoth.call</a></code>. Run bash scripts and related.</li>
-<li><code><a href="thoth/core.html">thoth.core</a></code>. Common utilities.</li>
 </ul>
 
-<p>Additionally, some specific submodules for use in tandem with ab-initio codes are included:</p>
+<p>Along with the <code><a href="thoth/core.html">thoth.core</a></code> submodule with common utilities.</p>
+
+<h2 id="interfaces-for-ab-initio-codes">Interfaces for ab-initio codes</h2>
+
+<p>The following interfaces for ab-initio codes are included:</p>
 
 <ul>
-<li><code><a href="thoth/qe.html">thoth.qe</a></code>. Specific module for Quantum ESPRESSO.</li>
-<li><code><a href="thoth/phonopy.html">thoth.phonopy</a></code>. Specific module for Phonopy calculations.</li>
+<li><code><a href="thoth/qe.html">thoth.qe</a></code>. Interface for <a href="https://www.quantum-espresso.org/">Quantum ESPRESSO</a> calculations.</li>
+<li><code><a href="thoth/phonopy.html">thoth.phonopy</a></code>. Interface for <a href="https://phonopy.github.io/phonopy/">Phonopy</a> calculations.</li>
 </ul>
+
+<h2 id="compiling-the-documentation">Compiling the documentation</h2>
 
 <p>The documentation can be compiled automatically using <a href="https://pdoc.dev/">pdoc</a> and Thoth itself, by running:</p>
 
