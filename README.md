@@ -31,7 +31,7 @@ Optionally, you can install ThotPy from the last GitHub release. First install t
 pip install pandas
 ```
 
-Then clone the repository from [GitHub](https://github.com/pablogila/ThotPy/) or download it as a ZIP, and run inside the `/ThotPy/` directory:  
+Then clone the repository from [GitHub](https://github.com/pablogila/ThotPy/) or download the [latest stable release](https://github.com/pablogila/ThotPy/tags) as a ZIP, and run inside the `/ThotPy/` directory:  
 ```bash
 pip install .
 ```
