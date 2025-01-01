@@ -1,4 +1,4 @@
-# ThotPy v5.4.1
+# ThotPy v5.4.2
 
 Welcome to the **T**ext en**H**ancement & **O**ptimization for scien**T**ific researc**H** with **PY**thon; or just **ThotPy**, as the modern incarnation of the ancient Egyptian god of writing, wisdom and magic, [Thot](https://en.wikipedia.org/wiki/Thoth).  
 
