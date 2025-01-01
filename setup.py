@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 import re
 
-DESCRIPTION = "The Text enHancement & Optimization for scienTific researcH with PYthon, or just ThothPy, allows you to create, modify and analyze all kinds of text files, with a special focus on (but not limited to) ab-initio calculations."
+DESCRIPTION = "The Text enHancement & Optimization for scienTific research with Python, or just ThothPy, allows you to create, modify and analyze all kinds of text files, with a special focus on (but not limited to) ab-initio calculations."
 
 with open('thotpy/core.py', 'r') as f:
     content = f.read()
