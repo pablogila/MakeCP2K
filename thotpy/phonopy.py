@@ -42,7 +42,7 @@ def make(
     It runs sequentially `scf_from_relax()`, `supercells_from_scf()` and `scf_header_to_supercells()`.
     Finally, it checks the `slurm_template` with `check_slurm_template()`.
     '''
-    print(f'\nWelcome to thoth.phonopy {version}\n'
+    print(f'\nWelcome to thotpy.phonopy {version}\n'
           'Creating all supercell inputs with Phonopy for Quantum ESPRESSO...\n')
     qe.scf_from_relax(folder, relax_in, relax_out)
     supercells_from_scf(dimension, folder)
@@ -55,7 +55,7 @@ def make(
           'PLEASE CHECH THE CONTENT OF THE supercell-001.in\n'
           'The first 100 lines of the input were printed above!\n'
           '------------------------------------------------------\n\n'
-          'If it seems correct, run the calculations with thoth.phonopy.sbatch()\n')
+          'If it seems correct, run the calculations with thotpy.phonopy.sbatch()\n')
     check_slurm_template(folder, slurm_template)
     return None
 
@@ -71,7 +71,7 @@ def sbatch(
     The slurm template must have the following keywords: `INPUT_FILE`, `OUTPUT_FILE`, and `JOB_NAME`.\n
     If `testing=True` it skips the final sbatching, just printing the commands on the screen.
     '''
-    print(f'\nthoth.phonopy {version}\n'
+    print(f'\nthotpy.phonopy {version}\n'
           'Sbatching all supercells...\n')
     key_input = 'INPUT_FILE'
     key_output = 'OUTPUT_FILE'
@@ -82,7 +82,7 @@ def sbatch(
     # Get supercells and abort if not found
     supercells = file.get_list(folder, 'supercell-')
     if len(supercells) == 0:
-        raise FileNotFoundError('Supercells were not found! Did you run thoth.phonopy.make() ?')
+        raise FileNotFoundError('Supercells were not found! Did you run thotpy.phonopy.make() ?')
     call.bash(f"mkdir {slurm_folder}", folder, True, True)
     # Get the template
     slurm_file = check_slurm_template(folder, slurm_template)
@@ -120,7 +120,7 @@ def supercells_from_scf(
     Creates supercells of a given `dimension` (`2 2 2` by default) inside a `folder`,
     from a Quantum ESPRESSO `scf` input (`scf.in` by default).
     '''
-    print(f'\nthoth.phonopy {version}\n')
+    print(f'\nthotpy.phonopy {version}\n')
     folder = call.here(folder)
     scf_in = file.get(folder, scf, True)
     if scf_in is None:
@@ -136,7 +136,7 @@ def scf_header_to_supercells(
     '''
     Paste the header from the `scf` file in `folder` to the supercells created by Phonopy.
     '''
-    print(f'\nthoth.phonopy {version}\n'
+    print(f'\nthotpy.phonopy {version}\n'
           f'Adding headers to Phonopy supercells for Quantum ESPRESSO...\n')
     folder = call.here(folder)
     # Check if the header file, the scf.in, exists
@@ -198,7 +198,7 @@ def check_slurm_template(
     slurm_example = 'scf_EXAMPLE.slurm'
     new_slurm_file = os.path.join(folder, slurm_example)
     # Default slurm template
-    content =f'''# Automatic slurm template created with thoth.phonopy {version}. https://github.com/pablogila/Thoth
+    content =f'''# Automatic slurm template created with thotpy.phonopy {version}. https://github.com/pablogila/ThotPy
 #!/bin/bash
 #SBATCH --partition=general
 #SBATCH --qos=regular
@@ -222,7 +222,7 @@ mpirun pw.x -inp INPUT_FILE > OUTPUT_FILE
         print(f'!!! WARNING:  Slurm template missing, so an example was generated automatically:\n'
               f'{slurm_example}\n'
               f'PLEASE CHECK it, UPDATE it and RENAME it to {slurm_template}\n'
-              'before running thoth.phonopy.sbatch()\n')
+              'before running thotpy.phonopy.sbatch()\n')
         return None
     # Check that the slurm file contains the INPUT_FILE, OUTPUT_FILE and JOB_NAME keywords
     key_input = find.lines('INPUT_FILE', slurm_file)
@@ -240,13 +240,13 @@ mpirun pw.x -inp INPUT_FILE > OUTPUT_FILE
             f.write(content)
         print('!!! WARNING:  Some keywords were missing from your slurm template,\n'
               f'PLEASE CHECK the example at {slurm_example}\n'
-              'before running thoth.phonopy.sbatch()\n'
+              'before running thotpy.phonopy.sbatch()\n'
               f'The following keywords were missing from your {slurm_template}:')
         for key in missing:
             print(key)
         print('')
         return None
     print(f"Your slurm template {slurm_template} SEEMS OKAY, "
-          "but don't forget to check it before running thoth.phonopy.sbatch()\n")
+          "but don't forget to check it before running thotpy.phonopy.sbatch()\n")
     return slurm_file  # Ready to use!
 

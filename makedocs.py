@@ -1,37 +1,36 @@
 '''
-This script is used to update Thoth documentation automatically.
+This script is used to update ThothPy documentation automatically.
 Requires pdoc, install it with `pip install pdoc`.
-It also requires Thoth itself; installation instructions can be found in the README.md file.
-Run this script as `python3 pdoc.py`.
+It also requires ThotPy itself; installation instructions can be found in the README.md file.
+Run this script as `python3 makedocs.py`.
 '''
 
-import thoth as th
+import thotpy as th
 
 readme = './README.md'
 temp_readme = './_README_temp.md'
-version_path = './thoth/core.py'
+version_path = './thotpy/core.py'
 
 fix_dict ={
-    '[autoload](https://pablogila.github.io/Thoth/thoth/autoload.html)' : '`thoth.autoload`',
-    '[core](https://pablogila.github.io/Thoth/thoth/core.html)'         : '`thoth.core`',
-    '[call](https://pablogila.github.io/Thoth/thoth/call.html)'         : '`thoth.call`',
-    '[file](https://pablogila.github.io/Thoth/thoth/file.html)'         : '`thoth.file`',
-    '[find](https://pablogila.github.io/Thoth/thoth/find.html)'         : '`thoth.find`',
-    '[extract](https://pablogila.github.io/Thoth/thoth/extract.html)'   : '`thoth.extract`',
-    '[text](https://pablogila.github.io/Thoth/thoth/text.html)'         : '`thoth.text`',
-    '[qe](https://pablogila.github.io/Thoth/thoth/qe.html)'             : '`thoth.qe`',
-    '[phonopy](https://pablogila.github.io/Thoth/thoth/phonopy.html)'   : '`thoth.phonopy`',
+    '[core](https://pablogila.github.io/ThotPy/thotpy/core.html)'         : '`thotpy.core`',
+    '[call](https://pablogila.github.io/ThotPy/thotpy/call.html)'         : '`thotpy.call`',
+    '[file](https://pablogila.github.io/ThotPy/thotpy/file.html)'         : '`thotpy.file`',
+    '[find](https://pablogila.github.io/ThotPy/thotpy/find.html)'         : '`thotpy.find`',
+    '[extract](https://pablogila.github.io/ThotPy/thotpy/extract.html)'   : '`thotpy.extract`',
+    '[text](https://pablogila.github.io/ThotPy/thotpy/text.html)'         : '`thotpy.text`',
+    '[qe](https://pablogila.github.io/ThotPy/thotpy/qe.html)'             : '`thotpy.qe`',
+    '[phonopy](https://pablogila.github.io/ThotPy/thotpy/phonopy.html)'   : '`thotpy.phonopy`',
 } 
 
 version = th.find.lines(r"version\s*=", version_path, -1, 0, False, True)[0]
 version = th.extract.string(version, 'version', None, True)
 
 print(f'Updating README to {version}...')
-th.text.replace_line(f'# Thoth {version}', '# Thoth v', readme, 1)
+th.text.replace_line(f'# ThotPy {version}', '# ThotPy v', readme, 1)
 
 print('Updating docs with Pdoc...')
 th.file.from_template(readme, temp_readme, None, fix_dict)
-th.call.bash(f"pdoc ./thoth/ -o ./docs --mermaid --math --footer-text='Thoth {version} documentation'")
+th.call.bash(f"pdoc ./thotpy/ -o ./docs --mermaid --math --footer-text='ThotPy {version} documentation'")
 th.file.remove(temp_readme)
 print('Done!')
 

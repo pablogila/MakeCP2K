@@ -1,36 +1,41 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 import re
 
-DESCRIPTION = 'Thoth'
-LONG_DESCRIPTION = "The Helpful & Optimized Text Helper, or Thoth, is a tool to assist in the creation, modification and analysis of text files, with a special focus in (but not limited to) ab-initio calculations."
-AUTHOR = 'Pablo Gila-Herranz'
-AUTHOR_EMAIL = 'pgila001@ikasle.ehu.eus'
+DESCRIPTION = "The Text enHancement & Optimization for scienTific researcH with PYthon, or just ThothPy, allows you to create, modify and analyze all kinds of text files, with a special focus on (but not limited to) ab-initio calculations."
 
-def get_version():
-    with open('thoth/core.py', 'r') as file:
-        content = file.read()
-        version_match = re.search(r"version\s*=\s*'([^']+)'", content)
-        if version_match:
-            return version_match.group(1)
+with open('thotpy/core.py', 'r') as f:
+    content = f.read()
+    version_match = re.search(r"version\s*=\s*'([^']+)'", content)
+    if not version_match:
         raise RuntimeError("Unable to find version.")
+    VERSION = version_match.group(1)
+
+with open('README.md', 'r') as f:
+    LONG_DESCRIPTION = f.read()
 
 setup(
-        name="thoth", 
-        version=get_version(),
-        author=AUTHOR,
-        author_email=AUTHOR_EMAIL,
-        description=DESCRIPTION,
-        long_description=LONG_DESCRIPTION,
-        packages=['thoth'],
-        install_requires=['pandas'],
-        license='AGPL-3.0',
-        keywords=['python', 'thoth', 'text', 'inputmaker', 'DFT', 'Density Functional Theory', 'MD', 'Molecular Dynamics'],
-        classifiers= [
-            "Development Status :: 5 - Production/Stable",
-            "Intended Audience :: Science/Research",
-            "Programming Language :: Python :: 3",
-            "Operating System :: POSIX :: Linux",
-            "Operating System :: Microsoft :: Windows",
-            "Operating System :: Other OS",
-        ]
+    name='thotpy', 
+    version=VERSION,
+    author='Pablo Gila-Herranz',
+    author_email='pgila001@ikasle.ehu.eus',
+    description=DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/markdown',
+    packages=['thotpy'],
+    install_requires=['pandas'],
+    extras_requires={
+        'dev': ['pytest', 'twine']
+        },
+    python_requires='>=3',
+    license='AGPL-3.0',
+    keywords=['python', 'thot', 'thotpy', 'thoth', 'thothpy', 'text', 'inputmaker', 'DFT', 'Density Functional Theory', 'MD', 'Molecular Dynamics', 'ab-initio', 'Quantum ESPRESSO', 'Phonopy'],
+    classifiers= [
+        "Development Status :: 5 - Production/Stable",
+        "Natural Language :: English",
+        "Intended Audience :: Science/Research",
+        "Programming Language :: Python :: 3",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: Other OS",
+    ]
 )

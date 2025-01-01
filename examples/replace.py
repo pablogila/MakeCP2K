@@ -1,4 +1,4 @@
-import thoth as th
+import thotpy as th
 
 th.call.here()
 

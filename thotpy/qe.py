@@ -573,7 +573,7 @@ def scf_from_relax(
     update the names if necessary.
     '''
     # Terminal feedback
-    print(f'\nthoth.qe {version}\n'
+    print(f'\nthotpy.qe {version}\n'
           f'Creating Quantum ESPRESSO SCF input from previous relax calculation:\n'
           f'{relax_in}\n{relax_out}\n')
     folder = call.here(folder)
@@ -582,7 +582,7 @@ def scf_from_relax(
     data = read_dir(folder, relax_in, relax_out)
     # Create the scf.in from the previous relax.in
     scf_in = 'scf.in'
-    comment = f'! Automatic SCF input made with thoth.qe {version}. https://github.com/pablogila/Thoth'
+    comment = f'! Automatic SCF input made with thotpy.qe {version}. https://github.com/pablogila/ThotPy'
     file.from_template(relax_in, scf_in, comment)
     scf_in = file.get(folder, scf_in)
     # Replace CELL_PARAMETERS, ATOMIC_POSITIONS, ATOMIC_SPECIES, alat, ibrav and calculation

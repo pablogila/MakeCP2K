@@ -287,5 +287,6 @@ def correct_with_dict(
             content = content.replace(key, value)
         f.seek(0)
         f.write(content)
+        f.truncate()
     return None
 

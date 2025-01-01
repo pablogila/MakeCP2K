@@ -23,7 +23,7 @@ def number(
     Example:
     ```python
     >>> text = 'energy =   500.0 Ry'
-    >>> thoth.extract.number(text, 'energy')
+    >>> thotpy.extract.number(text, 'energy')
     500.0  # float output
     ```
     '''
@@ -49,7 +49,7 @@ def string(
     Example:
     ```python
     >>> text = 'energy =   500.0 Ry were calculated'
-    >>> thoth.extract.string(text, 'energy', 'were')
+    >>> thotpy.extract.string(text, 'energy', 'were')
     '500.0 Ry'  # String output
     ```
     '''

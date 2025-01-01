@@ -95,7 +95,7 @@ def copy(
     ) -> None:
     '''
     Copies the content of `original` file to `new` file with shutil,
-    after making sure that the file exists with `thoth.file.get()`.
+    after making sure that the file exists with `thotpy.file.get()`.
     '''
     original_file_path = get(original)
     file = shutil.copy(original_file_path, new)
@@ -229,5 +229,6 @@ def from_template(
                 content = content.replace(key, value)
             f.seek(0)
             f.write(content)
+            f.truncate()
     return None
 
