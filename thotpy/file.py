@@ -43,7 +43,7 @@ def get(
     elif return_anyway:
         return None
     else:
-        raise FileNotFoundError('Nothing found at ' + filename)
+        raise FileNotFoundError('Nothing found at ' + str(filename))
     # Return a single file
     if len(files) == 1:
         return files[0]
