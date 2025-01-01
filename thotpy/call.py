@@ -19,10 +19,10 @@ from .core import *
 
 
 def bash(
-        command,
+        command:str,
         cwd=None,
-        verbose=True,
-        return_anyway=False
+        verbose:bool=True,
+        return_anyway:bool=False
     ):
     '''
     Run a bash shell `command`, inside an optional `cwd` directory.
