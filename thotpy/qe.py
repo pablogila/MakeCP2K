@@ -145,7 +145,7 @@ def read_in(filename) -> dict:
         if atomic_positions_raw:
             atomic_positions_cleaned = []
             for line in atomic_positions_raw:
-                line.strip()
+                line = line.strip()
                 if not line == '' or not line.startswith('!'):
                     atomic_positions_cleaned.append(line)
             atomic_positions = atomic_positions_cleaned[1:]
@@ -158,10 +158,11 @@ def read_in(filename) -> dict:
 def read_out(filename) -> dict:
     '''
     Reads an output `filename` from Quantum ESPRESSO,
-    returning a dict with the following keys:
-    `'Energy'` (float), `'Total force'` (float), `'Total SCF correction'` (float),
+    returning a dict with the following keys:\n
+    `'Energy'` (Ry), `'Total force'` (float), `'Total SCF correction'` (float),
     `'Runtime'` (str), `'JOB DONE'` (bool), `'BFGS converged'` (bool), `'BFGS failed'` (bool),
-    `'Maxiter reached'` (bool), `'Error'` (str), `'Success'` (bool), `'CELL_PARAMETERS_out'` (list of str), `'ATOMIC_POSITIONS_out'` (list of str), `'alat'` (float).
+    `'Maxiter reached'` (bool), `'Error'` (str), `'Success'` (bool), `'CELL_PARAMETERS_out'` (list of str), `'ATOMIC_POSITIONS_out'` (list of str), `'Alat'` (bohr), `'Volume'` (a.u.^3), `'Density'` (g/cm^3).\n
+    Note that these output keys start with a **C**apital letter.
     '''
     filepath = file.get(filename)
 
@@ -222,6 +223,8 @@ def read_out(filename) -> dict:
     cell_parameters = None
     atomic_positions = None
     alat = None
+    volume = None
+    density = None
     coordinates_raw = find.between('Begin final coordinates', 'End final coordinates', filepath, False, -1, False)
     if coordinates_raw:
         coordinates_raw = coordinates_raw.splitlines()
@@ -238,6 +241,10 @@ def read_out(filename) -> dict:
             elif atomic_positions_key in line:
                 append_cell = False
                 append_positions = True
+            elif 'volume' in line:
+                volume = extract.number(line, 'volume')
+            elif 'density' in line:
+                density = extract.number(line, 'density')
             if line == '' or line.startswith('!'):
                 continue
             if append_cell:
@@ -260,7 +267,9 @@ def read_out(filename) -> dict:
         'Success'               : success,
         'CELL_PARAMETERS_out'   : cell_parameters,
         'ATOMIC_POSITIONS_out'  : atomic_positions,
-        'alat'                  : alat,
+        'Alat'                  : alat,
+        'Volume'                : volume,
+        'Density'               : density,
     }
     return output
 
@@ -576,20 +585,20 @@ def scf_from_relax(
     print(f'\nthotpy.qe {version}\n'
           f'Creating Quantum ESPRESSO SCF input from previous relax calculation:\n'
           f'{relax_in}\n{relax_out}\n')
-    folder = call.here(folder)
-    relax_in = file.get(folder, relax_in)
-    relax_out = file.get(folder, relax_out)
-    data = read_dir(folder, relax_in, relax_out)
+    folder_path = folder
+    relax_in = file.get(folder_path, relax_in)
+    relax_out = file.get(folder_path, relax_out)
+    data = read_dir(folder_path, relax_in, relax_out)
     # Create the scf.in from the previous relax.in
-    scf_in = 'scf.in'
+    scf_in = folder_path + 'scf.in'
     comment = f'! Automatic SCF input made with thotpy.qe {version}. https://github.com/pablogila/ThotPy'
     file.from_template(relax_in, scf_in, comment)
-    scf_in = file.get(folder, scf_in)
+    scf_in = file.get(folder_path, scf_in)
     # Replace CELL_PARAMETERS, ATOMIC_POSITIONS, ATOMIC_SPECIES, alat, ibrav and calculation
     atomic_species = data['ATOMIC_SPECIES']
     cell_parameters = data['CELL_PARAMETERS_out']
     atomic_positions = data['ATOMIC_POSITIONS_out']
-    alat = data['alat']
+    alat = data['Alat']
     set_value(atomic_species, 'ATOMIC_SPECIES', scf_in)
     set_value(cell_parameters, 'CELL_PARAMETERS', scf_in)
     set_value(atomic_positions, 'ATOMIC_POSITIONS', scf_in)

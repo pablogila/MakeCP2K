@@ -75,7 +75,9 @@ def here(folder=None) -> str:
     Runs the rest of the script inside the specified `folder`.
     If none is provided, it runs from the same directory where the current script lies.
     This is really useful to run scripts from the VSCode terminal, etc.
-    Returns the path of the used `folder`, or the path of the script if folder is not provided.
+    Returns the path of the used `folder`, or the path of the script if folder is not provided.\n
+    Note that this changes not only the working directory of your script,
+    but also of other scripts that import and run your script.
     '''
     if folder:
         caller = os.path.abspath(folder)

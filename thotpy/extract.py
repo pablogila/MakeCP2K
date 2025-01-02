@@ -60,11 +60,11 @@ def string(
     if not match:
         return None
     result = str(match.group(1))
-    result.strip()
+    result = result.strip()
     if strip:
         result = result.strip("'")
         result = result.strip('"')
-        result.strip()
+        result = result.strip()
     return result
 
 

@@ -67,7 +67,7 @@ def get_list(
     if os.path.isfile(folder):
         folder = os.path.dirname(folder)
     if not os.path.isdir(folder):
-        raise FileNotFoundError('Nothing found at ' + folder)
+        raise FileNotFoundError('Directory not found: ' + folder)
     folder = os.path.abspath(folder)
     files = os.listdir(folder)
     # Apply filters or not
@@ -116,13 +116,16 @@ def move(
 
 def remove(filename:str) -> None:
     '''
-    Removes the given file with `filename`.
+    Removes the given file or folder with `filename`.
+    If it is a folder, it removes the folder and all its contents.
+    > WARNING: Removing stuff is always dangerous, be careful!
     '''
-    file_path = get(filename)
-    if os.path.isdir(file_path):
-        shutil.rmtree(file_path)
-    elif os.path.isfile(file_path):
-        os.remove(file_path)
+    if filename is None:
+        return None  # It did not exist in the first place
+    elif os.path.isfile(filename):
+        os.remove(filename)
+    elif os.path.isdir(filename):
+        shutil.rmtree(filename)
     else:
         return None  # It did not exist in the first place
     return None
@@ -209,8 +212,8 @@ def copy_to_subfolders(
         for string in strings_to_delete:
             new_file = new_file.replace(string, '')
         path = new_file.replace(extension, '')
-        os.makedirs(path)
-        new_file_path = path + '/' + new_file
+        os.makedirs(path, exist_ok=True)
+        new_file_path = os.path.join(path, new_file)
         copy(old_file, new_file_path)
     return None
 

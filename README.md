@@ -1,12 +1,13 @@
-# ThotPy v5.4.2
+# ThotPy v5.4.4
 
 Welcome to the **T**ext en**H**ancement & **O**ptimization for scien**T**ific research with **Py**thon; or just **ThotPy**, as the modern incarnation of the ancient Egyptian god of writing, wisdom and magic, [Thot](https://en.wikipedia.org/wiki/Thoth).  
 
-This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. In particular, it contains interfaces for [Quantum ESPRESSO](https://www.quantum-espresso.org/) and [Phonopy](https://phonopy.github.io/phonopy/).
+This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. In particular, it contains interfaces for [Quantum ESPRESSO](https://www.quantum-espresso.org/) and [Phonopy](https://phonopy.github.io/phonopy/).  
+
+Check the [full documentation online](https://pablogila.github.io/ThotPy/).  
 
 > **Also check...**  
 > Just as the ancient Egyptian god, ThotPy is *married* with [MaatPy](https://github.com/pablogila/MaatPy), another useful python package to analyze spectral data from your experiments. Check it out!  
-> Note that ThotPy was formally known as InputMaker.  
 
 
 # Installation
@@ -43,6 +44,8 @@ Check the [full ThotPy documentation online](https://pablogila.github.io/ThotPy/
 
 An offline version of the documentation is available in `docs/thotpy.html`.  
 
+Code examples are included in the `/examples/` folder.
+
 ## Submodules
 
 ThotPy contains the following submodules for general text edition:  
@@ -62,9 +65,35 @@ The following interfaces for ab-initio codes are included:
 
 ## Compiling the documentation
 
-The documentation can be compiled automatically using [pdoc](https://pdoc.dev/) and ThotPy itself, by running:
+The documentation can be compiled automatically to `docs/thotpy.html` with [pdoc](https://pdoc.dev/) and ThotPy itself, by running:
 ```shell
 python3 makedocs.py
+```
+
+
+# Contributing
+
+## GitHub
+
+If you are interested in opening an issue or a pull request, please feel free to do so on [GitHub](https://github.com/pablogila/ThotPy/).  
+
+For major changes, please get in touch first to discuss the details.  
+
+## Testing with PyTest
+
+If you are modifying the source code, you should run automated tests to check that everything works as intended. First install PyTest in your environment:
+```bash
+pip install pytest
+```
+
+Don't forget to install your modifications. From the `/ThotPy/` directory, run:
+```bash
+pip install .
+```
+
+Finally, run PyTest inside the `/ThotPy/` directory:
+```bash
+pytest -vv
 ```
 
 

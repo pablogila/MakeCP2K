@@ -1,0 +1,43 @@
+This is a dummy file to test value extraction from Quantum ESPRESSO output files.
+------------------------------------------------------------------------
+Bad values that should NOT be reported:
+     Total force =     0.000002     Total SCF correction =     0.000002
+!    total energy              =   -2000.00000000 Ry   ! Bad value
+------------------------------------------------------------------------
+Good values that should be reported:
+     bfgs converged in  97 scf cycles and  95 bfgs steps
+
+Begin final coordinates
+     new unit-cell volume =   2.0 a.u.^3 (   925.14878 Ang^3 )
+     density =      1.0 g/cm^3
+
+CELL_PARAMETERS (alat= 10.0000)
+   1.000000000   0.000000000   0.000000000 
+   0.000000000   1.000000000   0.000000000 
+   0.000000000   0.000000000   1.000000000 
+
+ATOMIC_POSITIONS (crystal)
+I                1.0000000000        0.0000000000        0.0000000000 
+C                0.0000000000        1.0000000000        0.0000000000 
+N                0.0000000000        0.0000000000        1.0000000000 
+End final coordinates
+
+!    total energy              =   -1000.00000000 Ry
+
+     random text in between
+     atom   47 type  2   force =    -0.00002093    0.00000625   -0.00000000
+     atom   48 type  2   force =    -0.00002093   -0.00000625    0.00000000
+
+     Total force =     0.000001     Total SCF correction =     0.000000
+
+     Parallel routines
+
+     PWSCF        :  48m 8.71s CPU  48m47.56s WALL
+
+
+   This run was terminated on:  23:42:31   8Sep2024            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
+
