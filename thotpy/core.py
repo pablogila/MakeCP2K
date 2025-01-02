@@ -10,7 +10,7 @@ Common utilities, autoloaded directly as `thotpy.value`.
 '''
 
 
-version = 'v5.4.2'
+version = 'v5.4.3'
 '''
 Package version, using semantic versioning to indicate breaking changes,
 as in v<MAJOR>.<MINOR>.<PATCH>.

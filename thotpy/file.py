@@ -124,7 +124,7 @@ def remove(filename:str) -> None:
     elif os.path.isfile(file_path):
         os.remove(file_path)
     else:
-        raise FileNotFoundError(f"No such file or directory: '{file_path}'")
+        return None  # It did not exist in the first place
     return None
 
 
@@ -140,9 +140,18 @@ def rename(
     if folder is None:
         files = os.listdir('.')
     elif os.path.isdir(folder):
-        files = os.listdir(folder)
+        file_list = os.listdir(folder)
+        files = []
+        for file in file_list:
+            file_path = os.path.join(folder, file)
+            files.append(file_path)
     elif os.path.isdir(os.path.join(os.getcwd(), folder)):
-        files = os.listdir(os.path.join(os.getcwd(), folder))
+        folder_path = os.path.join(os.getcwd(), folder)
+        file_list = os.listdir(folder_path)
+        files = []
+        for file in file_list:
+            file_path = os.path.join(folder_path, file)
+            files.append(file_path)
     else:
         raise FileNotFoundError('Missing folder at ' + folder + ' or in the CWD ' + os.getcwd())
     for f in files:

@@ -57,10 +57,10 @@ def lines(
     for start, end in positions:
         # Get the positions of the full line containing the match
         line_start = mm.rfind(b'\n', 0, start) + 1
-        line_end = mm.find(b'\n', end, len(mm)-1)
+        line_end = mm.find(b'\n', end, len(mm))
         # Default values for the start and end of the line
         if line_start == -1: line_start = 0
-        if line_end == -1: line_end = len(mm) - 1
+        if line_end == -1: line_end = len(mm)
         # Adjust the line_end to add additional lines after the match
         match_start = line_start
         match_end = line_end
@@ -68,7 +68,7 @@ def lines(
             for _ in range(abs(additional)):
                 match_end = mm.find(b'\n', match_end + 1, len(mm)-1)
                 if match_end == -1:
-                    match_end = len(mm) - 1
+                    match_end = len(mm)
                     break
         elif additional < 0:
             for _ in range(abs(additional)):
