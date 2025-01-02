@@ -131,10 +131,10 @@
 </span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    Reads a CASTEP output file, specified in `filename`.</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    Returns a dictionary with the following keys:</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    `&#39;Enthalpy&#39;` (LBFGS: Final Enthalpy),</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    `&#39;Energy&#39;` (Total energy corrected for finite basis set),</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    `&#39;Space group&#39;`, `&#39;Volume&#39;`, `&#39;Density&#39;`, `&#39;Density g&#39;`,</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    `&#39;A&#39;`, `&#39;B&#39;`, `&#39;C&#39;`, `&#39;Alpha&#39;`, `&#39;Beta&#39;`, `&#39;Gamma&#39;`.</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    `&#39;Enthalpy&#39;` (LBFGS: Final Enthalpy, in kJ/mol),</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    `&#39;Energy&#39;` (Total energy corrected for finite basis set, in eV),</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    `&#39;Space group&#39;`, `&#39;Volume&#39;` (Angstrom$^3$), `&#39;Density&#39;` (amu/Angstrom$^3$), `&#39;Density_g&#39;` (g/cm$^3$),</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    `&#39;A&#39;`, `&#39;B&#39;`, `&#39;C&#39;` (Angstroms), `&#39;Alpha&#39;`, `&#39;Beta&#39;`, `&#39;Gamma&#39;` (Degrees).</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">    &#39;&#39;&#39;</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">file_castep</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="c1"># Initial definitions</span>
@@ -189,7 +189,7 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="s1">&#39;Space group&#39;</span> <span class="p">:</span> <span class="n">space_group</span><span class="p">,</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>        <span class="s1">&#39;Volume&#39;</span>      <span class="p">:</span> <span class="n">volume</span><span class="p">,</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>        <span class="s1">&#39;Density&#39;</span>     <span class="p">:</span> <span class="n">density</span><span class="p">,</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>        <span class="s1">&#39;Density g&#39;</span>   <span class="p">:</span> <span class="n">density_g</span><span class="p">,</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>        <span class="s1">&#39;Density_g&#39;</span>   <span class="p">:</span> <span class="n">density_g</span><span class="p">,</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>        <span class="s1">&#39;A&#39;</span>           <span class="p">:</span> <span class="n">a</span><span class="p">,</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>        <span class="s1">&#39;B&#39;</span>           <span class="p">:</span> <span class="n">b</span><span class="p">,</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>        <span class="s1">&#39;C&#39;</span>           <span class="p">:</span> <span class="n">c</span><span class="p">,</span>
@@ -217,10 +217,10 @@
 </span><span id="read_castep-19"><a href="#read_castep-19"><span class="linenos">19</span></a><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 </span><span id="read_castep-20"><a href="#read_castep-20"><span class="linenos">20</span></a><span class="sd">    Reads a CASTEP output file, specified in `filename`.</span>
 </span><span id="read_castep-21"><a href="#read_castep-21"><span class="linenos">21</span></a><span class="sd">    Returns a dictionary with the following keys:</span>
-</span><span id="read_castep-22"><a href="#read_castep-22"><span class="linenos">22</span></a><span class="sd">    `&#39;Enthalpy&#39;` (LBFGS: Final Enthalpy),</span>
-</span><span id="read_castep-23"><a href="#read_castep-23"><span class="linenos">23</span></a><span class="sd">    `&#39;Energy&#39;` (Total energy corrected for finite basis set),</span>
-</span><span id="read_castep-24"><a href="#read_castep-24"><span class="linenos">24</span></a><span class="sd">    `&#39;Space group&#39;`, `&#39;Volume&#39;`, `&#39;Density&#39;`, `&#39;Density g&#39;`,</span>
-</span><span id="read_castep-25"><a href="#read_castep-25"><span class="linenos">25</span></a><span class="sd">    `&#39;A&#39;`, `&#39;B&#39;`, `&#39;C&#39;`, `&#39;Alpha&#39;`, `&#39;Beta&#39;`, `&#39;Gamma&#39;`.</span>
+</span><span id="read_castep-22"><a href="#read_castep-22"><span class="linenos">22</span></a><span class="sd">    `&#39;Enthalpy&#39;` (LBFGS: Final Enthalpy, in kJ/mol),</span>
+</span><span id="read_castep-23"><a href="#read_castep-23"><span class="linenos">23</span></a><span class="sd">    `&#39;Energy&#39;` (Total energy corrected for finite basis set, in eV),</span>
+</span><span id="read_castep-24"><a href="#read_castep-24"><span class="linenos">24</span></a><span class="sd">    `&#39;Space group&#39;`, `&#39;Volume&#39;` (Angstrom$^3$), `&#39;Density&#39;` (amu/Angstrom$^3$), `&#39;Density_g&#39;` (g/cm$^3$),</span>
+</span><span id="read_castep-25"><a href="#read_castep-25"><span class="linenos">25</span></a><span class="sd">    `&#39;A&#39;`, `&#39;B&#39;`, `&#39;C&#39;` (Angstroms), `&#39;Alpha&#39;`, `&#39;Beta&#39;`, `&#39;Gamma&#39;` (Degrees).</span>
 </span><span id="read_castep-26"><a href="#read_castep-26"><span class="linenos">26</span></a><span class="sd">    &#39;&#39;&#39;</span>
 </span><span id="read_castep-27"><a href="#read_castep-27"><span class="linenos">27</span></a>    <span class="n">file_castep</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 </span><span id="read_castep-28"><a href="#read_castep-28"><span class="linenos">28</span></a>    <span class="c1"># Initial definitions</span>
@@ -275,7 +275,7 @@
 </span><span id="read_castep-77"><a href="#read_castep-77"><span class="linenos">77</span></a>        <span class="s1">&#39;Space group&#39;</span> <span class="p">:</span> <span class="n">space_group</span><span class="p">,</span>
 </span><span id="read_castep-78"><a href="#read_castep-78"><span class="linenos">78</span></a>        <span class="s1">&#39;Volume&#39;</span>      <span class="p">:</span> <span class="n">volume</span><span class="p">,</span>
 </span><span id="read_castep-79"><a href="#read_castep-79"><span class="linenos">79</span></a>        <span class="s1">&#39;Density&#39;</span>     <span class="p">:</span> <span class="n">density</span><span class="p">,</span>
-</span><span id="read_castep-80"><a href="#read_castep-80"><span class="linenos">80</span></a>        <span class="s1">&#39;Density g&#39;</span>   <span class="p">:</span> <span class="n">density_g</span><span class="p">,</span>
+</span><span id="read_castep-80"><a href="#read_castep-80"><span class="linenos">80</span></a>        <span class="s1">&#39;Density_g&#39;</span>   <span class="p">:</span> <span class="n">density_g</span><span class="p">,</span>
 </span><span id="read_castep-81"><a href="#read_castep-81"><span class="linenos">81</span></a>        <span class="s1">&#39;A&#39;</span>           <span class="p">:</span> <span class="n">a</span><span class="p">,</span>
 </span><span id="read_castep-82"><a href="#read_castep-82"><span class="linenos">82</span></a>        <span class="s1">&#39;B&#39;</span>           <span class="p">:</span> <span class="n">b</span><span class="p">,</span>
 </span><span id="read_castep-83"><a href="#read_castep-83"><span class="linenos">83</span></a>        <span class="s1">&#39;C&#39;</span>           <span class="p">:</span> <span class="n">c</span><span class="p">,</span>
@@ -289,10 +289,10 @@
 
             <div class="docstring"><p>Reads a CASTEP output file, specified in <code>filename</code>.
 Returns a dictionary with the following keys:
-<code>'Enthalpy'</code> (LBFGS: Final Enthalpy),
-<code>'Energy'</code> (Total energy corrected for finite basis set),
-<code>'Space group'</code>, <code>'Volume'</code>, <code>'Density'</code>, <code>'Density g'</code>,
-<code>'A'</code>, <code>'B'</code>, <code>'C'</code>, <code>'Alpha'</code>, <code>'Beta'</code>, <code>'Gamma'</code>.</p>
+<code>'Enthalpy'</code> (LBFGS: Final Enthalpy, in kJ/mol),
+<code>'Energy'</code> (Total energy corrected for finite basis set, in eV),
+<code>'Space group'</code>, <code>'Volume'</code> (Angstrom$^3$), <code>'Density'</code> (amu/Angstrom$^3$), <code>'Density_g'</code> (g/cm$^3$),
+<code>'A'</code>, <code>'B'</code>, <code>'C'</code> (Angstroms), <code>'Alpha'</code>, <code>'Beta'</code>, <code>'Gamma'</code> (Degrees).</p>
 </div>
 
 
