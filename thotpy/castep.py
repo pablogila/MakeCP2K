@@ -20,7 +20,7 @@ def read_castep(filename) -> dict:
     Returns a dictionary with the following keys:
     `'Enthalpy'` (LBFGS: Final Enthalpy, in kJ/mol),
     `'Energy'` (Total energy corrected for finite basis set, in eV),
-    `'Space group'`, `'Volume'` (Angstrom$^3$), `'Density'` (amu/Angstrom$^3$), `'Density_g'` (g/cm$^3$),
+    `'Space group'`, `'Volume'` (Angstrom^3), `'Density'` (amu/Angstrom^3), `'Density_g'` (g/cm^3),
     `'A'`, `'B'`, `'C'` (Angstroms), `'Alpha'`, `'Beta'`, `'Gamma'` (Degrees).
     '''
     file_castep = file.get(filename)
