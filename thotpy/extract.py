@@ -6,6 +6,7 @@ Functions to extract data from raw text strings.
 - `number()`
 - `string()`
 - `column()`
+- `coords()`
 
 ---
 '''

@@ -20,6 +20,7 @@ fix_dict ={
     '[text](https://pablogila.github.io/ThotPy/thotpy/text.html)'         : '`thotpy.text`',
     '[qe](https://pablogila.github.io/ThotPy/thotpy/qe.html)'             : '`thotpy.qe`',
     '[phonopy](https://pablogila.github.io/ThotPy/thotpy/phonopy.html)'   : '`thotpy.phonopy`',
+    '[castep](https://pablogila.github.io/ThotPy/thotpy/castep.html)'     : '`thotpy.castep`',
 } 
 
 version = th.find.lines(r"version\s*=", version_path, -1, 0, False, True)[0]

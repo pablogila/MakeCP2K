@@ -3,8 +3,12 @@
 Functions to search for specific content inside text files.
 
 # Index
+
+Functions to find and return specific text strings:
 - `lines()`
 - `between()`
+
+Functions to find the position in the file of specific text strings:
 - `pos()`
 - `pos_regex()`
 - `next_pos()`
@@ -120,7 +124,8 @@ def pos(
     Returns a list of the positions of a `key` in a given `filename` (whether file or memory mapped file).\n
     The value `matches` specifies the max number of matches to return.
     Defaults to 0 to return all possible matches. Set it to 1 to return only one match,
-    or to negative integers to start searching from the end of the file upwards.\n
+    2 to get the first two matches, etc.
+    You can also set it to negative integers to start searching from the end of the file upwards.\n
     This method is faster than `pos_regex()`, but does not search for regular expressions.
     '''
     positions = []
@@ -336,7 +341,8 @@ def between_pos(
         regex:bool=False
     ) -> tuple:
     '''
-    Deletes the content between the line containing the `key1` and `key2` in the given file with `filename`.
+    Returns the positions of the content between the lines containing
+    `key1` and `key2` in the given file with `filename`.
     Keywords can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
     Key lines are omited by default, but can be returned with `include_keys=True`.\n

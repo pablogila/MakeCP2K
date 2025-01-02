@@ -2,7 +2,7 @@
 
 Welcome to the **T**ext en**H**ancement & **O**ptimization for scien**T**ific research with **Py**thon; or just **ThotPy**, as the modern incarnation of the ancient Egyptian god of writing, wisdom and magic, [Thot](https://en.wikipedia.org/wiki/Thoth).  
 
-This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. In particular, it contains interfaces for [Quantum ESPRESSO](https://www.quantum-espresso.org/) and [Phonopy](https://phonopy.github.io/phonopy/).  
+This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on *ab-initio* calculations. In particular, it contains interfaces for [Quantum ESPRESSO](https://www.quantum-espresso.org/) and [Phonopy](https://phonopy.github.io/phonopy/).  
 
 Check the [full documentation online](https://pablogila.github.io/ThotPy/).  
 
@@ -20,19 +20,19 @@ source .venv/bin/activate
 
 ## With pip
 
-To install ThotPy with pip, run:  
+The fastest way to install ThotPy is to use pip:  
 ```bash
 pip install thotpy
 ```
 
 ## From source
 
-Optionally, you can install ThotPy from the last GitHub release. First install the dependencies:  
+Optionally, you can install ThotPy from the [GitHub repository](https://github.com/pablogila/ThotPy/). First install the dependencies:  
 ```bash
 pip install pandas
 ```
 
-Then clone the repository from [GitHub](https://github.com/pablogila/ThotPy/) or download the [latest stable release](https://github.com/pablogila/ThotPy/tags) as a ZIP, and run inside the `/ThotPy/` directory:  
+Then download the [latest stable release](https://github.com/pablogila/ThotPy/tags) as a ZIP, unzip it, and run inside the `ThotPy/` directory:  
 ```bash
 pip install .
 ```
@@ -41,10 +41,8 @@ pip install .
 # Documentation
 
 Check the [full ThotPy documentation online](https://pablogila.github.io/ThotPy/).  
-
 An offline version of the documentation is available in `docs/thotpy.html`.  
-
-Code examples are included in the `/examples/` folder.
+Code examples are included in the `examples/` folder.  
 
 ## Submodules
 
@@ -59,21 +57,15 @@ Along with the [core](https://pablogila.github.io/ThotPy/thotpy/core.html) submo
 
 ## Interfaces for ab-initio codes
 
-The following interfaces for ab-initio codes are included:
+The following interfaces for *ab-initio* codes are included:
 - [qe](https://pablogila.github.io/ThotPy/thotpy/qe.html). Interface for [Quantum ESPRESSO](https://www.quantum-espresso.org/) calculations.
 - [phonopy](https://pablogila.github.io/ThotPy/thotpy/phonopy.html). Interface for [Phonopy](https://phonopy.github.io/phonopy/) calculations.
-
-## Compiling the documentation
-
-The documentation can be compiled automatically to `docs/thotpy.html` with [pdoc](https://pdoc.dev/) and ThotPy itself, by running:
-```shell
-python3 makedocs.py
-```
+- [castep](https://pablogila.github.io/ThotPy/thotpy/castep.html) Interface for [CASTEP](https://castep-docs.github.io/castep-docs/) calculations.
 
 
 # Contributing
 
-## GitHub
+## On GitHub
 
 If you are interested in opening an issue or a pull request, please feel free to do so on [GitHub](https://github.com/pablogila/ThotPy/).  
 
@@ -86,14 +78,21 @@ If you are modifying the source code, you should run automated tests to check th
 pip install pytest
 ```
 
-Don't forget to install your modifications. From the `/ThotPy/` directory, run:
+Don't forget to install your modifications. From the `ThotPy/` directory, run:
 ```bash
 pip install .
 ```
 
-Finally, run PyTest inside the `/ThotPy/` directory:
+Finally, run PyTest inside the `ThotPy/` directory:
 ```bash
 pytest -vv
+```
+
+## Compiling the documentation
+
+The documentation can be compiled automatically to `docs/thotpy.html` with [pdoc](https://pdoc.dev/) and ThotPy itself, by running:
+```shell
+python3 makedocs.py
 ```
 
 

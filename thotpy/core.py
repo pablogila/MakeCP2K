@@ -35,6 +35,7 @@ Along with the thotpy.core submodule with common utilities.
 The following interfaces for ab-initio codes are included:
 - thotpy.qe. Interface for Quantum ESPRESSO calculations.
 - thotpy.phonopy. Interface for Phonopy calculations.
+- thotpy.castep. Interface for CASTEP calculations.
 
 ## Full documentation
 Check the full ThotPy documentation on https://pablogila.github.io/ThotPy/

@@ -1,6 +1,6 @@
 '''
 # Description
-Functions to manipulate text files.
+Functions to manipulate the content of text files.
 
 # Index
 - `insert_at()`
@@ -93,14 +93,14 @@ def replace(
         regex:bool=False
     ) -> None:
     '''
-    Replaces the `key` string with the `text` string in the specified `filename`.\n
+    Replaces the `key` string with the `text` string in the specified `filename`.
+    To search with regular expressions, set `regex=True`.\n
     It can also be used to delete the keyword with `text=''`.\n
     The value `replacements` specifies the number of replacements to perform:
     1 to replace only the first keyword found, 2, 3...
     Use negative values to replace from the end of the file,
     eg. to replace the last found key, use `replacements=-1`.
     To replace all values, set `replacements = 0`, which is the value by default.\n
-    To search with regular expressions, set `regex=True`.
     ```
     line... key ...line -> line... text ...line
     ```
@@ -198,9 +198,9 @@ def replace_between(
         regex:bool=False
     ) -> None:
     '''
-    Replace lines with a given `text`, between the keywords `key1` and `key2` in a specified `filename`.\n
-    It can be used to delete the text between the keys by setting `text=''`.\n
+    Replace lines with a given `text`, between the keywords `key1` and `key2` in a specified `filename`.
     Regular expressions can be used by setting `regex=True`.\n
+    It can be used to delete the text between the keys by setting `text=''`.\n
     Key lines are also deleted if `delete_keys=True`.\n
     Only the first matches of the keywords are used by default;
     you can use the last ones with `from_end = True`.

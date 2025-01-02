@@ -71,12 +71,12 @@
   <ul>
     <li><a href="#submodules">Submodules</a></li>
     <li><a href="#interfaces-for-ab-initio-codes">Interfaces for ab-initio codes</a></li>
-    <li><a href="#compiling-the-documentation">Compiling the documentation</a></li>
   </ul></li>
   <li><a href="#contributing">Contributing</a>
   <ul>
-    <li><a href="#github">GitHub</a></li>
+    <li><a href="#on-github">On GitHub</a></li>
     <li><a href="#testing-with-pytest">Testing with PyTest</a></li>
+    <li><a href="#compiling-the-documentation">Compiling the documentation</a></li>
   </ul></li>
   <li><a href="#license">License</a></li>
 </ul>
@@ -85,6 +85,7 @@
             <h2>Submodules</h2>
             <ul>
                     <li><a href="thotpy/call.html">call</a></li>
+                    <li><a href="thotpy/castep.html">castep</a></li>
                     <li><a href="thotpy/core.html">core</a></li>
                     <li><a href="thotpy/extract.html">extract</a></li>
                     <li><a href="thotpy/file.html">file</a></li>
@@ -113,7 +114,7 @@ thotpy    </h1>
 
 <p>Welcome to the <strong>T</strong>ext en<strong>H</strong>ancement &amp; <strong>O</strong>ptimization for scien<strong>T</strong>ific research with <strong>Py</strong>thon; or just <strong>ThotPy</strong>, as the modern incarnation of the ancient Egyptian god of writing, wisdom and magic, <a href="https://en.wikipedia.org/wiki/Thoth">Thot</a>.  </p>
 
-<p>This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on ab-initio calculations. In particular, it contains interfaces for <a href="https://www.quantum-espresso.org/">Quantum ESPRESSO</a> and <a href="https://phonopy.github.io/phonopy/">Phonopy</a>.  </p>
+<p>This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on <em>ab-initio</em> calculations. In particular, it contains interfaces for <a href="https://www.quantum-espresso.org/">Quantum ESPRESSO</a> and <a href="https://phonopy.github.io/phonopy/">Phonopy</a>.  </p>
 
 <p>Check the <a href="https://pablogila.github.io/ThotPy/">full documentation online</a>.  </p>
 
@@ -134,7 +135,7 @@ thotpy    </h1>
 
 <h2 id="with-pip">With pip</h2>
 
-<p>To install ThotPy with pip, run:  </p>
+<p>The fastest way to install ThotPy is to use pip:  </p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>thotpy
@@ -143,14 +144,14 @@ thotpy    </h1>
 
 <h2 id="from-source">From source</h2>
 
-<p>Optionally, you can install ThotPy from the last GitHub release. First install the dependencies:  </p>
+<p>Optionally, you can install ThotPy from the <a href="https://github.com/pablogila/ThotPy/">GitHub repository</a>. First install the dependencies:  </p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>pandas
 </code></pre>
 </div>
 
-<p>Then clone the repository from <a href="https://github.com/pablogila/ThotPy/">GitHub</a> or download the <a href="https://github.com/pablogila/ThotPy/tags">latest stable release</a> as a ZIP, and run inside the <code>/ThotPy/</code> directory:  </p>
+<p>Then download the <a href="https://github.com/pablogila/ThotPy/tags">latest stable release</a> as a ZIP, unzip it, and run inside the <code>ThotPy/</code> directory:  </p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>.
@@ -159,11 +160,9 @@ thotpy    </h1>
 
 <h1 id="documentation">Documentation</h1>
 
-<p>Check the <a href="https://pablogila.github.io/ThotPy/">full ThotPy documentation online</a>.  </p>
-
-<p>An offline version of the documentation is available in <code>docs/thotpy.html</code>.  </p>
-
-<p>Code examples are included in the <code>/examples/</code> folder.</p>
+<p>Check the <a href="https://pablogila.github.io/ThotPy/">full ThotPy documentation online</a>.<br />
+An offline version of the documentation is available in <code>docs/thotpy.html</code>.<br />
+Code examples are included in the <code>examples/</code> folder.  </p>
 
 <h2 id="submodules">Submodules</h2>
 
@@ -181,25 +180,17 @@ thotpy    </h1>
 
 <h2 id="interfaces-for-ab-initio-codes">Interfaces for ab-initio codes</h2>
 
-<p>The following interfaces for ab-initio codes are included:</p>
+<p>The following interfaces for <em>ab-initio</em> codes are included:</p>
 
 <ul>
 <li><code><a href="thotpy/qe.html">thotpy.qe</a></code>. Interface for <a href="https://www.quantum-espresso.org/">Quantum ESPRESSO</a> calculations.</li>
 <li><code><a href="thotpy/phonopy.html">thotpy.phonopy</a></code>. Interface for <a href="https://phonopy.github.io/phonopy/">Phonopy</a> calculations.</li>
+<li><code><a href="thotpy/castep.html">thotpy.castep</a></code> Interface for <a href="https://castep-docs.github.io/castep-docs/">CASTEP</a> calculations.</li>
 </ul>
-
-<h2 id="compiling-the-documentation">Compiling the documentation</h2>
-
-<p>The documentation can be compiled automatically to <code>docs/thotpy.html</code> with <a href="https://pdoc.dev/">pdoc</a> and ThotPy itself, by running:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>python3<span class="w"> </span>makedocs.py
-</code></pre>
-</div>
 
 <h1 id="contributing">Contributing</h1>
 
-<h2 id="github">GitHub</h2>
+<h2 id="on-github">On GitHub</h2>
 
 <p>If you are interested in opening an issue or a pull request, please feel free to do so on <a href="https://github.com/pablogila/ThotPy/">GitHub</a>.  </p>
 
@@ -214,17 +205,26 @@ thotpy    </h1>
 </code></pre>
 </div>
 
-<p>Don't forget to install your modifications. From the <code>/ThotPy/</code> directory, run:</p>
+<p>Don't forget to install your modifications. From the <code>ThotPy/</code> directory, run:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>.
 </code></pre>
 </div>
 
-<p>Finally, run PyTest inside the <code>/ThotPy/</code> directory:</p>
+<p>Finally, run PyTest inside the <code>ThotPy/</code> directory:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pytest<span class="w"> </span>-vv
+</code></pre>
+</div>
+
+<h2 id="compiling-the-documentation">Compiling the documentation</h2>
+
+<p>The documentation can be compiled automatically to <code>docs/thotpy.html</code> with <a href="https://pdoc.dev/">pdoc</a> and ThotPy itself, by running:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>python3<span class="w"> </span>makedocs.py
 </code></pre>
 </div>
 
@@ -258,6 +258,7 @@ See the attached GNU Affero General Public License for more details.  </p>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">text</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">qe</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">phonopy</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">castep</span>
 </span></pre></div>
 
 
