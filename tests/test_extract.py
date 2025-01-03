@@ -20,3 +20,10 @@ def test_extract_column():
 def test_extract_coords():
     assert th.extract.coords('coordinates: 1.0, 2.0 and 3 these were the coordinates') ==[1.0, 2.0, 3.0]
 
+
+def test_extract_element():
+    string = '  element Pb Lead N Nitrogen Ag Silver  '
+    assert th.extract.element(text=string, index=0) == 'Pb'
+    assert th.extract.element(text=string, index=1) == 'N'
+    assert th.extract.element(text=string, index=2) == 'Ag'
+

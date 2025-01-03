@@ -1,13 +1,12 @@
-# ThotPy v5.4.4
+# ThotPy v5.4.5
 
 Welcome to the **T**ext en**H**ancement & **O**ptimization for scien**T**ific research with **Py**thon; or just **ThotPy**, as the modern incarnation of the ancient Egyptian god of writing, wisdom and magic, [Thot](https://en.wikipedia.org/wiki/Thoth).  
-
 This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on *ab-initio* calculations. In particular, it contains interfaces for [Quantum ESPRESSO](https://www.quantum-espresso.org/), [Phonopy](https://phonopy.github.io/phonopy/) and [CASTEP](https://castep-docs.github.io/castep-docs/).  
 
-Check the [full documentation online](https://pablogila.github.io/ThotPy/).  
+Just as the ancient Egyptian god, ThotPy is *married* to [MaatPy](https://github.com/pablogila/MaatPy), another Python package with useful physico-chemical definitions and spectral analysis tools.
+MaatPy is automatically installed with ThotPy as a dependency.  
 
-> **Also check...**  
-> Just as the ancient Egyptian god, ThotPy is *married* with [MaatPy](https://github.com/pablogila/MaatPy), another useful python package to analyze spectral data from your experiments. Check it out!  
+Check the [full documentation online](https://pablogila.github.io/ThotPy/).  
 
 
 # Installation
@@ -29,7 +28,7 @@ pip install thotpy
 
 Optionally, you can install ThotPy from the [GitHub repository](https://github.com/pablogila/ThotPy/). First install the dependencies:  
 ```bash
-pip install pandas
+pip install pandas maatpy
 ```
 
 Then download the [latest stable release](https://github.com/pablogila/ThotPy/tags) as a ZIP, unzip it, and run inside the `ThotPy/` directory:  
@@ -73,17 +72,13 @@ For major changes, please get in touch first to discuss the details.
 
 ## Testing with PyTest
 
-If you are modifying the source code, you should run automated tests to check that everything works as intended. First install PyTest in your environment:
+If you are modifying the source code, you should run automated tests to check that everything works as intended.
+Install PyTest in your environment,
 ```bash
 pip install pytest
 ```
 
-Don't forget to install your modifications. From the `ThotPy/` directory, run:
-```bash
-pip install .
-```
-
-Finally, run PyTest inside the `ThotPy/` directory:
+And run PyTest inside the `ThotPy/` directory,
 ```bash
 pytest -vv
 ```

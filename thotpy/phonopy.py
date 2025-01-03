@@ -178,7 +178,7 @@ def scf_header_to_supercells(
     with open(temp_scf, 'r') as f:
         header = f.read()
     for supercell in supercells:
-        text.insert_at(header, supercell, 0)
+        text.insert_at(header, 0, supercell)
     # Remove the temp file
     os.remove('_scf_temp.in')
     print('Done!')

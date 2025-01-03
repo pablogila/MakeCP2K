@@ -8,9 +8,9 @@ sample_copy = folder + 'sample_copy.txt'
 
 def test_insert_at():
     th.file.copy(sample, sample_copy)
-    th.text.insert_at(text='MIDDLE', filename=sample_copy, position=1)
-    th.text.insert_at(text='START', filename=sample_copy, position=0)
-    th.text.insert_at(text='END', filename=sample_copy, position=-1)
+    th.text.insert_at(text='MIDDLE', position=1, filename=sample_copy)
+    th.text.insert_at(text='START', position=0, filename=sample_copy)
+    th.text.insert_at(text='END', position=-1, filename=sample_copy)
     with open(sample_copy, 'r') as f:
         assert f.read() == 'START\nline1\nMIDDLE\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nEND'
     th.file.remove(sample_copy)

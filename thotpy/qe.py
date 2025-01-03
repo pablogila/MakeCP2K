@@ -9,6 +9,7 @@ Functions to work with [Quantum ESPRESSO](https://www.quantum-espresso.org/) cal
 - `read_dir()`
 - `read_dirs()`
 - `set_value()`
+- `add_atom()`
 - `scf_from_relax()`
 
 ---
@@ -23,6 +24,7 @@ from . import find
 from . import text
 from . import extract
 from . import call
+import maatpy as mt
 
 
 pw_description = {
@@ -143,12 +145,12 @@ def read_in(filename) -> dict:
         nat = data['nat']
         atomic_positions_raw = find.lines(r'(?!\s*!)(atomic_positions|ATOMIC_POSITIONS)', filepath, -1, int(nat+1), True, True)
         if atomic_positions_raw:
-            atomic_positions_cleaned = []
+            atomic_positions = []
             for line in atomic_positions_raw:
                 line = line.strip()
-                if not line == '' or not line.startswith('!'):
-                    atomic_positions_cleaned.append(line)
-            atomic_positions = atomic_positions_cleaned[1:]
+                if line == '' or line.startswith('!') or 'ATOMIC_POSITIONS' in line or 'atomic_positions' in line:
+                    continue
+                atomic_positions.append(line)
             if len(atomic_positions) > nat:
                 atomic_positions = atomic_positions[:nat]
             data['ATOMIC_POSITIONS'] = atomic_positions
@@ -383,9 +385,8 @@ def set_value(
     Replace the `value` of a `key` parameter in an input file with `filename`.
     If `value=''`, the parameter gets deleted.\n
     Remember to include the upper commas `'` on values that use them.\n
-    Note that you must update some values before replacing others:
-    'nat' before 'ATOMIC_POSITIONS', 'ntyp' before 'ATOMIC_SPECIES',
-    and lattice parameters before 'CELL_PARAMETERS.
+    Note that you must update 'ATOMIC_SPECIES' before 'ntyp'.
+    Updating 'ATOMIC_POSITIONS' as a list updates 'nat' automatically.
     '''
     key_uncommented = key
     key_uncommented.replace('(', r'\\(')
@@ -398,21 +399,36 @@ def set_value(
         _add_value(value, key, filename)
         return None
     # Check for the special values, else replace it as a regular value. ATOMIC_POSITIONS ?
-    if key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_old']:    
+    if key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_out']:    
         nat = input_old['nat']
+        new_nat = None
         if isinstance(value, list):
-            if 'ATOMIC_SPECIES' in value[0]:
-                value = value[1:]
-            if len(value) != int(nat):
-                raise ValueError('Update nat before updating ATOMIC_POSITIONS!')
-            value = '\n'.join(value)
+            cleaned_positions = []
+            for line in value:
+                if 'ATOMIC_POSITIONS' in line or line == '':
+                    continue
+                line = line.strip()
+                line = '  ' + line
+                cleaned_positions.append(line)
+            new_nat = len(cleaned_positions)
+            value = '\n'.join(cleaned_positions)
         if value == '':  # Remove from the file
             text.replace_line('', r'(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 0, int(nat), True)
         else:
             text.replace_line(value, r'(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 1, int(nat-1), True)
+        if new_nat:
+            text.replace_line(f'nat = {new_nat}', r'(?!\s*!)nat\s*=', filepath, 1, 0, 0, True)
     # CELL_PARAMETERS ?
-    elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_old']:
+    elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_out']:
         if isinstance(value, list):
+            # Strip all lines
+            cleaned_cell = []
+            for line in value:
+                line = line.strip()
+                line = '  ' + line
+                cleaned_cell.append(line)
+            value = cleaned_cell
+            # Get the alat if specified, and make sure that we have the cell parameters here
             if len(value) == 4:
                 if 'angstrom' in value[0] or 'bohr' in value[0]:
                     text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
@@ -422,6 +438,7 @@ def set_value(
                     raise ValueError(f'Your CELL_PARAMETERS are invalid, please check them. Hint: card options must always be specified (angstrom, bohr, or alat). Your current CELL_PARAMETERS are:\n{value}')
                 value = '\n'.join(value)
                 text.replace_line(value, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
+            # We only have the vectors
             elif len(value) == 3:
                 value = '\n'.join(value)
                 text.replace_line(value, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
@@ -439,11 +456,14 @@ def set_value(
     elif key == 'ATOMIC_SPECIES':
         ntyp = input_old['ntyp']
         if isinstance(value, list):
-            if 'ATOMIC_SPECIES' in value[0]:
-                value = value[1:]
-            if len(value) != ntyp:
-                raise ValueError('Update ntyp before updating ATOMIC_SPECIES!')
-            value = '\n'.join(value)
+            cleaned_positions = []
+            for line in value:
+                if 'ATOMIC_SPECIES' in line or line == '':
+                    continue
+                line = line.strip()
+                line = '  ' + line
+                cleaned_positions.append(line)
+            value = '\n'.join(cleaned_positions)
         if value == '':  # Remove from the file
             text.replace_line('', r'(?!\s*!)ATOMIC_SPECIES', filepath, -1, 0, int(ntyp), True)
         else:
@@ -494,14 +514,14 @@ def _add_value(
                 elif not 'alat' in value[0]:
                     raise ValueError(f'Your CELL_PARAMETERS are invalid, please check them. Hint: card options must always be specified (angstrom, bohr, or alat). Your current CELL_PARAMETERS are:\n{value}')
                 value = '\n'.join(value)
-                text.insert_at(value, filepath, -1)
+                text.insert_at(value, -1, filepath)
             elif len(value) == 3:
                 value = '\n'.join(value)
-                text.insert_at(f'CELL_PARAMETERS alat\n{value}', filepath, -1)
+                text.insert_at(f'CELL_PARAMETERS alat\n{value}', -1, filepath)
             else:
                 raise ValueError('CELL_PARAMETERS must be a set of three vectors!')
         else:  # Assume it was only three lines
-            text.insert_at(f'CELL_PARAMETERS alat\n{value}', filepath, -1)
+            text.insert_at(f'CELL_PARAMETERS alat\n{value}', -1, filepath)
         return None
     # ATOMIC_SPECIES?
     elif key == 'ATOMIC_SPECIES':    
@@ -511,7 +531,7 @@ def _add_value(
             value = '\n'.join(value)
         elif not value.startswith('ATOMIC_SPECIES'):
             value = 'ATOMIC_SPECIES\n' + value
-        text.insert_at(value, filepath, -1)
+        text.insert_at(value, -1, filepath)
         return None
     # ATOMIC_POSITIONS ?
     elif key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_old']:    
@@ -521,11 +541,11 @@ def _add_value(
             value = '\n'.join(value)
         elif not value.startswith('ATOMIC_POSITIONS'):
             value = 'ATOMIC_POSITIONS\n' + value
-        text.insert_at(value, filepath, -1)
+        text.insert_at(value, -1, filepath)
         return None
     # K_POINTS ?
     elif key == 'K_POINTS':
-        text.insert_at(f'K_POINTS\n{value}', filepath, -1)
+        text.insert_at(f'K_POINTS\n{value}', -1, filepath)
         return None
     # Try with regular parameters
     done = False
@@ -541,9 +561,11 @@ def _add_value(
         raise ValueError(f'Could not update the following variable: {key}. Are namelists in CAPITAL letters?')
     if key in ['A', 'B', 'C', 'cosAB', 'cosAC', 'cosBC']:
         text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
+        text.replace_line('CELL_PARAMETERS alat', 'CELL_PARAMETERS', filepath, -1)
     elif 'celldm(' in key:
         text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
         text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
+        text.replace_line('CELL_PARAMETERS alat', 'CELL_PARAMETERS', filepath, -1)
     return None
 
 
@@ -567,6 +589,58 @@ def _add_section(
         next_namelist = namelist
     next_namelist_uncommented = rf'(?!\s*!){next_namelist}'
     text.insert_under(f'{section}\n/', next_namelist_uncommented, filepath, 1, -1, True)
+    return None
+
+
+def add_atom(filename, position) -> None:
+    '''
+    Adds an atom in a given file with `filename` at a specified `position`.
+    Position must be a string or a list, as follows:\n
+    `"specie:str float float float"` or `[specie:str, float, float, float]`\n
+    This method updates automatically 'ntyp' and 'nat'.
+    '''
+    if isinstance(position, list):
+        if not len(position) == 4 or not isinstance(position[0], str):
+            raise ValueError('If your atomic position is a list, it must contain the atom type and the three coords, as in [str, str/float, str/float, str/float]')
+        new_atom = position[0] + '   ' + str(position[1]) + '   ' + str(position[2]) + '   ' + str(position[3])
+    elif isinstance(position, str):
+        new_atom = position.strip()
+    else:
+        raise ValueError(f'The specified position must be a list of size 4 (atom type and three coordinates) or an equivalent string! Your position was:\n{coords}')
+    # Let's check that our new_atom makes sense
+    atom = extract.element(new_atom)
+    coords = extract.coords(new_atom)
+    if not atom:
+        raise ValueError(f'The specified position does not contain an atom at the beginning! Your position was:\n{coords}')
+    if len(coords) < 3:
+        raise ValueError(f'Your position has len(coordinates) < 3, please check it.\nYour position was: {position}\nCoordinates detected: {coords}')
+    if len(coords) > 3:
+        coords = coords[:3]
+        print('WARNING: You introduced more than 3 coordinates. Only 3 were considered and the rest were discarded.')
+        print(f'Coordinates considered: {coords}')
+    new_atom = atom + '   ' + str(coords[0]) + '   ' + str(coords[1]) + '   ' + str(coords[2])
+    # Get the values from the file
+    values = read_in(filename)
+    nat = values['nat']
+    ntyp = values['ntyp']
+    atomic_positions = values['ATOMIC_POSITIONS']
+    nat += 1
+    atomic_positions.append(new_atom)
+    set_value(atomic_positions, 'ATOMIC_POSITIONS', filename)
+    set_value(nat, 'nat', filename)
+    # We might have to update ATOMIC_SPECIES!
+    atomic_species = values['ATOMIC_SPECIES']
+    is_atom_missing = True
+    for specie in atomic_species:
+        if atom in specie:
+            is_atom_missing = False
+            break
+    if is_atom_missing:
+        mass = mt.atom[atom].mass
+        atomic_species.append(f'{atom}   {mass}   {atom}.upf')
+        ntyp += 1
+        set_value(value=atomic_species, key='ATOMIC_SPECIES', filename=filename)
+        set_value(value=ntyp, key='ntyp', filename=filename)
     return None
 
 

@@ -15,6 +15,7 @@ def test_read():
         'BFGS failed'          : False,
         'Total force'          : 0.000001,
         'Total SCF correction' : 0.0,
+        'ibrav'                : 1,
         'Runtime'              : '48m 8.71s',
         'CELL_PARAMETERS_out'  : [
             '1.000000000   0.000000000   0.000000000',
@@ -76,4 +77,34 @@ def test_scf_from_relax():
         th.file.remove(folder + 'scf.in')
     except:
         pass
+
+
+def test_add_atom():
+    ideal_positions = [
+        'I                5.0000000000        0.0000000000        0.0000000000',
+        'C                0.0000000000        5.0000000000        0.0000000000',
+        'N                0.0000000000        0.0000000000        5.0000000000',
+        'O   0.0  0.0  0.0',
+        'Cl  1.0  1.0  1.0']
+    tempfile = folder + 'temp.in'
+    th.file.copy(folder + 'relax.in', tempfile)
+    position_1 = '  O   0.0   0.0   0.0'
+    position_2 = ['Cl', 1.0, 1.0, 1.0]
+    th.qe.add_atom(filename=tempfile, position=position_1)
+    th.qe.add_atom(filename=tempfile, position=position_2)
+    temp = th.qe.read_in(tempfile)
+    nat = temp['nat']
+    ntyp = temp['ntyp']
+    atomic_positions = temp['ATOMIC_POSITIONS']
+    assert nat == 5
+    assert ntyp == 5
+    for i, position in enumerate(atomic_positions):
+        detected_atom = th.extract.element(position)
+        ideal_atom = th.extract.element(ideal_positions[i])
+        assert detected_atom == ideal_atom
+        detected_coords = th.extract.coords(position)
+        ideal_coords = th.extract.coords(ideal_positions[i])
+        assert detected_coords == ideal_coords
+    assert temp['ibrav'] == 1
+    th.file.remove(tempfile)
 

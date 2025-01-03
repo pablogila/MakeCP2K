@@ -22,8 +22,8 @@ from .find import *
 
 def insert_at(
         text:str,
-        filename,
-        position:int
+        position:int,
+        filename
     ) -> None:
     '''
     Inserts a `text` in the line with `position` index of a given file indicated in `filename`.

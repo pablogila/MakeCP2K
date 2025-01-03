@@ -92,7 +92,7 @@
     </ul>
 
 
-            <footer>ThotPy v5.4.4 documentation</footer>
+            <footer>ThotPy v5.4.5 documentation</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -315,7 +315,7 @@ along with <a href="https://www.quantum-espresso.org/">Quantum ESPRESSO</a>.</p>
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">temp_scf</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>        <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>    <span class="k">for</span> <span class="n">supercell</span> <span class="ow">in</span> <span class="n">supercells</span><span class="p">:</span>
-</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>        <span class="n">text</span><span class="o">.</span><span class="n">insert_at</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">supercell</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>        <span class="n">text</span><span class="o">.</span><span class="n">insert_at</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">supercell</span><span class="p">)</span>
 </span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>    <span class="c1"># Remove the temp file</span>
 </span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;_scf_temp.in&#39;</span><span class="p">)</span>
 </span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done!&#39;</span><span class="p">)</span>
@@ -612,7 +612,7 @@ from a Quantum ESPRESSO <code>scf</code> input (<code>scf.in</code> by default).
 </span><span id="scf_header_to_supercells-179"><a href="#scf_header_to_supercells-179"><span class="linenos">179</span></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">temp_scf</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 </span><span id="scf_header_to_supercells-180"><a href="#scf_header_to_supercells-180"><span class="linenos">180</span></a>        <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </span><span id="scf_header_to_supercells-181"><a href="#scf_header_to_supercells-181"><span class="linenos">181</span></a>    <span class="k">for</span> <span class="n">supercell</span> <span class="ow">in</span> <span class="n">supercells</span><span class="p">:</span>
-</span><span id="scf_header_to_supercells-182"><a href="#scf_header_to_supercells-182"><span class="linenos">182</span></a>        <span class="n">text</span><span class="o">.</span><span class="n">insert_at</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">supercell</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="scf_header_to_supercells-182"><a href="#scf_header_to_supercells-182"><span class="linenos">182</span></a>        <span class="n">text</span><span class="o">.</span><span class="n">insert_at</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">supercell</span><span class="p">)</span>
 </span><span id="scf_header_to_supercells-183"><a href="#scf_header_to_supercells-183"><span class="linenos">183</span></a>    <span class="c1"># Remove the temp file</span>
 </span><span id="scf_header_to_supercells-184"><a href="#scf_header_to_supercells-184"><span class="linenos">184</span></a>    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;_scf_temp.in&#39;</span><span class="p">)</span>
 </span><span id="scf_header_to_supercells-185"><a href="#scf_header_to_supercells-185"><span class="linenos">185</span></a>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done!&#39;</span><span class="p">)</span>

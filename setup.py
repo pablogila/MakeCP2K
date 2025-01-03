@@ -22,7 +22,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     packages=['thotpy'],
-    install_requires=['pandas'],
+    install_requires=['pandas>=2.2', 'maatpy>=3.1.0'],
     extras_requires={
         'dev': ['pytest', 'twine']
         },
