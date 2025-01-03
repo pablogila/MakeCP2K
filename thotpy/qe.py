@@ -10,6 +10,9 @@ Functions to work with [Quantum ESPRESSO](https://www.quantum-espresso.org/) cal
 - `read_dirs()`
 - `set_value()`
 - `add_atom()`
+- `normalize_cell_parameters()`
+- `normalize_atomic_positions()`
+- `normalize_atomic_species()`
 - `scf_from_relax()`
 
 ---
@@ -96,65 +99,49 @@ def read_in(filename) -> dict:
         except ValueError:
             pass # Then it is a string
         data[var] = value
-    # Get K_POINTS
+    # K_POINTS
     k_points = find.lines(r'(?!\s*!)(k_points|K_POINTS)', filepath, -1, 1, True, True)
     if k_points:
         k_points = k_points[1].strip()
         data['K_POINTS'] = k_points
-    # Get ATOMIC_SPECIES
+    # ATOMIC_SPECIES
     key_species = r'(?!\s*!)(ATOMIC_SPECIES|atomic_species)'
     atomic_species = None
     if data['ntyp']:
         ntyp = data['ntyp']
         atomic_species_raw = find.lines(key_species, filepath, -1, int(ntyp+1), True, True)
-        # Check that there was no empty line right after the keyword:
-        if atomic_species_raw:
-            atomic_species = []
-            for line in atomic_species_raw:
-                line = line.strip()
-                if line == '' or line.startswith('!') or 'ATOMIC_SPECIES' in line:
-                    continue
-                atomic_species.append(line)
-            if len(atomic_species) > ntyp:
-                atomic_species = atomic_species[:int(ntyp)]
+        atomic_species = normalize_atomic_species(atomic_species_raw)
+        if atomic_species:  # Just a check for clueless people
             if len(atomic_species) != ntyp:
                 print(f'WARNING: ntyp={ntyp}, len(ATOMIC_SCPECIES)={len(atomic_species)}')
-    else:
-        key_species_end = r"(?!\s*!)(ATOMIC_POSITIONS|CELL_PARAMETERS)"  # Assuming species go before 
+    else: # We assume species go before
+        key_species_end = r"(?!\s*!)(ATOMIC_POSITIONS|atomic_positions|CELL_PARAMETERS|cell_parameters)" 
         atomic_species = find.between(key_species, key_species_end, filepath, False, 1, True)
-        atomic_species.split()
+        atomic_species = normalize_atomic_species(atomic_species_raw)
     if atomic_species:
         data['ATOMIC_SPECIES'] = atomic_species
-    # Get CELL_PARAMETERS. Let's take some extra lines just in case there were empty or commented lines in between.
+    # CELL_PARAMETERS. Let's take some extra lines just in case there were empty or commented lines in between.
     cell_parameters_raw = find.lines(r'(?!\s*!)(cell_parameters|CELL_PARAMETERS)', filepath, -1, 4, True, True)
     if cell_parameters_raw:
-        cell_parameters_cleaned = []
-        for line in cell_parameters_raw:
-            line = line.strip()
-            if not line == '' or not line.startswith('!'):
-                cell_parameters_cleaned.append(line)
-        if len(cell_parameters_cleaned) > 4:
-            cell_parameters_cleaned = cell_parameters_cleaned[:4]
-        # extract a possible alat from CELL_PARAMETERS
-        alat = extract.number(cell_parameters_cleaned[0])
-        if alat:  # This overwrites any possible celldm(1) previously defined!
-            data['celldm(1)'] = alat
-        cell_parameters = cell_parameters_cleaned[1:]
-        data['CELL_PARAMETERS'] = cell_parameters
-    # Get ATOMIC_POSITIONS. We assume nat is correct.
+        cell_parameters = normalize_cell_parameters(cell_parameters_raw)
+        if cell_parameters:
+            # extract a possible alat from CELL_PARAMETERS
+            alat = extract.number(cell_parameters[0])
+            if alat:  # This overwrites any possible celldm(1) previously defined!
+                data['celldm(1)'] = alat
+            cell_parameters[0] = 'CELL_PARAMETERS alat'
+            data['CELL_PARAMETERS'] = cell_parameters
+    # ATOMIC_POSITIONS. We assume nat is correct.
     if data['nat']:
         nat = data['nat']
         atomic_positions_raw = find.lines(r'(?!\s*!)(atomic_positions|ATOMIC_POSITIONS)', filepath, -1, int(nat+1), True, True)
         if atomic_positions_raw:
-            atomic_positions = []
-            for line in atomic_positions_raw:
-                line = line.strip()
-                if line == '' or line.startswith('!') or 'ATOMIC_POSITIONS' in line or 'atomic_positions' in line:
-                    continue
-                atomic_positions.append(line)
-            if len(atomic_positions) > nat:
-                atomic_positions = atomic_positions[:nat]
+            atomic_positions = normalize_atomic_positions(atomic_positions_raw)
+            if len(atomic_positions) != (nat + 1):
+                print("WARNING:  len(nat) != len (ATOMIC_POSITIONS)")
             data['ATOMIC_POSITIONS'] = atomic_positions
+    else:
+        print("WARNING: 'nat' is missing, so no ATOMIC_POSITIONS were obtained!")
     return data
 
 
@@ -233,14 +220,13 @@ def read_out(filename) -> dict:
         coordinates_raw = coordinates_raw.splitlines()
         append_cell = False
         append_positions = False
-        cell_parameters = []
-        atomic_positions = []
+        cell_parameters_raw = []
+        atomic_positions_raw = []
         for line in coordinates_raw:
             line = line.strip()
             if cell_parameters_key in line:
                 append_cell = True
                 append_positions = False
-                alat = extract.number(line, 'alat')
             elif atomic_positions_key in line:
                 append_cell = False
                 append_positions = True
@@ -251,11 +237,14 @@ def read_out(filename) -> dict:
             if line == '' or line.startswith('!'):
                 continue
             if append_cell:
-                cell_parameters.append(line)
+                cell_parameters_raw.append(line)
             elif append_positions:
-                atomic_positions.append(line)
-        cell_parameters = cell_parameters[1:]
-        atomic_positions = atomic_positions[1:]
+                atomic_positions_raw.append(line)
+        cell_parameters = normalize_cell_parameters(cell_parameters_raw)
+        atomic_positions = normalize_atomic_positions(atomic_positions_raw)
+        if cell_parameters:
+            if 'alat' in cell_parameters[0]:
+                alat = extract.number(cell_parameters[0], 'alat')
 
     output = {
         'Energy'                : energy,
@@ -386,8 +375,8 @@ def set_value(
     Replace the `value` of a `key` parameter in an input file with `filename`.
     If `value=''`, the parameter gets deleted.\n
     Remember to include the upper commas `'` on values that use them.\n
-    Note that you must update 'ATOMIC_SPECIES' before 'ntyp'.
-    Updating 'ATOMIC_POSITIONS' as a list updates 'nat' automatically.
+    Updating 'ATOMIC_POSITIONS' updates 'nat' automatically,
+    and updating 'ATOMIC_SPECIES' updates 'ntyp'.
     '''
     key_uncommented = key
     key_uncommented.replace('(', r'\\(')
@@ -395,100 +384,75 @@ def set_value(
     key_uncommented = rf'(?!\s*!){key}'
     filepath = file.get(filename)
     input_old = read_in(filepath)
-    # Check if the value is already in the file
+    # Do we have to include the value from scratch?
     if not key in input_old.keys():
         _add_value(value, key, filename)
         return None
-    # Check for the special values, else replace it as a regular value. ATOMIC_POSITIONS ?
-    if key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_out']:    
-        nat = input_old['nat']
-        new_nat = None
-        if isinstance(value, list):
-            cleaned_positions = []
-            for line in value:
-                if 'ATOMIC_POSITIONS' in line or line == '':
-                    continue
-                line = line.strip()
-                line = '  ' + line
-                cleaned_positions.append(line)
-            new_nat = len(cleaned_positions)
-            value = '\n'.join(cleaned_positions)
-        if value == '':  # Remove from the file
-            text.replace_line('', r'(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 0, int(nat), True)
-        else:
-            text.replace_line(value, r'(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 1, int(nat-1), True)
-        if new_nat:
-            text.replace_line(f'nat = {new_nat}', r'(?!\s*!)nat\s*=', filepath, 1, 0, 0, True)
-    # CELL_PARAMETERS ?
-    elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_out']:
-        if isinstance(value, list):
-            # Strip all lines
-            cleaned_cell = []
-            for line in value:
-                line = line.strip()
-                line = '  ' + line
-                cleaned_cell.append(line)
-            value = cleaned_cell
-            # Get the alat if specified, and make sure that we have the cell parameters here
-            if len(value) == 4:
-                if 'angstrom' in value[0] or 'bohr' in value[0]:
-                    text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
-                    text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
-                    text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
-                elif not 'alat' in value[0]:
-                    raise ValueError(f'Your CELL_PARAMETERS are invalid, please check them. Hint: card options must always be specified (angstrom, bohr, or alat). Your current CELL_PARAMETERS are:\n{value}')
-                value = '\n'.join(value)
-                text.replace_line(value, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
-            # We only have the vectors
-            elif len(value) == 3:
-                value = '\n'.join(value)
-                text.replace_line(value, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
-                # We assume that lattice parameters are now in alat, so we update the title of the card
-                text.replace_line('CELL_PARAMETERS alat', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 0, True)
-            else:
-                raise ValueError('CELL_PARAMETERS must be a set of three vectors!')
-        elif value == '':  # Remove from the file
-            text.replace_line('', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
-        else:  # Assume it was only three lines
-            text.replace_line(value, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 1, 2, True)
-            # We assume that lattice parameters are now in alat, so we update the title of the card
-            text.replace_line('CELL_PARAMETERS alat', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 0, True)
-    # ATOMIC_SPECIES ?
-    elif key == 'ATOMIC_SPECIES':
-        ntyp = input_old['ntyp']
-        if isinstance(value, list):
-            cleaned_positions = []
-            for line in value:
-                if 'ATOMIC_SPECIES' in line or line == '':
-                    continue
-                line = line.strip()
-                line = '  ' + line
-                cleaned_positions.append(line)
-            value = '\n'.join(cleaned_positions)
-        if value == '':  # Remove from the file
-            text.replace_line('', r'(?!\s*!)ATOMIC_SPECIES', filepath, -1, 0, int(ntyp), True)
-        else:
-            text.replace_line(value, r'(?!\s*!)ATOMIC_SPECIES', filepath, -1, 1, int(ntyp-1), True)
     # K_POINTS ?
-    elif key == 'K_POINTS':
+    if key == 'K_POINTS':
         if value == '':  # Remove from the file
             text.replace_line('', key_uncommented, filepath, -1, 0, 1, True)
         else:
             text.replace_line(value, key_uncommented, filepath, -1, 1, 0, True)
+        return None
+    # ATOMIC_SPECIES ?
+    elif key == 'ATOMIC_SPECIES':
+        ntyp = input_old['ntyp']
+        atomic_species = normalize_atomic_species(value)
+        atomic_species_str = '\n'.join(atomic_species)
+        if value == '':  # Remove from the file
+            text.replace_line('', r'(?!\s*!)ATOMIC_SPECIES', filepath, -1, 0, int(ntyp), True)
+        else:
+            text.replace_line(atomic_species_str, r'(?!\s*!)ATOMIC_SPECIES', filepath, -1, 1, int(ntyp-1), True)
+        return None
+    # CELL_PARAMETERS ?
+    elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_out']:
+        cell_parameters = normalize_cell_parameters(value)
+        cell_parameters_str = '\n'.join(cell_parameters)
+        if value == '':  # Remove from the file
+            text.replace_line('', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
+        else:
+            text.replace_line(cell_parameters_str, r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 3, True)
+            # Now, if there were units there, overwrite previous definitions
+            if 'angstrom' in cell_parameters[0] or 'bohr' in cell_parameters[0]:
+                text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
+                text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
+                text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
+            elif 'alat' in cell_parameters[0]:
+                alat = extract.number(cell_parameters[0])
+                if alat:
+                    text.replace_line('CELL_PARAMETERS alat', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 0, True)
+                    text.replace_line(f'celldm(1) = {alat}', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
+        return None
+    # ATOMIC_POSITIONS ?
+    elif key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_out']:    
+        nat = input_old['nat']
+        new_nat = None
+        atomic_positions = normalize_atomic_positions(value)
+        new_nat = len(atomic_positions) - 1
+        atomic_positions_str = '\n'.join(atomic_positions)
+        if value == '':  # Remove from the file
+            text.replace_line('', r'(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 0, int(nat), True)
+        else:
+            text.replace_line(atomic_positions_str, r'(?!\s*!)ATOMIC_POSITIONS', filepath, -1, 0, int(nat), True)
+        if new_nat:
+            text.replace_line(f'nat = {new_nat}', r'(?!\s*!)nat\s*=', filepath, 1, 0, 0, True)
+        return None
+    # The value seems single-lined, do we want to delete it?
     elif value == '':
         text.replace_line('', key_uncommented, filepath, 1, 0, 0, True)
+        return None
+    # Update a single-line value
     else:
         text.replace_line(f"  {key} = {str(value)}", key_uncommented, filepath, 1, 0, 0, True)
         # If the key is a lattice parameter, remove previous lattice parameter definitions
         if key in ['A', 'B', 'C', 'cosAB', 'cosAC', 'cosBC']:
             text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
-            # Since lattice parameters are in alat, we update the title of the corresponding card
-            text.replace_line('CELL_PARAMETERS alat', 'CELL_PARAMETERS', filepath, -1)
+            text.replace_line('CELL_PARAMETERS alat', r'(?!\s*!)CELL_PARAMETERS', filepath, -1)
         elif 'celldm(' in key:
             text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
             text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
-            # Since lattice parameters are in alat, we update the title of the corresponding card
-            text.replace_line('CELL_PARAMETERS alat', 'CELL_PARAMETERS', filepath, -1)
+            text.replace_line('CELL_PARAMETERS alat', r'(?!\s*!)CELL_PARAMETERS', filepath, -1)
     return None
 
 
@@ -501,52 +465,48 @@ def _add_value(
     Adds an input `value` for a `key_uncommented` that was not present before in the `filename`.
     Note that namelists must be in capital letters in yor file. Namelists must be introduced by hand.
     '''
-    if value == '':  # The value was not there in the first place!
+    if value == '':  # We are trying to delete a value that is not present!
         return None
     filepath = file.get(filename)
-    # CELL_PARAMETERS ?
-    if key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_old']:
-        if isinstance(value, list):
-            if len(value) == 4:
-                if 'angstrom' in value[0] or 'bohr' in value[0]:
-                    text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
-                    text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
-                    text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
-                elif not 'alat' in value[0]:
-                    raise ValueError(f'Your CELL_PARAMETERS are invalid, please check them. Hint: card options must always be specified (angstrom, bohr, or alat). Your current CELL_PARAMETERS are:\n{value}')
-                value = '\n'.join(value)
-                text.insert_at(value, -1, filepath)
-            elif len(value) == 3:
-                value = '\n'.join(value)
-                text.insert_at(f'CELL_PARAMETERS alat\n{value}', -1, filepath)
-            else:
-                raise ValueError('CELL_PARAMETERS must be a set of three vectors!')
-        else:  # Assume it was only three lines
-            text.insert_at(f'CELL_PARAMETERS alat\n{value}', -1, filepath)
+    old_values = read_in(filename)
+    # K_POINTS ?
+    if key == 'K_POINTS':
+        k_points = f'K_POINTS\n{value}'
+        text.insert_at(k_points, -1, filepath)
         return None
-    # ATOMIC_SPECIES?
+    # ATOMIC_SPECIES ?
     elif key == 'ATOMIC_SPECIES':    
-        if isinstance(value, list):
-            if not 'ATOMIC_SPECIES' in value[0]:
-                value = value.insert(0, 'ATOMIC_SPECIES')
-            value = '\n'.join(value)
-        elif not value.startswith('ATOMIC_SPECIES'):
-            value = 'ATOMIC_SPECIES\n' + value
-        text.insert_at(value, -1, filepath)
+        atomic_species = normalize_atomic_species(value)
+        new_ntyp = len(atomic_species)
+        atomic_species_str = '\n'.join(atomic_species)
+        atomic_species_str = 'ATOMIC_SPECIES\n' + atomic_species_str
+        text.insert_at(atomic_species_str, -1, filepath)
+        if old_values['ntyp'] != new_ntyp:
+            text.replace_line(f'ntyp = {new_ntyp}', r'(?!\s*!)ntyp\s*=', filepath, 1, 0, 0, True)
+        return None
+    # CELL_PARAMETERS ?
+    elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_old']:
+        cell_parameters = normalize_cell_parameters(value)
+        cell_parameters_str = '\n'.join(cell_parameters)
+        text.insert_at(cell_parameters_str, -1, filepath)
+        if 'angstrom' in cell_parameters[0] or 'bohr' in cell_parameters[0]:
+            text.replace_line('', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
+            text.replace_line('', r'(?!\s*!)[ABC]\s*=', filepath, 1, 0, 0, True)
+            text.replace_line('', r'(?!\s*!)cos[ABC]\s*=', filepath, 1, 0, 0, True)
+        elif 'alat' in cell_parameters[0]:
+            alat = extract.number(cell_parameters[0])
+            if alat:
+                text.replace_line('CELL_PARAMETERS alat', r'(?!\s*!)CELL_PARAMETERS', filepath, -1, 0, 0, True)
+                text.replace_line(f'celldm(1) = {alat}', r'(?!\s*!)celldm\(\d\)\s*=', filepath, 1, 0, 0, True)
         return None
     # ATOMIC_POSITIONS ?
-    elif key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_old']:    
-        if isinstance(value, list):
-            if not 'ATOMIC_POSITIONS' in value[0]:
-                value = value.insert(0, 'ATOMIC_POSITIONS')
-            value = '\n'.join(value)
-        elif not value.startswith('ATOMIC_POSITIONS'):
-            value = 'ATOMIC_POSITIONS\n' + value
-        text.insert_at(value, -1, filepath)
-        return None
-    # K_POINTS ?
-    elif key == 'K_POINTS':
-        text.insert_at(f'K_POINTS\n{value}', -1, filepath)
+    elif key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_old']:
+        atomic_positions = normalize_atomic_positions(value)
+        new_nat = len(atomic_positions) - 1
+        atomic_positions_str = '\n'.join(atomic_positions)
+        text.insert_at(atomic_positions_str, -1, filepath)
+        if old_values['nat'] != new_nat:
+            text.replace_line(f'nat = {new_nat}', r'(?!\s*!)nat\s*=', filepath, 1, 0, 0, True)
         return None
     # Try with regular parameters
     done = False
@@ -643,47 +603,6 @@ def add_atom(filename, position) -> None:
     return None
 
 
-def scf_from_relax(
-        folder:str=None,
-        relax_in:str='relax.in',
-        relax_out:str='relax.out'
-    ) -> None:
-    '''
-    Create a Quantum ESPRESSO `scf.in` file from a previous relax calculation.
-    If no `folder` is provided, the current working directory is used.
-    The `relax_in` and `relax_out` files by default are `relax.in` and `relax.out`,
-    update the names if necessary.
-    '''
-    # Terminal feedback
-    print(f'\nthotpy.qe {version}\n'
-          f'Creating Quantum ESPRESSO SCF input from previous relax calculation:\n'
-          f'{relax_in}\n{relax_out}\n')
-    folder_path = folder
-    relax_in = file.get(folder_path, relax_in)
-    relax_out = file.get(folder_path, relax_out)
-    data = read_dir(folder_path, relax_in, relax_out)
-    # Create the scf.in from the previous relax.in
-    scf_in = folder_path + 'scf.in'
-    comment = f'! Automatic SCF input made with thotpy.qe {version}. https://github.com/pablogila/ThotPy'
-    file.from_template(relax_in, scf_in, comment)
-    scf_in = file.get(folder_path, scf_in)
-    # Replace CELL_PARAMETERS, ATOMIC_POSITIONS, ATOMIC_SPECIES, alat, ibrav and calculation
-    atomic_species = data['ATOMIC_SPECIES']
-    cell_parameters = data['CELL_PARAMETERS_out']
-    atomic_positions = data['ATOMIC_POSITIONS_out']
-    alat = data['Alat']
-    set_value(atomic_species, 'ATOMIC_SPECIES', scf_in)
-    set_value(cell_parameters, 'CELL_PARAMETERS', scf_in)
-    set_value(atomic_positions, 'ATOMIC_POSITIONS', scf_in)
-    set_value(alat, 'celldm(1)', scf_in)
-    set_value(0, 'ibrav', scf_in)
-    set_value("'scf'", 'calculation', scf_in)
-    # Terminal feedback
-    print(f'Created input SCF file at:'
-          f'{scf_in}\n')
-    return None
-
-
 def normalize_cell_parameters(params) -> list:
     '''
     Takes a `params` string or a list of strings with the cell parameters
@@ -691,6 +610,8 @@ def normalize_cell_parameters(params) -> list:
     with the "CELL_PARAMETERS {alat|bohr|angstrom}" on list[0],
     followed by the three coordinates.
     '''
+    if params == None:
+        return None
     if isinstance(params, str):  # Convert to a list
         params = params.splitlines()
     if not isinstance(params, list):
@@ -741,6 +662,8 @@ def normalize_atomic_positions(positions) -> list:
     with the "ATOMIC_POSITIONS {alat|bohr|angstrom|crystal|crystal_sg}" on list[0],
     followed by the coordinates.
     '''
+    if positions == None:
+        return None
     if isinstance(positions, str):  # Convert to a list
         positions = positions.splitlines()
     if not isinstance(positions, list):
@@ -787,58 +710,86 @@ def normalize_atomic_positions(positions) -> list:
     atomic_positions.insert(0, header)
     return atomic_positions
 
-"""
+
 def normalize_atomic_species(species) -> list:
     '''
     Takes a `species` string or a list of strings with the atomic species
     and possibly some additional rogue lines, and returns a list with the atomic species
     (without the ATOMIC_SPECIES header!).
     '''
+    if species == None:
+        return None
     if isinstance(species, str):  # Convert to a list
         species = species.splitlines()
     if not isinstance(species, list):
-        raise ValueError(f'The provided atomic species must be a list or a string! Yours was:\n{positions}')
+        raise ValueError(f'The provided atomic species must be a list or a string! Yours was:\n{species}')
     # Clean it
-    species_key = 'atomic_species'
     stop_keys = ['atomic_positions','cell_parameters']
-    header = ''
     atomic_species = []
-    for line in positions:
+    for line in species:
         line = line.strip()
         if line == '' or line.startswith('!'):
             continue
         if any(key in line.lower() for key in stop_keys):
             break
-        if pos_key in line.lower():
-            header = line
+        if 'atomic_species' in line.lower():
             continue
         atom = None
         atom = extract.element(line)
-        if not atom in mt.atom.keys():
-            # If this fails, it will raise an error. This makes sure that we use the format 'Xx' or 'Xx1'
-            element, isotope = mt.stoms.split_isotope(atom)
-        coords = extract.coords(line)
-        if len(coords) < 3:
-            raise ValueError(f'Each ATOMIC_POSITION must have at least three coordinates! Yours contained the line:\n{line}\nDetected coordinates were:\n{coords}')
-        if len(coords) > 6:  # Including optional parameters
-            coords = coords[:6]
-        new_line = f"  {atom}   {coords[0]:.15f}   {coords[1]:.15f}   {coords[2]:.15f}"
-        atomic_positions.append(new_line)
-    # Check the header
-    if 'bohr' in header.lower():
-        header = 'ATOMIC_POSITIONS bohr'
-    elif 'angstrom' in header.lower():
-        header = 'ATOMIC_POSITIONS angstrom'
-    elif 'alat' in header.lower():
-        header = 'ATOMIC_POSITIONS alat'
-    elif 'crystal_sg' in header.lower():
-        header = 'ATOMIC_POSITIONS crystal_sg'
-    elif 'crystal' in header.lower():
-        header = 'ATOMIC_POSITIONS crystal'
-    elif not header:
-        header = 'ATOMIC_POSITIONS crystal'
-    else:
-        raise ValueError(f'ATOMIC_POSITIONS must be in alat, bohr, angstrom, crystal or crystal_sg. Yours was:\n{header}')
-    atomic_positions.insert(0, header)
-    return atomic_positions
-"""
+        if not atom:
+            raise ValueError(f'Atom must be specified at the beginning! Your line was:\n{line}')
+        mass_list = extract.coords(line)
+        if len(mass_list) == 1:
+            mass = mass_list[0]
+        else:  # Is the mass missing?
+            raise ValueError(f'Mass is not properly specified: {line}')
+        # Get the pseudo in the third position
+        line_split = line.split()
+        if len(line_split) < 3:
+            raise ValueError(f'Does the ATOMIC_SPECIES contain the pseudopotential? Your line was:\n{line}')
+        pseudopotential = line_split[2]
+        full_line = f"  {atom}   {mass}   {pseudopotential}"
+        atomic_species.append(full_line)
+    return atomic_species
+
+
+def scf_from_relax(
+        folder:str=None,
+        relax_in:str='relax.in',
+        relax_out:str='relax.out'
+    ) -> None:
+    '''
+    Create a Quantum ESPRESSO `scf.in` file from a previous relax calculation.
+    If no `folder` is provided, the current working directory is used.
+    The `relax_in` and `relax_out` files by default are `relax.in` and `relax.out`,
+    update the names if necessary.
+    '''
+    # Terminal feedback
+    print(f'\nthotpy.qe {version}\n'
+          f'Creating Quantum ESPRESSO SCF input from previous relax calculation:\n'
+          f'{relax_in}\n{relax_out}\n')
+    folder_path = folder
+    relax_in = file.get(folder_path, relax_in)
+    relax_out = file.get(folder_path, relax_out)
+    data = read_dir(folder_path, relax_in, relax_out)
+    # Create the scf.in from the previous relax.in
+    scf_in = folder_path + 'scf.in'
+    comment = f'! Automatic SCF input made with thotpy.qe {version}. https://github.com/pablogila/ThotPy'
+    file.from_template(relax_in, scf_in, comment)
+    scf_in = file.get(folder_path, scf_in)
+    # Replace CELL_PARAMETERS, ATOMIC_POSITIONS, ATOMIC_SPECIES, alat, ibrav and calculation
+    atomic_species = data['ATOMIC_SPECIES']
+    cell_parameters = data['CELL_PARAMETERS_out']
+    atomic_positions = data['ATOMIC_POSITIONS_out']
+    alat = data['Alat']
+    set_value(atomic_species, 'ATOMIC_SPECIES', scf_in)
+    set_value(cell_parameters, 'CELL_PARAMETERS', scf_in)
+    set_value(atomic_positions, 'ATOMIC_POSITIONS', scf_in)
+    set_value(alat, 'celldm(1)', scf_in)
+    set_value(0, 'ibrav', scf_in)
+    set_value("'scf'", 'calculation', scf_in)
+    # Terminal feedback
+    print(f'Created input SCF file at:'
+          f'{scf_in}\n')
+    return None
+

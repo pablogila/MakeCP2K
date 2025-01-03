@@ -18,6 +18,7 @@ def test_read():
         'ibrav'                : 1,
         'Runtime'              : '48m 8.71s',
         'CELL_PARAMETERS_out'  : [
+            'CELL_PARAMETERS alat= 10.0',
             '1.000000000   0.000000000   0.000000000',
             '0.000000000   1.000000000   0.000000000',
             '0.000000000   0.000000000   1.000000000'],
@@ -45,7 +46,13 @@ def test_read():
     }
     result = th.qe.read_dir(folder=folder, in_str='relax.in', out_str='relax.out')
     for key in ideal:
-        assert ideal[key] == result[key]
+        if key == 'ATOMIC_SPECIES':
+            ideal[key] = th.qe.normalize_atomic_species(ideal[key])
+        elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_out']:
+            ideal[key] = th.qe.normalize_cell_parameters(ideal[key])
+        elif key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_out']:
+            ideal[key] = th.qe.normalize_atomic_positions(ideal[key])
+        assert result[key] == ideal[key]
 
 
 def test_scf_from_relax():
@@ -55,14 +62,14 @@ def test_scf_from_relax():
         'ibrav'            : 0,
         'occupations'      : "'fixed'",
         'conv_thr'         : 2.0e-12,
-        'CELL_PARAMETERS'  : [
-            '1.000000000   0.000000000   0.000000000',
-            '0.000000000   1.000000000   0.000000000',
-            '0.000000000   0.000000000   1.000000000'],
         'ATOMIC_SPECIES'   : [
             'I  126.90400   I.upf',
             'N   14.00650   N.upf',
             'C   12.01060   C.upf'],
+        'CELL_PARAMETERS'  : [
+            '1.000000000   0.000000000   0.000000000',
+            '0.000000000   1.000000000   0.000000000',
+            '0.000000000   0.000000000   1.000000000'],
         'ATOMIC_POSITIONS' : [
             'I                1.0000000000        0.0000000000        0.0000000000',
             'C                0.0000000000        1.0000000000        0.0000000000',
@@ -71,7 +78,13 @@ def test_scf_from_relax():
     th.qe.scf_from_relax(folder=folder)
     result = th.qe.read_in(folder + 'scf.in')
     for key in ideal:
-        assert ideal[key] == result[key]
+        if key == 'ATOMIC_SPECIES':
+            ideal[key] = th.qe.normalize_atomic_species(ideal[key])
+        elif key in ['CELL_PARAMETERS', 'CELL_PARAMETERS_out']:
+            ideal[key] = th.qe.normalize_cell_parameters(ideal[key])
+        elif key in ['ATOMIC_POSITIONS', 'ATOMIC_POSITIONS_out']:
+            ideal[key] = th.qe.normalize_atomic_positions(ideal[key])
+        assert result[key] == ideal[key]
     assert 'A' not in result.keys()
     try:
         th.file.remove(folder + 'scf.in')
@@ -86,6 +99,7 @@ def test_add_atom():
         'N                0.0000000000        0.0000000000        5.0000000000',
         'O   0.0  0.0  0.0',
         'Cl  1.0  1.0  1.0']
+    ideal_positions = th.qe.normalize_atomic_positions(ideal_positions)
     tempfile = folder + 'temp.in'
     th.file.copy(folder + 'relax.in', tempfile)
     position_1 = '  O   0.0   0.0   0.0'
@@ -98,13 +112,10 @@ def test_add_atom():
     atomic_positions = temp['ATOMIC_POSITIONS']
     assert nat == 5
     assert ntyp == 5
-    for i, position in enumerate(atomic_positions):
-        detected_atom = th.extract.element(position)
-        ideal_atom = th.extract.element(ideal_positions[i])
-        assert detected_atom == ideal_atom
-        detected_coords = th.extract.coords(position)
-        ideal_coords = th.extract.coords(ideal_positions[i])
-        assert detected_coords == ideal_coords
+    for i, ideal in enumerate(ideal_positions):
+        ideal_str = ideal.split()
+        detected_str = atomic_positions[i].split()
+        assert detected_str == ideal_str
     # Additional surrounding values, just in case
     assert temp['ibrav'] == 1
     assert temp['A'] == 10.0
@@ -144,4 +155,11 @@ def test_normalize_atomic_positions():
         '  C   0.000000000000000   5.000000000000000   0.000000000000000']
     normalized_positions = th.qe.normalize_atomic_positions(atomic_positions)
     assert normalized_positions == ideal_positions
+
+
+def test_normalize_atomic_species():
+    atomic_species = " ATOMIC_SPECIES \n     I  126.90400   I.upf  \nHe4   4.0026032497   He.upf\n\n! C   12.01060   C.upf\n ATOMIC_POSITIONS\n '  I   5.000000000000000   0.000000000000000   0.000000000000000'"
+    ideal_species = ['  I   126.904   I.upf', '  He4   4.0026032497   He.upf']
+    normalized_species = th.qe.normalize_atomic_species(atomic_species)
+    assert normalized_species == ideal_species
 
