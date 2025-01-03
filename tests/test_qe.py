@@ -105,6 +105,10 @@ def test_add_atom():
         detected_coords = th.extract.coords(position)
         ideal_coords = th.extract.coords(ideal_positions[i])
         assert detected_coords == ideal_coords
+    # Additional surrounding values, just in case
     assert temp['ibrav'] == 1
-    #th.file.remove(tempfile)
+    assert temp['A'] == 10.0
+    assert temp['ecutwfc'] == 60.0
+    assert temp['input_dft'] == "'PBEsol'"
+    th.file.remove(tempfile)
 
