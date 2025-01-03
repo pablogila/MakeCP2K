@@ -42,7 +42,7 @@ def test_template():
     except:
         pass
     try:
-        th.file.from_template(old=sample, new=sample_copy, comment='!!!', fixing_dict={'line':''})
+        th.file.from_template(old=sample, new=sample_copy, replaces={'line':''}, comment='!!!')
         with open(sample_copy, 'r') as f:
             content = f.read()
             assert content == '!!!\n1\n2\n3\n4\n5\n6\n7\n8\n9'
@@ -96,7 +96,7 @@ def test_rename():
     except:
         pass
     th.file.copy(sample, sample_copy)
-    th.file.rename(old='copy', new='ok', folder=folder)
+    th.file.rename_on_folder(old='copy', new='ok', folder=folder)
     try:
         th.file.remove(sample_ok)
         assert True
@@ -117,7 +117,7 @@ def test_folders():
         th.file.remove(sample_ok_2)
     except:
         pass
-    th.file.copy_to_subfolders(folder=folder, extension='.txt', strings_to_delete=['.txt'])
+    th.file.copy_to_folders(extension='.txt', strings_to_delete=['.txt'], folder=folder)
     try:
         assert th.file.get_list(folder=folder+'sample', abspath=False) == ['sample.txt']
     except:

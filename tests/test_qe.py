@@ -104,8 +104,8 @@ def test_add_atom():
     th.file.copy(folder + 'relax.in', tempfile)
     position_1 = '  O   0.0   0.0   0.0'
     position_2 = ['Cl', 1.0, 1.0, 1.0]
-    th.qe.add_atom(filename=tempfile, position=position_1)
-    th.qe.add_atom(filename=tempfile, position=position_2)
+    th.qe.add_atom(filepath=tempfile, position=position_1)
+    th.qe.add_atom(filepath=tempfile, position=position_2)
     temp = th.qe.read_in(tempfile)
     nat = temp['nat']
     ntyp = temp['ntyp']
@@ -162,4 +162,24 @@ def test_normalize_atomic_species():
     ideal_species = ['  I   126.904   I.upf', '  He4   4.0026032497   He.upf']
     normalized_species = th.qe.normalize_atomic_species(atomic_species)
     assert normalized_species == ideal_species
+
+
+def test_set_value():
+    tempfile = folder + 'temp.in'
+    th.file.copy(folder + 'relax.in', tempfile)
+    th.qe.set_value(tempfile, 'ecutwfc', 80.0)
+    th.qe.set_value(tempfile, 'ibrav', 5)
+    th.qe.set_value(tempfile, 'calculation', "'vc-relax'")
+    th.qe.set_value(tempfile, 'celldm(1)', 10.0)
+    modified = th.qe.read_in(tempfile)
+    assert modified['ecutwfc'] == 80.0
+    assert modified['ibrav'] == 5
+    assert modified['calculation'] == "'vc-relax'"
+    assert modified['celldm(1)'] == 10.0
+    assert 'A' not in modified.keys()
+    th.qe.set_value(tempfile, 'celldm(1)', '')
+    modified = th.qe.read_in(tempfile)
+    assert 'A' not in modified.keys()
+    assert 'celldm(1)' not in modified.keys()
+    th.file.remove(tempfile)
 

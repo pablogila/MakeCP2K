@@ -73,10 +73,10 @@ def string(
 
 def column(
         text:str,
-        column:int
+        column:int=0
     ) -> float:
     '''
-    Extracts the desired float `column` of a given `string`.
+    Extracts the desired float `column` index of a given `string` (0 by default).
     '''
     if text is None:
         return None

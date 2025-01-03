@@ -39,14 +39,14 @@ def read_castep(filename) -> dict:
     beta        = None
     gamma       = None
     # Find the output values in the file
-    enthalpy_str    = find.lines('LBFGS: Final Enthalpy     =', file_castep, -1)
-    energy_str      = find.lines('Total energy corrected for finite basis set =', file_castep, -1)
-    space_group_str = find.lines('Space group of crystal =', file_castep, -1)
-    volume_str      = find.lines('Current cell volume =', file_castep, -1)
-    density_str     = find.lines('density =', file_castep, -1, 1)
-    a_str           = find.lines('a =', file_castep, -1)
-    b_str           = find.lines('b =', file_castep, -1)
-    c_str           = find.lines('c =', file_castep, -1)
+    enthalpy_str    = find.lines(file_castep, 'LBFGS: Final Enthalpy     =', -1)
+    energy_str      = find.lines(file_castep, 'Total energy corrected for finite basis set =', -1)
+    space_group_str = find.lines(file_castep, 'Space group of crystal =', -1)
+    volume_str      = find.lines(file_castep, 'Current cell volume =', -1)
+    density_str     = find.lines(file_castep, 'density =', -1, 1)
+    a_str           = find.lines(file_castep, 'a =', -1)
+    b_str           = find.lines(file_castep, 'b =', -1)
+    c_str           = find.lines(file_castep, 'c =', -1)
     
     if enthalpy_str:
         enthalpy = extract.number(enthalpy_str[0], 'LBFGS: Final Enthalpy')

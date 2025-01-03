@@ -18,4 +18,4 @@ else:
     keyword = key
 
 # Insert the text under the given keyword
-th.text.insert_under(text, key, file, inserts, skips, regex)
+th.text.insert_under(file, key, text, inserts, skips, regex)

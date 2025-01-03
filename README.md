@@ -1,10 +1,8 @@
-# ThotPy v5.4.5
+# ThotPy v5.5.0
 
-Welcome to the **T**ext en**H**ancement & **O**ptimization for scien**T**ific research with **Py**thon; or just **ThotPy**, as the modern incarnation of the ancient Egyptian god of writing, wisdom and magic, [Thot](https://en.wikipedia.org/wiki/Thoth).  
-This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on *ab-initio* calculations. In particular, it contains interfaces for [Quantum ESPRESSO](https://www.quantum-espresso.org/), [Phonopy](https://phonopy.github.io/phonopy/) and [CASTEP](https://castep-docs.github.io/castep-docs/).  
+Welcome to the **T**ext en**H**ancement & **O**ptimization for scien**T**ific research with **Py**thon; or just **ThotPy**, as the modern incarnation of the ancient Egyptian god of writing and wisdom, [Thot](https://en.wikipedia.org/wiki/Thoth).  
 
-Just as the ancient Egyptian god, ThotPy is *married* to [MaatPy](https://github.com/pablogila/MaatPy), another Python package with useful physico-chemical definitions and spectral analysis tools.
-MaatPy is automatically installed with ThotPy as a dependency.  
+This Python3 package allows you to easily create, edit and analyse all kinds of text files, with a special focus on *ab-initio* calculations. In particular, it contains interfaces for [Quantum ESPRESSO](https://www.quantum-espresso.org/), [Phonopy](https://phonopy.github.io/phonopy/) and [CASTEP](https://castep-docs.github.io/castep-docs/).  
 
 Check the [full documentation online](https://pablogila.github.io/ThotPy/).  
 
@@ -26,12 +24,15 @@ pip install thotpy
 
 ## From source
 
-Optionally, you can install ThotPy from the [GitHub repository](https://github.com/pablogila/ThotPy/). First install the dependencies:  
+Optionally, you can install ThotPy from the [GitHub repository](https://github.com/pablogila/ThotPy/).  
+
+Like its ancient Egyptian counterpart, ThotPy is *married* to [MaatPy](https://github.com/pablogila/MaatPy), another Python package with useful physico-chemical definitions and spectral analysis tools. Pip automatically installs MaatPy as a dependency, but it must be installed before you can build from source.  
+To install the dependencies:  
 ```bash
 pip install pandas maatpy
 ```
 
-Then download the [latest stable release](https://github.com/pablogila/ThotPy/tags) as a ZIP, unzip it, and run inside the `ThotPy/` directory:  
+Then clone the repository or download the [latest stable release](https://github.com/pablogila/ThotPy/tags) as a ZIP, unzip it, and run inside the `ThotPy/` directory:  
 ```bash
 pip install .
 ```
@@ -45,7 +46,7 @@ Code examples are included in the `examples/` folder.
 
 ## Submodules
 
-ThotPy contains the following submodules for general text edition:  
+ThotPy contains the following submodules for general text operations:  
 - [file](https://pablogila.github.io/ThotPy/thotpy/file.html). Manipulate files.
 - [find](https://pablogila.github.io/ThotPy/thotpy/find.html). Search for specific content in a text file.
 - [text](https://pablogila.github.io/ThotPy/thotpy/text.html). Manipulate text files.
@@ -64,21 +65,27 @@ The following interfaces for *ab-initio* codes are included:
 
 # Contributing
 
-## On GitHub
-
 If you are interested in opening an issue or a pull request, please feel free to do so on [GitHub](https://github.com/pablogila/ThotPy/).  
 
 For major changes, please get in touch first to discuss the details.  
 
+## Code style
+
+Please try to follow some general guidelines:  
+- Use a code style consistent with the rest of the project.  
+- Include docstrings to document new additions.  
+- Include tests for new features or modifications.  
+- Arrange function arguments by order of relevance. Most implemented functions follow something similar to `function(file, key/s, value/s, optional)`.  
+
 ## Testing with PyTest
 
-If you are modifying the source code, you should run automated tests to check that everything works as intended.
-Install PyTest in your environment,
+If you are modifying the source code, you should run the automated tests of the `tests/` folder to check that everything works as intended.
+To do so, first install PyTest in your environment,
 ```bash
 pip install pytest
 ```
 
-And run PyTest inside the `ThotPy/` directory,
+And then run PyTest inside the `ThotPy/` directory,
 ```bash
 pytest -vv
 ```

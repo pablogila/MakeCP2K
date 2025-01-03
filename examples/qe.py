@@ -30,4 +30,8 @@ atomic_positions_out = dictionary['ATOMIC_POSITIONS_out']
 print('\natomic positions out:\n')
 for position in atomic_positions_out:
     print(position)
-print('')
+print()
+
+# You can also create a new SCF input calculation from the relaxed structure!
+# th.qe.scf_from_relax()
+

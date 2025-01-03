@@ -21,15 +21,15 @@ from .find import *
 
 
 def insert_at(
+        filepath,
         text:str,
-        position:int,
-        filename
+        position:int
     ) -> None:
     '''
-    Inserts a `text` in the line with `position` index of a given file indicated in `filename`.
+    Inserts a `text` in the line with `position` index of a given `filepath`.
     If `position` is negative, starts from the end of the file.
     '''
-    file_path = get(filename)
+    file_path = get(filepath)
     with open(file_path, 'r+') as f:
         lines = f.read().splitlines()
         if position < 0:
@@ -44,16 +44,16 @@ def insert_at(
 
 
 def insert_under(
-        text:str,
+        filepath,
         key:str,
-        filename,
+        text:str,
         insertions:int=0,
         skips:int=0,
         regex:bool=False
     ) -> None:
     '''
     Inserts the given `text` string under the line(s) containing
-    the `key` in the given file at `filename`.
+    the `key` in the given `filepath`.
     The keyword can be at any position within the line.
     By default all matches are inserted with `insertions=0`,
     but it can insert only a specific number of matches
@@ -62,18 +62,18 @@ def insert_under(
     changing the value `skips`. Negative integers introduce the text in the previous lines.
     Regular expressions can be used by setting `regex=True`. 
     '''
-    file_path = get(filename)
+    file_path = get(filepath)
     if regex:
-        positions = pos_regex(key, file_path, insertions)
+        positions = pos_regex(file_path, key, insertions)
     else:
-        positions = pos(key, file_path, insertions)
+        positions = pos(file_path, key, insertions)
     positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
     # Open the file in read-write mode
     with open(file_path, 'r+b') as f:
         with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
             # Get the places to insert the text
             for position in positions:
-                start, end = line_pos(position, mm, skips)
+                start, end = line_pos(mm, position, skips)
                 inserted_text = '\n' + text # Ensure we end in a different line
                 if end == 0: # If on the first line
                     inserted_text = text + '\n'
@@ -86,14 +86,14 @@ def insert_under(
 
 
 def replace(
-        text:str,
+        filepath:str,
         key:str,
-        filename:str,
+        text:str,
         replacements:int=0,
         regex:bool=False
     ) -> None:
     '''
-    Replaces the `key` string with the `text` string in the specified `filename`.
+    Replaces the `key` string with the `text` string in the specified `filepath`.
     To search with regular expressions, set `regex=True`.\n
     It can also be used to delete the keyword with `text=''`.\n
     The value `replacements` specifies the number of replacements to perform:
@@ -105,11 +105,11 @@ def replace(
     line... key ...line -> line... text ...line
     ```
     '''
-    file_path = get(filename)
+    file_path = get(filepath)
     if regex:
-        positions = pos_regex(key, file_path, replacements)
+        positions = pos_regex(file_path, key, replacements)
     else:
-        positions = pos(key, file_path, replacements)
+        positions = pos(file_path, key, replacements)
     positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
     with open(file_path, 'r+') as f:
         content = f.read()
@@ -122,16 +122,16 @@ def replace(
 
 
 def replace_line(
-        text:str,
+        filepath:str,
         key:str,
-        filename:str,
+        text:str,
         replacements:int=0,
         skips:int=0,
         additional:int=0,
         regex:bool=False
     ) -> None:
     '''
-    Replaces the entire line(s) containing the `key` string with the `text` string in the specified `filename`.
+    Replaces the entire line(s) containing the `key` string with the `text` string in the specified `filepath`.
     Regular expressions can be used with `regex=True`.\n
     It can be used to delete line(s) by setting `text=''`.\n
     The value `replacements` specifies the number of lines to replace:
@@ -145,18 +145,18 @@ def replace_line(
     More lines can be replaced with `additional` lines (int).
     Note that the matched line plus the additional lines will be replaced, this is, additional lines +1.
     '''
-    file_path = get(filename)
+    file_path = get(filepath)
     if regex:
-        positions = pos_regex(key, file_path, replacements)
+        positions = pos_regex(file_path, key, replacements)
     else:
-        positions = pos(key, file_path, replacements)
+        positions = pos(file_path, key, replacements)
     positions.reverse()  # Must start replacing from the end, otherwise the atual positions may change!
     # Open the file in read-write mode
     with open(file_path, 'r+b') as f:
         with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
             for position in positions:
                 # Get the positions of the full line containing the match
-                line_start, line_end = line_pos(position, mm, skips)
+                line_start, line_end = line_pos(mm, position, skips)
                 # Additional lines
                 if additional > 0:
                     for _ in range(abs(additional)):
@@ -189,16 +189,16 @@ def replace_line(
 
 
 def replace_between(
-        text:str,
+        filepath:str,
         key1:str,
         key2:str,
-        filename:str,
+        text:str,
         delete_keys:bool=False,
         from_end:bool=False,
         regex:bool=False
     ) -> None:
     '''
-    Replace lines with a given `text`, between the keywords `key1` and `key2` in a specified `filename`.
+    Replace lines with a given `text`, between the keywords `key1` and `key2` in a specified `filepath`.
     Regular expressions can be used by setting `regex=True`.\n
     It can be used to delete the text between the keys by setting `text=''`.\n
     Key lines are also deleted if `delete_keys=True`.\n
@@ -212,11 +212,11 @@ def replace_between(
     lines...
     ```
     '''
-    file_path = get(filename)
+    file_path = get(filepath)
     index = 1
     if from_end:
         index = -1
-    start, end = between_pos(key1, key2, file_path, delete_keys, index, regex)
+    start, end = between_pos(file_path, key1, key2, delete_keys, index, regex)
     with open(file_path, 'r+b') as f:
         with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
             # Replace the line
@@ -238,14 +238,14 @@ def replace_between(
 
 
 def delete_under(
+        filepath,
         key:str,
-        filename,
         matches:int=1,
         skips:int=0,
         regex:bool=False
     ) -> None:
     '''
-    Deletes all the content under the line containing the `key` in the specified `filename`.
+    Deletes all the content under the line containing the `key` in the specified `filepath`.
     The keyword can be at any position within the line.
     Regular expressions can be used by setting `regex=True`.\n
     By default the first `matches` is used; it can be any positive integer (0 is treated as 1!),
@@ -254,13 +254,13 @@ def delete_under(
     changing the value `skips`, that skips the specified number of lines.
     Negative integers start deleting the content from the previous lines.
     '''
-    file_path = get(filename)
+    file_path = get(filepath)
     if matches == 0:
         matches = 1
     if regex:
-        positions = pos_regex(key, file_path, matches)
+        positions = pos_regex(file_path, key, matches)
     else:
-        positions = pos(key, file_path, matches)
+        positions = pos(file_path, key, matches)
     if matches > 0:  # We only want one match, and should be the last if matches > 0
         positions.reverse()
     position = positions[0]
@@ -268,23 +268,23 @@ def delete_under(
     with open(file_path, 'r+b') as f:
         with mmap.mmap(f.fileno(), length=0, access=mmap.ACCESS_WRITE) as mm:
             # Get the places to insert the text
-            start, end = line_pos(position, mm, skips)
+            start, end = line_pos(mm, position, skips)
             mm.resize(len(mm) - len(mm[end:]))
             mm[end:] = b''
     return None
 
 
 def correct_with_dict(
-        filename:str,
-        dictionary:dict
+        filepath:str,
+        replaces:dict
     ) -> None:
     '''
-    Corrects the given text file `filename` using a `dictionary`.
+    Corrects the given text file `filepath` using a `replaces` dictionary.
     '''
-    file_path = get(filename)
+    file_path = get(filepath)
     with open(file_path, 'r+') as f:
         content = f.read()
-        for key, value in dictionary.items():
+        for key, value in replaces.items():
             content = content.replace(key, value)
         f.seek(0)
         f.write(content)

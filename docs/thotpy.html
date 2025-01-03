@@ -61,7 +61,7 @@
 
             <h2>Contents</h2>
             <ul>
-  <li><a href="#thotpy-v545">ThotPy v5.4.5</a></li>
+  <li><a href="#thotpy-v550">ThotPy v5.5.0</a></li>
   <li><a href="#installation">Installation</a>
   <ul>
     <li><a href="#with-pip">With pip</a></li>
@@ -74,7 +74,7 @@
   </ul></li>
   <li><a href="#contributing">Contributing</a>
   <ul>
-    <li><a href="#on-github">On GitHub</a></li>
+    <li><a href="#code-style">Code style</a></li>
     <li><a href="#testing-with-pytest">Testing with PyTest</a></li>
     <li><a href="#compiling-the-documentation">Compiling the documentation</a></li>
   </ul></li>
@@ -96,7 +96,7 @@
             </ul>
 
 
-            <footer>ThotPy v5.4.5 documentation</footer>
+            <footer>ThotPy v5.5.0 documentation</footer>
 
         <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
             built with <span class="visually-hidden">pdoc</span><img
@@ -110,15 +110,11 @@
                     <h1 class="modulename">
 thotpy    </h1>
 
-                        <div class="docstring"><h1 id="thotpy-v545">ThotPy v5.4.5</h1>
+                        <div class="docstring"><h1 id="thotpy-v550">ThotPy v5.5.0</h1>
 
-<p>Welcome to the <strong>T</strong>ext en<strong>H</strong>ancement &amp; <strong>O</strong>ptimization for scien<strong>T</strong>ific research with <strong>Py</strong>thon; or just <strong>ThotPy</strong>, as the modern incarnation of the ancient Egyptian god of writing, wisdom and magic, <a href="https://en.wikipedia.org/wiki/Thoth">Thot</a>.<br />
-This Python3 package allows you to create, edit and analyze all kinds of text files, with a special focus on <em>ab-initio</em> calculations. In particular, it contains interfaces for <a href="https://www.quantum-espresso.org/">Quantum ESPRESSO</a>, <a href="https://phonopy.github.io/phonopy/">Phonopy</a> and <a href="https://castep-docs.github.io/castep-docs/">CASTEP</a>.  </p>
+<p>Welcome to the <strong>T</strong>ext en<strong>H</strong>ancement &amp; <strong>O</strong>ptimization for scien<strong>T</strong>ific research with <strong>Py</strong>thon; or just <strong>ThotPy</strong>, as the modern incarnation of the ancient Egyptian god of writing and wisdom, <a href="https://en.wikipedia.org/wiki/Thoth">Thot</a>.  </p>
 
-<p>Just as the ancient Egyptian god, ThotPy is <em>married</em> to <a href="https://github.com/pablogila/MaatPy">MaatPy</a>, another Python package with useful physico-chemical definitions and spectral analysis tools.
-MaatPy is automatically installed with ThotPy as a dependency.  </p>
-
-<p>Check the <a href="https://pablogila.github.io/ThotPy/">full documentation online</a>.  </p>
+<p>This Python3 package allows you to easily create, edit and analyse all kinds of text files, with a special focus on <em>ab-initio</em> calculations. In particular, it contains interfaces for <a href="https://www.quantum-espresso.org/">Quantum ESPRESSO</a>, <a href="https://phonopy.github.io/phonopy/">Phonopy</a> and <a href="https://castep-docs.github.io/castep-docs/">CASTEP</a>.  </p>
 
 <h1 id="installation">Installation</h1>
 
@@ -141,14 +137,17 @@ MaatPy is automatically installed with ThotPy as a dependency.  </p>
 
 <h2 id="from-source">From source</h2>
 
-<p>Optionally, you can install ThotPy from the <a href="https://github.com/pablogila/ThotPy/">GitHub repository</a>. First install the dependencies:  </p>
+<p>Optionally, you can install ThotPy from the <a href="https://github.com/pablogila/ThotPy/">GitHub repository</a>.  </p>
+
+<p>Like its ancient Egyptian counterpart, ThotPy is <em>married</em> to <a href="https://github.com/pablogila/MaatPy">MaatPy</a>, another Python package with useful physico-chemical definitions and spectral analysis tools. Pip automatically installs MaatPy as a dependency, but it must be installed before you can build from source.<br />
+To install the dependencies:  </p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>pandas<span class="w"> </span>maatpy
 </code></pre>
 </div>
 
-<p>Then download the <a href="https://github.com/pablogila/ThotPy/tags">latest stable release</a> as a ZIP, unzip it, and run inside the <code>ThotPy/</code> directory:  </p>
+<p>Then clone the repository or download the <a href="https://github.com/pablogila/ThotPy/tags">latest stable release</a> as a ZIP, unzip it, and run inside the <code>ThotPy/</code> directory:  </p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>.
@@ -163,7 +162,7 @@ Code examples are included in the <code>examples/</code> folder.  </p>
 
 <h2 id="submodules">Submodules</h2>
 
-<p>ThotPy contains the following submodules for general text edition:  </p>
+<p>ThotPy contains the following submodules for general text operations:  </p>
 
 <ul>
 <li><code><a href="thotpy/file.html">thotpy.file</a></code>. Manipulate files.</li>
@@ -187,23 +186,32 @@ Code examples are included in the <code>examples/</code> folder.  </p>
 
 <h1 id="contributing">Contributing</h1>
 
-<h2 id="on-github">On GitHub</h2>
-
 <p>If you are interested in opening an issue or a pull request, please feel free to do so on <a href="https://github.com/pablogila/ThotPy/">GitHub</a>.  </p>
 
 <p>For major changes, please get in touch first to discuss the details.  </p>
 
+<h2 id="code-style">Code style</h2>
+
+<p>Please try to follow some general guidelines:  </p>
+
+<ul>
+<li>Use a code style consistent with the rest of the project.  </li>
+<li>Include docstrings to document new additions.  </li>
+<li>Include tests for new features or modifications.  </li>
+<li>Arrange function arguments by order of relevance. Most implemented functions follow something similar to <code>function(file, key/s, value/s, optional)</code>.  </li>
+</ul>
+
 <h2 id="testing-with-pytest">Testing with PyTest</h2>
 
-<p>If you are modifying the source code, you should run automated tests to check that everything works as intended.
-Install PyTest in your environment,</p>
+<p>If you are modifying the source code, you should run the automated tests of the <code>tests/</code> folder to check that everything works as intended.
+To do so, first install PyTest in your environment,</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>pytest
 </code></pre>
 </div>
 
-<p>And run PyTest inside the <code>ThotPy/</code> directory,</p>
+<p>And then run PyTest inside the <code>ThotPy/</code> directory,</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code>pytest<span class="w"> </span>-vv

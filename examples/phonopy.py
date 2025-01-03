@@ -7,4 +7,4 @@ th.call.here()
 th.phonopy.make()
 
 # Once ready, sbatch the calculations. Since testing=True, it will only print the files to sbatch.
-# th.phonopy.sbatch(testing=True)
+th.phonopy.sbatch(testing=True)

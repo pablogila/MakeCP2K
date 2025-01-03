@@ -17,4 +17,4 @@ else:
     keyword = key
 
 # Replace the keywords
-th.text.replace(text, keyword, filename, number_of_replacements, regex)
+th.text.replace(filename, keyword, text, number_of_replacements, regex)

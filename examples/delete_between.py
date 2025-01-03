@@ -13,4 +13,4 @@ from_end = False
 regex = False
 
 # If text='', it deletes the text in between!
-th.text.replace_between('', key1, key2, filename, delete_keys, from_end, regex)
+th.text.replace_between(filename, key1, key2, '', delete_keys, from_end, regex)

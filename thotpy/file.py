@@ -8,10 +8,10 @@ Functions to move files around.
 - `copy()`
 - `move()`
 - `remove()`
-- `rename()`
-- `rename_on_subfolders()`
-- `copy_to_subfolders()`
 - `from_template()`
+- `rename_on_folder()`
+- `rename_on_folders()`
+- `copy_to_folders()`
 
 ---
 '''
@@ -22,12 +22,12 @@ import shutil
 
 
 def get(
-        filename:str,
+        filepath,
         filters=None,
         return_anyway:bool=False
         ) -> str:
     '''
-    Check if the given `filename` exists in the currrent working directory
+    Check if the given `filepath` exists in the currrent working directory
     or in the full path, and returns its full path as a string.\n
     Raises an error if the file is not found, unless `return_anyway=True`,
     in which case it returns None. This can be used to personalize errors.\n
@@ -36,21 +36,21 @@ def get(
     if there are more files, it tries to filter them with the `filters` keyword(s) to return a single file.
     If this fails, try using more strict filers to return a single file.
     '''
-    if os.path.isfile(filename):
-        return os.path.abspath(filename)
-    elif os.path.isdir(filename):
-        files = get_list(filename, filters, abspath=True)
+    if os.path.isfile(filepath):
+        return os.path.abspath(filepath)
+    elif os.path.isdir(filepath):
+        files = get_list(filepath, filters, abspath=True)
     elif return_anyway:
         return None
     else:
-        raise FileNotFoundError('Nothing found at ' + str(filename))
+        raise FileNotFoundError('Nothing found at ' + str(filepath))
     # Return a single file
     if len(files) == 1:
         return files[0]
     elif return_anyway:
         return None
     elif len(files) == 0:
-        raise FileNotFoundError('The following directory is empty (maybe due to the filters):\n' + filename)
+        raise FileNotFoundError('The following directory is empty (maybe due to the filters):\n' + filepath)
     else:
         raise FileExistsError(f'More than one file found, please apply a more strict filter. Found:\n{files}')
 
@@ -114,31 +114,58 @@ def move(
     return None
 
 
-def remove(filename:str) -> None:
+def remove(filepath:str) -> None:
     '''
-    Removes the given file or folder with `filename`.
-    If it is a folder, it removes the folder and all its contents.
+    Removes the given file or folder at `filepath`.
     > WARNING: Removing stuff is always dangerous, be careful!
     '''
-    if filename is None:
+    if filepath is None:
         return None  # It did not exist in the first place
-    elif os.path.isfile(filename):
-        os.remove(filename)
-    elif os.path.isdir(filename):
-        shutil.rmtree(filename)
+    elif os.path.isfile(filepath):
+        os.remove(filepath)
+    elif os.path.isdir(filepath):
+        shutil.rmtree(filepath)
     else:
         return None  # It did not exist in the first place
     return None
 
 
-def rename(
+def from_template(
+        old:str,
+        new:str,
+        replaces:dict=None,
+        comment:str=None,
+    ) -> None:
+    '''
+    Similar to `copy_file()`, copies an `old` file to a `new` file,
+    but optionally corrects the output file with a `replaces` dictionary.
+    Additio, it can add a `comment` at the beginning of the new file.
+    '''
+    copy(old, new)
+    if comment:
+        with open(new, 'r+') as f:
+            content = f.read()
+            f.seek(0)
+            f.write(comment + '\n' + content)
+    if replaces:
+        with open(new, 'r+') as f:
+            content = f.read()
+            for key, value in replaces.items():
+                content = content.replace(key, value)
+            f.seek(0)
+            f.write(content)
+            f.truncate()
+    return None
+
+
+def rename_on_folder(
         old:str,
         new:str,
         folder=None
     ) -> None:
     '''
-    Batch renames files in the given folder, replacing `old` string by `new` string.
-    If no `folder` is provided, the current working directory is used.
+    Batch renames files in the given `folder`, replacing `old` string by `new` string.
+    If no folder is provided, the current working directory is used.
     '''
     if folder is None:
         files = os.listdir('.')
@@ -163,13 +190,13 @@ def rename(
     return None
 
 
-def rename_on_subfolders(
+def rename_on_folders(
         old:str,
         new:str,
         folder=None
     ) -> None:
     '''
-    Renames the files inside the subfolders in the given `folder`,
+    Renames the files inside the subfolders in the parent `folder`,
     from an `old` string to the `new` string.
     If no `folder` is provided, the current working directory is used.
     '''
@@ -191,13 +218,13 @@ def rename_on_subfolders(
     return None
 
 
-def copy_to_subfolders(
-        folder=None,
+def copy_to_folders(
         extension:str=None,
-        strings_to_delete:list=[]
+        strings_to_delete:list=[],
+        folder=None
     ) -> None:
     '''
-    Copies the files from the `folder` with the given `extension` to individual subfolders.
+    Copies the files from the parent `folder` with the given `extension` to individual subfolders.
     The subfolders are named as the original files,
     removing the strings from the `strings_to_delete` list.
     If no `folder` is provided, it runs in the current working directory.
@@ -215,33 +242,5 @@ def copy_to_subfolders(
         os.makedirs(path, exist_ok=True)
         new_file_path = os.path.join(path, new_file)
         copy(old_file, new_file_path)
-    return None
-
-
-def from_template(
-        old:str,
-        new:str,
-        comment:str=None,
-        fixing_dict:dict=None
-    ) -> None:
-    '''
-    Similar to `copy_file()`, but optionally adds a `comment` at the beginning of the new file.
-    Also, it optionally corrects the output file with a `fixing_dict` dictionary.
-    `old` is the template and `new` is the final file.
-    '''
-    copy(old, new)
-    if comment:
-        with open(new, 'r+') as f:
-            content = f.read()
-            f.seek(0)
-            f.write(comment + '\n' + content)
-    if fixing_dict:
-        with open(new, 'r+') as f:
-            content = f.read()
-            for key, value in fixing_dict.items():
-                content = content.replace(key, value)
-            f.seek(0)
-            f.write(content)
-            f.truncate()
     return None
 

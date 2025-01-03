@@ -17,4 +17,4 @@ else:
     keyword = key
 
 # Deletes ALL the content under the specified match, up to the end of the file.
-th.text.delete_under(keyword, file, match, skip_lines, regex)
+th.text.delete_under(file, keyword, match, skip_lines, regex)

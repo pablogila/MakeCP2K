@@ -19,4 +19,4 @@ else:
     keyword = key
 
 # Replace the given line or line plus additional lines
-th.text.replace_line(text, keyword, file, replacements, skips, additional, regex)
+th.text.replace_line(file, keyword, text, replacements, skips, additional, regex)
