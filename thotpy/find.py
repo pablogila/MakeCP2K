@@ -46,7 +46,9 @@ def lines(
     The original ordering from the file is preserved.
     Defaults to `additional=0`, only returning the target line.
     By default, the additional lines are returned in the same list item as the match separated by a `\\n`,
-    unless `split=True`, in which case these additional lines are added as additional items in the list.\n
+    unless `split=True`, in which case these additional lines
+    are splitted and added as additional items in the list.
+    This way, `split=False` allows to differentiate between matches.\n
     To use regular expressions in the search, set `regex=True`.
     By default regex search is deactivated, using the faster mmap.find and rfind methods instead.
     '''
