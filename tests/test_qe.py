@@ -106,5 +106,5 @@ def test_add_atom():
         ideal_coords = th.extract.coords(ideal_positions[i])
         assert detected_coords == ideal_coords
     assert temp['ibrav'] == 1
-    th.file.remove(tempfile)
+    #th.file.remove(tempfile)
 

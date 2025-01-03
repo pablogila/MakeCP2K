@@ -23,7 +23,6 @@ from . import file
 from . import find
 from . import text
 from . import extract
-from . import call
 import maatpy as mt
 
 
@@ -110,14 +109,16 @@ def read_in(filename) -> dict:
         atomic_species_raw = find.lines(key_species, filepath, -1, int(ntyp+1), True, True)
         # Check that there was no empty line right after the keyword:
         if atomic_species_raw:
-            atomic_species_cleaned = []
+            atomic_species = []
             for line in atomic_species_raw:
                 line = line.strip()
-                if not line == '' or not line.startswith('!'):
-                    atomic_species_cleaned.append(line)
-            atomic_species = atomic_species_cleaned[1:]
+                if line == '' or line.startswith('!') or 'ATOMIC_SPECIES' in line:
+                    continue
+                atomic_species.append(line)
             if len(atomic_species) > ntyp:
                 atomic_species = atomic_species[:int(ntyp)]
+            if len(atomic_species) != ntyp:
+                print(f'WARNING: ntyp={ntyp}, len(ATOMIC_SCPECIES)={len(atomic_species)}')
     else:
         key_species_end = r"(?!\s*!)(ATOMIC_POSITIONS|CELL_PARAMETERS)"  # Assuming species go before 
         atomic_species = find.between(key_species, key_species_end, filepath, False, 1, True)
@@ -616,8 +617,6 @@ def add_atom(filename, position) -> None:
         raise ValueError(f'Your position has len(coordinates) < 3, please check it.\nYour position was: {position}\nCoordinates detected: {coords}')
     if len(coords) > 3:
         coords = coords[:3]
-        print('WARNING: You introduced more than 3 coordinates. Only 3 were considered and the rest were discarded.')
-        print(f'Coordinates considered: {coords}')
     new_atom = atom + '   ' + str(coords[0]) + '   ' + str(coords[1]) + '   ' + str(coords[2])
     # Get the values from the file
     values = read_in(filename)
@@ -632,7 +631,7 @@ def add_atom(filename, position) -> None:
     atomic_species = values['ATOMIC_SPECIES']
     is_atom_missing = True
     for specie in atomic_species:
-        if atom in specie:
+        if atom == extract.element(specie):
             is_atom_missing = False
             break
     if is_atom_missing:
