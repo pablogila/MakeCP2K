@@ -109,25 +109,28 @@ def element(text:str, index:int=0) -> str:
     '''
     Extract a chemical element from a raw `text` string.
     If there are several elements, you can return a specific `index` match (positive, 0 by default).
+    Allows for standard elements (H, He, Na...) and isotopes (H2, He4...) using MaatPy.
     '''
     if text is None:
         return None
     columns = re.split(r'[,\s]+', text.strip())
-    pattern = r'\s*([A-Z][a-z]*[a-z]*)\s*'
+    pattern = r'\s*([A-Z][a-z]{0,2}\d{0,3})(?=\s|$)'
     matches = []
     for column in columns:
         match = re.match(pattern, column)
         if match:
             matches.append(str(match.group(1)))
     # We have a list with possible matches. Let's determine which are actual elements.
-    counter = 0
-    last_match = None
+    elements = []
     for possible_element in matches:
         possible_element = possible_element.strip()
-        if possible_element in mt.atom.keys():
-            if counter == abs(index):
-                return possible_element
-            last_match = possible_element
-            counter += 1
-    return last_match
+        if not possible_element in mt.atom.keys():
+            try:
+                element, isotope = mt.atoms.split_isotope(possible_element)
+            except:  # It is not a valid atom
+                continue
+        elements.append(possible_element)
+    if len(elements) <= index:
+        return elements[-1]
+    return elements[index]
 

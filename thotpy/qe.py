@@ -683,3 +683,162 @@ def scf_from_relax(
           f'{scf_in}\n')
     return None
 
+
+def normalize_cell_parameters(params) -> list:
+    '''
+    Takes a `params` string or a list of strings with the cell parameters
+    and possibly some additional rogue lines, and returns a list os size 4,
+    with the "CELL_PARAMETERS {alat|bohr|angstrom}" on list[0],
+    followed by the three coordinates.
+    '''
+    if isinstance(params, str):  # Convert to a list
+        params = params.splitlines()
+    if not isinstance(params, list):
+        raise ValueError(f'The provided cell parameters must be a list or a string! Yours was:\n{params}')
+    # Clean it
+    cell_key = 'cell_parameters'
+    stop_keys = ['atomic_species','atomic_positions']
+    header = ''
+    cell_parameters = []
+    for line in params:
+        line = line.strip()
+        if line == '' or line.startswith('!'):
+            continue
+        if any(key in line.lower() for key in stop_keys):
+            break
+        if cell_key in line.lower():
+            header = line
+            continue
+        coords = extract.coords(line)
+        if len(coords) < 3:
+            raise ValueError(f'Each CELL_PARAMETER must have three coordinates! Yours was:\n{params}\nDetected coordinates were:\n{coords}')
+        if len(coords) > 3:
+            coords = coords[:3]
+        new_line = f"  {coords[0]:.15f}   {coords[1]:.15f}   {coords[2]:.15f}"
+        cell_parameters.append(new_line)
+    # Check the header
+    if 'bohr' in header.lower():
+        header = 'CELL_PARAMETERS bohr'
+    elif 'angstrom' in header.lower():
+        header = 'CELL_PARAMETERS angstrom'
+    elif 'alat' in header.lower():
+        alat = extract.number(header, 'alat')
+        header = 'CELL_PARAMETERS alat'
+        if alat:
+            header = f'CELL_PARAMETERS alat= {alat}'
+    elif not header:
+        header = 'CELL_PARAMETERS alat'
+    else:
+        raise ValueError(f'CELL_PARAMETERS must be in alat, bohr or angstrom! Yours was:\n{header}')
+    cell_parameters.insert(0, header)
+    return cell_parameters
+
+
+def normalize_atomic_positions(positions) -> list:
+    '''
+    Takes a `positions` string or a list of strings with the atomic positions
+    and possibly some additional rogue lines, and returns a list with the atomic positions,
+    with the "ATOMIC_POSITIONS {alat|bohr|angstrom|crystal|crystal_sg}" on list[0],
+    followed by the coordinates.
+    '''
+    if isinstance(positions, str):  # Convert to a list
+        positions = positions.splitlines()
+    if not isinstance(positions, list):
+        raise ValueError(f'The provided atomic positions must be a list or a string! Yours was:\n{positions}')
+    # Clean it
+    pos_key = 'atomic_positions'
+    stop_keys = ['atomic_species','cell_parameters']
+    header = ''
+    atomic_positions = []
+    for line in positions:
+        line = line.strip()
+        if line == '' or line.startswith('!'):
+            continue
+        if any(key in line.lower() for key in stop_keys):
+            break
+        if pos_key in line.lower():
+            header = line
+            continue
+        atom = extract.element(line)
+        if not atom:
+            raise ValueError(f'Atoms must be defined as the atom (H, He, Na...) or the isotope (H2, He4...)! Yours was:\n{line}')
+        coords = extract.coords(line)
+        if len(coords) < 3:
+            raise ValueError(f'Each ATOMIC_POSITION must have at least three coordinates! Yours contained the line:\n{line}\nDetected coordinates were:\n{coords}')
+        if len(coords) > 6:  # Including optional parameters
+            coords = coords[:6]
+        new_line = f"  {atom}   {coords[0]:.15f}   {coords[1]:.15f}   {coords[2]:.15f}"
+        atomic_positions.append(new_line)
+    # Check the header
+    if 'bohr' in header.lower():
+        header = 'ATOMIC_POSITIONS bohr'
+    elif 'angstrom' in header.lower():
+        header = 'ATOMIC_POSITIONS angstrom'
+    elif 'alat' in header.lower():
+        header = 'ATOMIC_POSITIONS alat'
+    elif 'crystal_sg' in header.lower():
+        header = 'ATOMIC_POSITIONS crystal_sg'
+    elif 'crystal' in header.lower():
+        header = 'ATOMIC_POSITIONS crystal'
+    elif not header:
+        header = 'ATOMIC_POSITIONS crystal'
+    else:
+        raise ValueError(f'ATOMIC_POSITIONS must be in alat, bohr, angstrom, crystal or crystal_sg. Yours was:\n{header}')
+    atomic_positions.insert(0, header)
+    return atomic_positions
+
+"""
+def normalize_atomic_species(species) -> list:
+    '''
+    Takes a `species` string or a list of strings with the atomic species
+    and possibly some additional rogue lines, and returns a list with the atomic species
+    (without the ATOMIC_SPECIES header!).
+    '''
+    if isinstance(species, str):  # Convert to a list
+        species = species.splitlines()
+    if not isinstance(species, list):
+        raise ValueError(f'The provided atomic species must be a list or a string! Yours was:\n{positions}')
+    # Clean it
+    species_key = 'atomic_species'
+    stop_keys = ['atomic_positions','cell_parameters']
+    header = ''
+    atomic_species = []
+    for line in positions:
+        line = line.strip()
+        if line == '' or line.startswith('!'):
+            continue
+        if any(key in line.lower() for key in stop_keys):
+            break
+        if pos_key in line.lower():
+            header = line
+            continue
+        atom = None
+        atom = extract.element(line)
+        if not atom in mt.atom.keys():
+            # If this fails, it will raise an error. This makes sure that we use the format 'Xx' or 'Xx1'
+            element, isotope = mt.stoms.split_isotope(atom)
+        coords = extract.coords(line)
+        if len(coords) < 3:
+            raise ValueError(f'Each ATOMIC_POSITION must have at least three coordinates! Yours contained the line:\n{line}\nDetected coordinates were:\n{coords}')
+        if len(coords) > 6:  # Including optional parameters
+            coords = coords[:6]
+        new_line = f"  {atom}   {coords[0]:.15f}   {coords[1]:.15f}   {coords[2]:.15f}"
+        atomic_positions.append(new_line)
+    # Check the header
+    if 'bohr' in header.lower():
+        header = 'ATOMIC_POSITIONS bohr'
+    elif 'angstrom' in header.lower():
+        header = 'ATOMIC_POSITIONS angstrom'
+    elif 'alat' in header.lower():
+        header = 'ATOMIC_POSITIONS alat'
+    elif 'crystal_sg' in header.lower():
+        header = 'ATOMIC_POSITIONS crystal_sg'
+    elif 'crystal' in header.lower():
+        header = 'ATOMIC_POSITIONS crystal'
+    elif not header:
+        header = 'ATOMIC_POSITIONS crystal'
+    else:
+        raise ValueError(f'ATOMIC_POSITIONS must be in alat, bohr, angstrom, crystal or crystal_sg. Yours was:\n{header}')
+    atomic_positions.insert(0, header)
+    return atomic_positions
+"""

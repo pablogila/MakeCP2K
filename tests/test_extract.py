@@ -22,8 +22,11 @@ def test_extract_coords():
 
 
 def test_extract_element():
-    string = '  element Pb Lead N Nitrogen Ag Silver  '
-    assert th.extract.element(text=string, index=0) == 'Pb'
-    assert th.extract.element(text=string, index=1) == 'N'
-    assert th.extract.element(text=string, index=2) == 'Ag'
+    string = '  element I Lead Pb Nitrogen H2, Xx2 fake element, O Oxygen, He4 isotope Ag Element '
+    assert th.extract.element(text=string, index=0) == 'I'
+    assert th.extract.element(text=string, index=1) == 'Pb'
+    assert th.extract.element(text=string, index=2) == 'H2'
+    assert th.extract.element(text=string, index=3) == 'O'
+    assert th.extract.element(text=string, index=4) == 'He4'
+    assert th.extract.element(text=string, index=5) == 'Ag'
 

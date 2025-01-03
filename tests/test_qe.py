@@ -112,3 +112,36 @@ def test_add_atom():
     assert temp['input_dft'] == "'PBEsol'"
     th.file.remove(tempfile)
 
+
+def test_normalize_cell_params():
+    cell_params = 'CELL_PARAMETERS (alat= 10.0000)\n    1.00000000000   0.000000000   0.000000000\n   0.000000000   1.000000000   0.000000000 \n 0.000000000   0.000000000   1.0000000 '
+    ideal_params = [
+        'CELL_PARAMETERS alat= 10.0',
+        '  1.000000000000000   0.000000000000000   0.000000000000000',
+        '  0.000000000000000   1.000000000000000   0.000000000000000',
+        '  0.000000000000000   0.000000000000000   1.000000000000000',]
+    normalized_params = th.qe.normalize_cell_parameters(cell_params)
+    assert normalized_params == ideal_params
+    # Now check as a list
+    cell_params = cell_params.splitlines()
+    # With bohr values
+    cell_params[0] = r' CELL_PARAMETERS {bohr}'
+    ideal_params[0] = 'CELL_PARAMETERS bohr'
+    normalized_params = th.qe.normalize_cell_parameters(cell_params)
+    assert normalized_params == ideal_params
+    # With armstrong values
+    cell_params[0] = r' CELL_PARAMETERS {angstrom}'
+    ideal_params[0] = 'CELL_PARAMETERS angstrom'
+    normalized_params = th.qe.normalize_cell_parameters(cell_params)
+    assert normalized_params == ideal_params
+
+
+def test_normalize_atomic_positions():
+    atomic_positions = " ATOMIC_POSITIONS {crystal} \n I   5.000000   0.0000000000000   0.000000000000000 \n C   0.000000000000000   5.000000000000000000   0.000000 "
+    ideal_positions = [
+        'ATOMIC_POSITIONS crystal',
+        '  I   5.000000000000000   0.000000000000000   0.000000000000000',
+        '  C   0.000000000000000   5.000000000000000   0.000000000000000']
+    normalized_positions = th.qe.normalize_atomic_positions(atomic_positions)
+    assert normalized_positions == ideal_positions
+
