@@ -66,7 +66,6 @@ The following interfaces for *ab-initio* codes are included:
 # Contributing
 
 If you are interested in opening an issue or a pull request, please feel free to do so on [GitHub](https://github.com/pablogila/ThotPy/).  
-
 For major changes, please get in touch first to discuss the details.  
 
 ## Code style
