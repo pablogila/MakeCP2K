@@ -1,4 +1,11 @@
-# ThotPy v5.5.0
+# ThotPy v5.5.1
+
+## IMPORTANT NOTICE
+
+ThotPy has been imported to [Aton](https://github.com/pablogila/Aton/). All the development will continue in the Aton repo. This ThotPy repo is only left for retrocompatibility and will not be updated.
+
+
+# ThotPy (Legacy)
 
 Welcome to the **T**ext en**H**ancement & **O**ptimization for scien**T**ific research with **Py**thon; or just **ThotPy**, as the modern incarnation of the ancient Egyptian god of writing and wisdom, [Thot](https://en.wikipedia.org/wiki/Thoth).  
 
